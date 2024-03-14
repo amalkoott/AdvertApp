@@ -16,16 +16,37 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
+    /*
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80
+    * */
+    primary = DarkPrimary,
+    secondary = DarkSecondary,
+    tertiary = DarkTertiary
+
 )
+    /*
 
+    primary - основной цвет
+    secondary - второстепенный
+    tertiary - акцентный
+    error
+    background
+
+    */
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
+  /*  primary = Purple40,
     secondary = PurpleGrey40,
-    tertiary = Pink40
-
+    tertiary = Pink40,
+*/
+    primary = LightPrimary,
+    secondary = LightSecondary,
+    tertiary = LightTertiary,
+    primaryContainer = LightPrimaryContainer,
+        secondaryContainer = LightSecondaryContainer,
+    tertiaryContainer = LightTertiaryContainer,
+    onSecondaryContainer = LightOnSecondaryContainer
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -45,11 +66,12 @@ fun AdvtAppTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
+        /*
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
+*/
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

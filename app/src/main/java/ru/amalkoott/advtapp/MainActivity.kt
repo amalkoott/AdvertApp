@@ -22,22 +22,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.Advrt
-import ru.amalkoott.advtapp.ui.advert.AdvrtScreen
+import ru.amalkoott.advtapp.ui.advert.AdSetScreen
 import ru.amalkoott.advtapp.ui.advert.AdvrtViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
-import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
 
     private val advrtViewModel: AdvrtViewModel by viewModels()
-
+    //private val navController: NavController = rememberNavController()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -47,7 +43,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AdvrtScreen(advrtViewModel)
+                    //AdvertApp(advrtViewModel)
+                    AdSetScreen(advrtViewModel)
                     //PrintMain(sets)
                 }
             }
@@ -90,7 +87,7 @@ fun GreetingPreview() {
                         Row(
                             modifier = Modifier
                                 .background(color = Color.Green)
-                                .fillMaxWidth(fraction = 2f),
+                                .fillMaxWidth(fraction = 1f),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
 

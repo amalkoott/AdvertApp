@@ -72,6 +72,9 @@ dependencies {
     //implementation("io.coil-kt:coil-compose:2.3.0")
     implementation("com.google.accompanist:accompanist-pager:0.22.0-rc")
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // for NavHost
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 /*
     // Splash API
     implementation ("androidx.core:core-splashscreen:1.0.1")

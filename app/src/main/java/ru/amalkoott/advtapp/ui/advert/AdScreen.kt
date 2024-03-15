@@ -42,22 +42,19 @@ import ru.amalkoott.advtapp.domain.Advrt
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PrintAdvert(selectedAd: MutableState<Advrt?>){
-    val images = listOf(
-        "https://desktopmania.ru/pics/00/05/13/DesktopMania.ru-5132-300x240.jpg",
-        "https://c.wallhere.com/photos/10/26/1920x1200_px_animals_cats_Tanks-1914705.jpg!s",
-        "https://images.chesscomfiles.com/uploads/v1/user/77559592.9cb711dc.160x160o.e195dd620cda.jpeg",
-    )
+
     Card() {
         Card(
             modifier = Modifier.padding(16.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
             AutoSlidingCarousel(
-                itemsCount = images.size,
+                //itemsCount = images.size,
+                itemsCount = selectedAd.value!!.images.size,
                 itemContent = { index ->
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(images[index])
+                            .data(selectedAd.value!!.images[index])
                             .build(),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
@@ -68,7 +65,7 @@ fun PrintAdvert(selectedAd: MutableState<Advrt?>){
         }
         Text(text = selectedAd.value!!.name)
         Text(text = selectedAd.value!!.price.toString())
-        Text(text = selectedAd.value!!.caption)
+        Text(text = selectedAd.value!!.ad_caption)
     }
 }
 

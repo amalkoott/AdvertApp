@@ -53,7 +53,6 @@ fun AddSet(setChange: ()-> Unit, select: MutableState<AdSet?>, selectAd: (Advrt)
     var name by remember { mutableStateOf(select.value!!.name) }
     val adverts = select.value!!.adverts
 
-
     Box(modifier = Modifier
         .padding(top = 60.dp)
         .fillMaxSize())
@@ -141,7 +140,7 @@ fun AddSet(setChange: ()-> Unit, select: MutableState<AdSet?>, selectAd: (Advrt)
                         )
                     ){
                         Text(text = advert.name)
-                        Text(text = advert.caption)
+                        Text(text = advert.ad_caption)
                         Text(text = advert.price.toString())
                         Row(
                             modifier = Modifier

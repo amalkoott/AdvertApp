@@ -82,7 +82,7 @@ import java.time.LocalDate
 fun AdSetScreen(vm: AdvrtViewModel) {
     val sets = vm.sets
     val context = LocalContext.current
-    val removedAd: Advrt = Advrt("","",0f)
+    val removedAd: Advrt = Advrt("","",0f,0f,0,0,"","")
     val selected by remember { mutableStateOf(vm.selectedSet) }
     val selectedAd by remember { mutableStateOf(vm.selectedAd) }
 
@@ -117,13 +117,11 @@ fun AdSetScreen(vm: AdvrtViewModel) {
                     }
                 },
                 navigationIcon = {
-                    if( favourites.value || settings.value){
+                    if( favourites.value || settings.value || selectedAd.value != null || selected.value != null){
                         IconButton(onClick = {
                             vm.onBackClick()
                             if(favourites.value){
-                               // favourites = !favourites
                             }else if (settings.value){
-                                //settings = !settings
                             }
                                 else{
                             }
@@ -146,9 +144,7 @@ fun AdSetScreen(vm: AdvrtViewModel) {
                     if(selected.value == null){
                         IconButton(
                             onClick = {
-                               // settings = !settings
                                 vm.onSettingsClick()
-                                //PrintSettings()
                             },
                             modifier = Modifier.width(80.dp),
                             content = {
@@ -160,9 +156,7 @@ fun AdSetScreen(vm: AdvrtViewModel) {
 
                         IconButton(
                             onClick = {
-                                //favourites = !favourites
                                 vm.onFavouritesClick()
-                                //PrintFavourites()
                             },
                             modifier = Modifier.width(80.dp),
                             content = {
@@ -176,16 +170,14 @@ fun AdSetScreen(vm: AdvrtViewModel) {
                 },
 
                 floatingActionButton = {
-                    if(!favourites.value && !settings.value){
+                    if(!favourites.value && !settings.value && selectedAd.value == null){
                         FloatingActionButton(
                             onClick = {
-                                if(selected.value != null){
+                                if(selected.value != null ){
                                     // сохраняем
                                     vm.onEditComplete()
-                                    //addSet.value = !addSet.value
                                 }else{
                                     // Добавляем
-                                    //addSet.value = !addSet.value
                                     vm.onAddNoteClicked()
                                 }
 
@@ -205,19 +197,15 @@ fun AdSetScreen(vm: AdvrtViewModel) {
         ) {
         if (selected.value == null) {
             if (favourites.value) {
-               // navController.navigate("favourites")
                 PrintFavourites()
             } else {
                 if (settings.value) {
-                //    navController.navigate("settings")
                     PrintSettings()
                 } else
-                  //  navController.navigate("main")
                 PrintSet(sets, selected,selectSet)
             }
         } else {
             // создаем новую подборку
-            //navController.navigate("set")
              AddSet(setChange,selected,selectAd,removeAd,selectedAd)
         }
     }

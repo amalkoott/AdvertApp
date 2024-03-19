@@ -81,8 +81,6 @@ import java.time.LocalDate
 @Composable
 fun AdSetScreen(vm: AdvrtViewModel) {
     val sets = vm.sets
-    val context = LocalContext.current
-    val removedAd: Advrt = Advrt("","",0f,0f,0,0,"","")
     val selected by remember { mutableStateOf(vm.selectedSet) }
     val selectedAd by remember { mutableStateOf(vm.selectedAd) }
 
@@ -209,9 +207,6 @@ fun AdSetScreen(vm: AdvrtViewModel) {
              AddSet(setChange,selected,selectAd,removeAd,selectedAd)
         }
     }
-        // если addSet = false -> PrintSet()
-        // если addSet = true -> AddAdvert()
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -240,13 +235,10 @@ fun PrintSet(sets: List<AdSet>, selected: MutableState<AdSet?>,selectSet: (AdSet
                         // появляется выбранная подборка, клик - вывод списка объявлений подборки
                         selected.value = set
                         selectSet(set)
-                        //navController.navigate("set")
-                        //addSet.value = !addSet.value
                     },
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 4.dp
                 ),
-                //onClick = {navController.navigate("set")}
             ) {
                 Column(
                     modifier = Modifier
@@ -263,7 +255,6 @@ fun PrintSet(sets: List<AdSet>, selected: MutableState<AdSet?>,selectSet: (AdSet
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = set.name, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1, )
-                        //Text(text = "5", fontSize = 20.sp)
                         SuggestionChip(
                             colors = SuggestionChipDefaults.suggestionChipColors(MaterialTheme.colorScheme.tertiary),
                             border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
@@ -276,7 +267,6 @@ fun PrintSet(sets: List<AdSet>, selected: MutableState<AdSet?>,selectSet: (AdSet
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
-                            //.padding(horizontal = 2.dp)
                             .height(50.dp)
                             .padding(bottom = 5.dp)
                     ){

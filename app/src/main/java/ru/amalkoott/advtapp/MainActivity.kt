@@ -33,7 +33,6 @@ import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 class MainActivity : ComponentActivity() {
 
     private val advrtViewModel: AdvrtViewModel by viewModels()
-    //private val navController: NavController = rememberNavController()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -43,9 +42,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //AdvertApp(advrtViewModel)
                     AdSetScreen(advrtViewModel)
-                    //PrintMain(sets)
                 }
             }
         }

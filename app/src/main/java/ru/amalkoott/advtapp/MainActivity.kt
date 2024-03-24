@@ -26,8 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ru.amalkoott.advtapp.ui.advert.AdSetScreen
-import ru.amalkoott.advtapp.ui.advert.AdvrtViewModel
+import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
+import ru.amalkoott.advtapp.ui.advert.view.AdvrtViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 
 class MainActivity : ComponentActivity() {

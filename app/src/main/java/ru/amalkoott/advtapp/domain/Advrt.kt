@@ -32,7 +32,10 @@ class Advrt (
     */
     //@TODO var pictures: Array<Image>
 )
+//text = "Продается уютная квартира в районе с развитой инфраструктурой. Евро-двушка.- 34,7 м.кв+лоджия. Просторная кухня 14 м.кв. Широкая застекленная лоджия.В квартире очень тепло. Прекрасны йремонт от застройщика. Светлые обои, качественный ламинат. В санузле кафельная плитка .Рядом с домом школа с бассейном, магазины и вся необходимая инфраструктура. Один собственник, обременений нет. Буду рада показать этот отличный вариант. Ключи у агента.",
+
 {
+    constructor():this("undefined_name","non_caption",0f,0f,0,0,"undefined_location","undefined_home")
     private val footage_price: Float = price / footage
     private val imgs = arrayOf(
         "https://desktopmania.ru/pics/00/05/13/DesktopMania.ru-5132-300x240.jpg",

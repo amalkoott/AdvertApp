@@ -1,7 +1,5 @@
-package ru.amalkoott.advtapp.ui.advert
+package ru.amalkoott.advtapp.ui.advert.view
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -20,6 +18,8 @@ class AdvrtViewModel: ViewModel() {
     var menu = mutableStateOf<String>("Main")
     var favourites = mutableStateOf(false)
     var settings = mutableStateOf(false)
+
+    var favs = mutableStateListOf<Advrt>()
 
     var edited_set: AdSet? = null
     //val notes = MutableStateFlow<List<AdSet>>(emptyList())
@@ -115,23 +115,42 @@ class AdvrtViewModel: ViewModel() {
     }
     fun onAdSelected(advrt: Advrt){
         selectedAd.value = advrt
-        adverts = selectedSet.value!!.adverts as SnapshotStateList<Advrt>
+        screen_name.value = advrt.name
     }
+    // для удаления объявлений из списков (когда объявление еще не выбрано)
+    fun onRemoveAd(advrt: Advrt){
+        adverts = selectedSet.value!!.adverts as SnapshotStateList<Advrt>
+        adverts.remove(advrt)
+        if(favs.contains(advrt)) favs.remove(advrt)
+        selectedSet.value!!.adverts = adverts
+        selectedAd.value = null
+    }
+    // для удаления объявления из просмотра (есть selectedAd)
     fun onRemoveAd(){
+        adverts = selectedSet.value!!.adverts as SnapshotStateList<Advrt>
         adverts.remove(selectedAd.value)
+        if(favs.contains(selectedAd.value)) favs.remove(selectedAd.value)
         selectedSet.value!!.adverts = adverts
         selectedAd.value = null
     }
     fun onBackClick(){
         if (selectedAd.value != null) {
             selectedAd.value = null
-            screen_name.value = selectedSet.value!!.name
+            if(selectedSet.value != null){
+                screen_name.value = selectedSet.value!!.name
+            }else{
+                if (favourites.value) screen_name.value = "Избранное"
+                else screen_name.value = "Подборки"
+            }
+            //favourites.value = false
         }else{
             // 2 случая возврата:
             // начали создавать новую подборку и решили вернуться
 //            if(selectedSet.value!!.name == ""){
 //                sets.remove(selectedSet.value)
 //            }
+            // при удалении объявлений, если мы нажимаем назад, то мы НЕ СОХРАНЯЕМ ИЗМЕНЕНИЯ!!!
+            // чтобы сохранить изменения, нужно нажать галочку!!!
             if(!likeBefore()){
                 sets.remove(selectedSet.value)
                 if (edited_set != null){
@@ -143,10 +162,20 @@ class AdvrtViewModel: ViewModel() {
             edited_set = null
             selectedSet.value = null
             favourites.value = false
+
             settings.value = false
             // selectedSet.value = null
             screen_name.value = "Подборки"
         }
+    }
+    fun onFavouritesAdd(advrt: Advrt){
+        if(favs.contains(advrt)) return
+        favs.add(advrt)
+        selectedAd.value = null
+        screen_name.value = selectedSet.value!!.name
+    }
+    fun onDeleteFavourites(advrt: Advrt){
+        if(favs.contains(advrt)) favs.remove(advrt)
     }
     private fun likeBefore(): Boolean{
         if(selectedSet.value?.name == "" ||
@@ -160,8 +189,8 @@ class AdvrtViewModel: ViewModel() {
 
     fun getTestSet(): List<Advrt>{
         val lest = mutableStateListOf<Advrt>(
-            Advrt("test 1","caption 1", 0.1f,0f,0,0,"",""),
-            Advrt("test 2","caption 2", 0.2f,0f,0,0,"",""),
+            //Advrt("test 1","caption 1", 0.1f,0f,0,0,"",""),
+            //Advrt("test 2","caption 2", 0.2f,0f,0,0,"",""),
         )
         return lest
     }

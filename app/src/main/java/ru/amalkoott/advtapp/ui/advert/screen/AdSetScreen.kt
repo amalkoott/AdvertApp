@@ -1,11 +1,10 @@
-package ru.amalkoott.advtapp.ui.advert
+package ru.amalkoott.advtapp.ui.advert.screen
 
 // отрисовка подборок
 
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -29,12 +27,10 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ChipColors
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,15 +57,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advrt
+import ru.amalkoott.advtapp.ui.advert.view.AdvrtViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 import java.time.LocalDate
 
@@ -81,14 +73,36 @@ import java.time.LocalDate
 @Composable
 fun AdSetScreen(vm: AdvrtViewModel) {
     val sets = vm.sets
+    val favs by remember {
+        mutableStateOf(vm.favs)
+    }
     val selected by remember { mutableStateOf(vm.selectedSet) }
     val selectedAd by remember { mutableStateOf(vm.selectedAd) }
 
     val setChange:() -> Unit = {vm.onSetChange(selected.value!!.name,selected.value!!.update_interval)}
-    val selectSet:(AdSet) -> Unit = {vm.onSetSelected(selected.value!!)}
     val onDeleteSet:() -> Unit = { vm.onDeleteSet()}
-    val removeAd:() -> Unit = {vm.onRemoveAd()}
-    val selectAd:(Advrt) -> Unit = {vm.onAdSelected(selectedAd.value!!)}
+    val removeSelectedAd:() -> Unit = {vm.onRemoveAd()}
+    val removeAd:(Advrt) -> Unit = {
+        advrt -> vm.onRemoveAd(advrt)
+    }
+    //val selectSet:(AdSet) -> Unit = {vm.onSetSelected(selected.value!!)}
+    val selectSet: (AdSet) -> Unit = { set ->
+        vm.onSetSelected(set)
+    }
+    //val selectAd:(Advrt) -> Unit = {vm.onAdSelected(selectedAd.value!!)}
+    val selectAd: (Advrt) -> Unit = {
+        advert ->
+        vm.onAdSelected(advert)
+    }
+    //val addFavourites:(Advrt) -> Unit = {vm.onFavouritesAdd(selectedAd.value!!)}
+    val addFavourites: (Advrt) -> Unit = {
+        advert ->
+        vm.onFavouritesAdd(advert)
+    }
+    //val deleteFavourites:(Advrt) -> Unit = {vm.onDeleteFavourites(selectedAd.value!!)}
+    val deleteFavourites: (Advrt) -> Unit = {
+        advert -> vm.onDeleteFavourites(advert)
+    }
 
     val favourites by remember { mutableStateOf(vm.favourites) }
     val settings by remember { mutableStateOf(vm.settings) }
@@ -109,8 +123,12 @@ fun AdSetScreen(vm: AdvrtViewModel) {
                 },
                 actions = {
                     if (selected.value != null){
-                        if (selected.value!!.name != ""){
-                            DrawDropmenu(onDeleteSet)
+                        if (selectedAd.value != null){
+                            DrawDropmenu(removeSelectedAd)
+                        }else{
+                            if (selected.value!!.name != ""){
+                                DrawDropmenu(onDeleteSet)
+                            }
                         }
                     }
                 },
@@ -194,8 +212,13 @@ fun AdSetScreen(vm: AdvrtViewModel) {
 
         ) {
         if (selected.value == null) {
+
             if (favourites.value) {
-                PrintFavourites()
+                if(selectedAd.value == null){
+                    PrintFavourites(favs, deleteFavourites, selectedAd, selectAd)
+                }else{
+                    PrintAdvert(selectedAd)
+                }
             } else {
                 if (settings.value) {
                     PrintSettings()
@@ -204,7 +227,7 @@ fun AdSetScreen(vm: AdvrtViewModel) {
             }
         } else {
             // создаем новую подборку
-             AddSet(setChange,selected,selectAd,removeAd,selectedAd)
+             AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites)
         }
     }
 }
@@ -233,7 +256,7 @@ fun PrintSet(sets: List<AdSet>, selected: MutableState<AdSet?>,selectSet: (AdSet
                     .padding(horizontal = 8.dp, vertical = 12.dp)
                     .clickable {
                         // появляется выбранная подборка, клик - вывод списка объявлений подборки
-                        selected.value = set
+                        //selected.value = set
                         selectSet(set)
                     },
                 elevation = CardDefaults.cardElevation(
@@ -316,6 +339,39 @@ fun DrawDropmenu(onDeleteSet: ()-> Unit){
     }
 }
 
+@Composable
+fun DrawDropmenu(removeAd: (Advrt)-> Unit){
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    IconButton(onClick = {
+        expanded = !expanded
+    }) {
+        Icon(
+            imageVector = Icons.Filled.Menu,
+            contentDescription = "Localized description"
+        )
+    }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false }
+    ) {
+        DropdownMenuItem(
+            text = { Text("Удалить") },
+            onClick = {
+                Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
+                removeAd
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("Обновить") },
+            onClick = { Toast.makeText(context, "Update", Toast.LENGTH_SHORT).show() }
+        )
+        DropdownMenuItem(
+            text = { Text("Геолокация на все объекты") },
+            onClick = { Toast.makeText(context, "Geoposition", Toast.LENGTH_SHORT).show() }
+        )
+    }
+}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)

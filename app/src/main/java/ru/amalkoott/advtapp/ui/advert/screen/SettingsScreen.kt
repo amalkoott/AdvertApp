@@ -1,4 +1,4 @@
-package ru.amalkoott.advtapp.ui.advert
+package ru.amalkoott.advtapp.ui.advert.screen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PrintFavourites(){
-    Text(text = "Favourites", modifier = Modifier.padding(top = 60.dp))
-    //onFavouritesClick()
+fun PrintSettings(){
+    Text(text = "Settings", modifier = Modifier.padding(top = 60.dp))
 }

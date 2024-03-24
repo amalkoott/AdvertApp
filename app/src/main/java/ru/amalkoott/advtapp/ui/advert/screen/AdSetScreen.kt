@@ -60,8 +60,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.Advrt
-import ru.amalkoott.advtapp.ui.advert.view.AdvrtViewModel
+import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 import java.time.LocalDate
 
@@ -71,7 +71,7 @@ import java.time.LocalDate
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdSetScreen(vm: AdvrtViewModel) {
+fun AdSetScreen(vm: AppViewModel) {
     val sets = vm.sets
     val favs by remember {
         mutableStateOf(vm.favs)
@@ -79,10 +79,10 @@ fun AdSetScreen(vm: AdvrtViewModel) {
     val selected by remember { mutableStateOf(vm.selectedSet) }
     val selectedAd by remember { mutableStateOf(vm.selectedAd) }
 
-    val setChange:() -> Unit = {vm.onSetChange(selected.value!!.name,selected.value!!.update_interval)}
+    val setChange:() -> Unit = {vm.onSetChange(selected.value!!.name!!,selected.value!!.update_interval!!)}
     val onDeleteSet:() -> Unit = { vm.onDeleteSet()}
     val removeSelectedAd:() -> Unit = {vm.onRemoveAd()}
-    val removeAd:(Advrt) -> Unit = {
+    val removeAd:(Advert) -> Unit = {
         advrt -> vm.onRemoveAd(advrt)
     }
     //val selectSet:(AdSet) -> Unit = {vm.onSetSelected(selected.value!!)}
@@ -90,17 +90,17 @@ fun AdSetScreen(vm: AdvrtViewModel) {
         vm.onSetSelected(set)
     }
     //val selectAd:(Advrt) -> Unit = {vm.onAdSelected(selectedAd.value!!)}
-    val selectAd: (Advrt) -> Unit = {
+    val selectAd: (Advert) -> Unit = {
         advert ->
         vm.onAdSelected(advert)
     }
     //val addFavourites:(Advrt) -> Unit = {vm.onFavouritesAdd(selectedAd.value!!)}
-    val addFavourites: (Advrt) -> Unit = {
+    val addFavourites: (Advert) -> Unit = {
         advert ->
         vm.onFavouritesAdd(advert)
     }
     //val deleteFavourites:(Advrt) -> Unit = {vm.onDeleteFavourites(selectedAd.value!!)}
-    val deleteFavourites: (Advrt) -> Unit = {
+    val deleteFavourites: (Advert) -> Unit = {
         advert -> vm.onDeleteFavourites(advert)
     }
 
@@ -194,7 +194,7 @@ fun AdSetScreen(vm: AdvrtViewModel) {
                                     vm.onEditComplete()
                                 }else{
                                     // Добавляем
-                                    vm.onAddNoteClicked()
+                                    vm.onAddSetClicked()
                                 }
 
                             },
@@ -277,7 +277,7 @@ fun PrintSet(sets: List<AdSet>, selected: MutableState<AdSet?>,selectSet: (AdSet
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = set.name, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1, )
+                        Text(text = set.name!!, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1, )
                         SuggestionChip(
                             colors = SuggestionChipDefaults.suggestionChipColors(MaterialTheme.colorScheme.tertiary),
                             border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
@@ -293,7 +293,7 @@ fun PrintSet(sets: List<AdSet>, selected: MutableState<AdSet?>,selectSet: (AdSet
                             .height(50.dp)
                             .padding(bottom = 5.dp)
                     ){
-                        Text(text = "Объявлений: "+ set.adverts.count().toString())
+                        Text(text = "Объявлений: "+ set.adverts!!.count().toString())
                         Text(text = "Последнее обновление: " + set.last_update.toString())
                     }
                 }
@@ -340,7 +340,7 @@ fun DrawDropmenu(onDeleteSet: ()-> Unit){
 }
 
 @Composable
-fun DrawDropmenu(removeAd: (Advrt)-> Unit){
+fun DrawDropmenu(removeAd: (Advert)-> Unit){
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     IconButton(onClick = {

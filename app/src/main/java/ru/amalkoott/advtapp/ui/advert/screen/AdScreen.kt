@@ -65,14 +65,14 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import kotlinx.coroutines.delay
-import ru.amalkoott.advtapp.domain.Advrt
+import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation")
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun PrintAdvert(selectedAd: MutableState<Advrt?>){
+fun PrintAdvert(selectedAd: MutableState<Advert?>){
     val scrollState = rememberScrollState(0)
     val imgs = arrayOf(
         "https://desktopmania.ru/pics/00/05/13/DesktopMania.ru-5132-300x240.jpg",
@@ -181,11 +181,12 @@ fun PrintAdvert(selectedAd: MutableState<Advrt?>){
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1)
-
+/*
                 Row(
                     Modifier.fillMaxWidth().fillMaxHeight().padding(top = 10.dp, bottom = 20.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically){
+
                     SuggestionChip(
                         colors = SuggestionChipDefaults.suggestionChipColors(MaterialTheme.colorScheme.tertiaryContainer),
                         border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
@@ -224,7 +225,7 @@ fun PrintAdvert(selectedAd: MutableState<Advrt?>){
                             lineHeight = 12.sp)}
                     )
                 }
-
+*/
                 Column(Modifier.padding(horizontal = 25.dp, vertical = 10.dp),) {
                     Row(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)) {
                         Icon(
@@ -233,7 +234,7 @@ fun PrintAdvert(selectedAd: MutableState<Advrt?>){
                         )
 
                         Text(modifier = Modifier.padding(start = 5.dp),
-                            text = selectedAd.value!!.location,//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
+                            text = selectedAd.value!!.location.toString(),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Normal,)
                     }
@@ -246,7 +247,7 @@ fun PrintAdvert(selectedAd: MutableState<Advrt?>){
 
                     Text(
                         modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
-                        text = selectedAd.value!!.ad_caption,
+                        text = selectedAd.value!!.ad_caption.toString(),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Normal,)
 

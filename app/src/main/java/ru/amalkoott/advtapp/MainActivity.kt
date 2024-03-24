@@ -26,13 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.Fragment
 import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
-import ru.amalkoott.advtapp.ui.advert.view.AdvrtViewModel
+import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val advrtViewModel: AdvrtViewModel by viewModels()
+    private val appViewModel: AppViewModel by viewModels()
+    //private val appViewModel = AppViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AdSetScreen(advrtViewModel)
+                    AdSetScreen(appViewModel)
                 }
             }
         }

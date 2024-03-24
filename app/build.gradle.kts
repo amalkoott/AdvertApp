@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("kapt")
 }
 
 android {
@@ -30,11 +31,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        //jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
     buildFeatures {
         compose = true
@@ -73,8 +75,44 @@ dependencies {
     implementation("com.google.accompanist:accompanist-pager:0.22.0-rc")
     implementation("io.coil-kt:coil-compose:2.6.0")
 
+            // for many view models
+    implementation("androidx.fragment:fragment-ktx:1.3.0")
+
     // for NavHost
     implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // room
+
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+
+
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation("androidx.room:room-ktx:$room_version")
+
+    // optional - RxJava2 support for Room
+    implementation("androidx.room:room-rxjava2:$room_version")
+
+    // optional - RxJava3 support for Room
+    implementation("androidx.room:room-rxjava3:$room_version")
+
+    // optional - Guava support for Room, including Optional and ListenableFuture
+    implementation("androidx.room:room-guava:$room_version")
+
+    // optional - Test helpers
+    testImplementation("androidx.room:room-testing:$room_version")
+
+    // optional - Paging 3 Integration
+    implementation("androidx.room:room-paging:$room_version")
+
+    // retrofit
+    val retrofit_version = "2.9.0"
+    implementation ("com.squareup.retrofit2:retrofit:$retrofit_version")
+    implementation ("com.squareup.retrofit2:converter-gson:$retrofit_version")
 /*
     // Splash API
     implementation ("androidx.core:core-splashscreen:1.0.1")

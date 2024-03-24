@@ -2,9 +2,7 @@ package ru.amalkoott.advtapp.ui.advert.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,13 +24,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ru.amalkoott.advtapp.domain.Advrt
+import ru.amalkoott.advtapp.domain.Advert
 
 @Composable
-fun PrintFavourites(favs: SnapshotStateList<Advrt>,
-                    deleteFavourites: (Advrt)-> Unit,
-                    selectedAd: MutableState<Advrt?>,
-                    selectAd: (Advrt)-> Unit){
+fun PrintFavourites(favs: SnapshotStateList<Advert>,
+                    deleteFavourites: (Advert)-> Unit,
+                    selectedAd: MutableState<Advert?>,
+                    selectAd: (Advert)-> Unit){
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
         modifier = Modifier
@@ -61,7 +59,7 @@ fun PrintFavourites(favs: SnapshotStateList<Advrt>,
 
                     Column {
                         Text(text = advert.price.toString() + ' '+'Р')
-                        Text(text = String.format("%s, %f кв.м, %d комнаты, этаж %d",advert.name,advert.footage,advert.room, advert.floor))
+                        Text(text = String.format("%s",advert.name))
 
                     IconButton(
                         onClick = {

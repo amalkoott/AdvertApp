@@ -39,7 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.Advrt
+import ru.amalkoott.advtapp.domain.Advert
 
 // отрисовка выбранной подборки
 
@@ -48,10 +48,10 @@ import ru.amalkoott.advtapp.domain.Advrt
 fun AddSet(
     setChange: ()-> Unit,
     selected: MutableState<AdSet?>,
-    selectAd: (Advrt)-> Unit,
-    removeAd: (Advrt)-> Unit,
-    selectedAd: MutableState<Advrt?>,
-    addFavourites: (Advrt)-> Unit){
+    selectAd: (Advert)-> Unit,
+    removeAd: (Advert)-> Unit,
+    selectedAd: MutableState<Advert?>,
+    addFavourites: (Advert)-> Unit){
     val context = LocalContext.current
 
     var update_interval by remember { mutableStateOf(selected.value!!.update_interval) }
@@ -67,7 +67,7 @@ fun AddSet(
         }else
         {
             TextField(
-                value = name,
+                value = name!!,
                 placeholder = { Text(text = "test",  color = MaterialTheme.colorScheme.onPrimaryContainer) },
                 onValueChange = {
                     name = it
@@ -119,7 +119,7 @@ fun AddSet(
                     )
                     .fillMaxWidth()
             )
-            if (selected.value!!.adverts.isEmpty()){
+            if (selected.value!!.adverts!!.isEmpty()){
                 PrintFilters()
             }else{
                 LazyVerticalGrid(
@@ -129,7 +129,7 @@ fun AddSet(
                         .padding(top = 130.dp)
                         .padding(6.dp)
                         .background(MaterialTheme.colorScheme.background)){
-                    items(adverts){advert ->
+                    items(adverts!!){advert ->
                         Card(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -147,8 +147,8 @@ fun AddSet(
                                 defaultElevation = 2.dp
                             )
                         ){
-                            Text(text = advert.name)
-                            Text(text = advert.ad_caption)
+                            Text(text = advert.name.toString())
+                            Text(text = advert.ad_caption.toString())
                             Text(text = advert.price.toString())
                             Row(
                                 modifier = Modifier

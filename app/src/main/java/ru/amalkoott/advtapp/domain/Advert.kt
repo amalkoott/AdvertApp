@@ -1,17 +1,21 @@
 package ru.amalkoott.advtapp.domain
 
+import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 // класс объявления - хранит инфу по конкретному объявлению
 // карточка объявления - будет отдельный класс с зависимостью от Advrt
+@Entity
 class Advert (
+    @PrimaryKey(autoGenerate = true)
+    var id: Long? = null,
     val name: String? = "undefined_name",
     val ad_caption: String? = "empty_caption",
     val price: Float? = null,
     val location: String? = "indefined_location",
     val URL: String? = "undefined_URL",
-    val additionalParam: AdditionalParameters? = null,
-    val adSetId: Long // ID связанного AdSet
+    val additionalParam: String?,//AdditionalParameters? = null,
+    var adSetId: Long? // ID связанного AdSet
 
     //val footage: Float, // метраж
     //val room: Int,
@@ -39,10 +43,10 @@ class Advert (
 //text = "Продается уютная квартира в районе с развитой инфраструктурой. Евро-двушка.- 34,7 м.кв+лоджия. Просторная кухня 14 м.кв. Широкая застекленная лоджия.В квартире очень тепло. Прекрасны йремонт от застройщика. Светлые обои, качественный ламинат. В санузле кафельная плитка .Рядом с домом школа с бассейном, магазины и вся необходимая инфраструктура. Один собственник, обременений нет. Буду рада показать этот отличный вариант. Ключи у агента.",
 
 {
-
+/*
     @PrimaryKey(autoGenerate = true)
     var id: Long? = null
-
+*/
     var isFavourites: Boolean = false
 
 

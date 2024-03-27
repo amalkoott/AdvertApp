@@ -27,13 +27,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.room.Room
+import ru.amalkoott.advtapp.data.local.AppDatabase
+import ru.amalkoott.advtapp.data.local.AppRepositoryDB
+import ru.amalkoott.advtapp.domain.AppUseCase
 import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 
 class MainActivity : ComponentActivity() {
-
-    private val appViewModel: AppViewModel by viewModels()
+    private val database: AppDatabase by lazy{
+        Room.databaseBuilder(
+            this,
+            AppDatabase::class.java,"app_database"
+        ).fallbackToDestructiveMigration()
+            .build()
+    }
+    private val notesRepo by lazy { AppRepositoryDB(database.notesDao()) }
+    private  val notesUseCase by lazy { AppUseCase(notesRepo) }
+    private val appViewModel: AppViewModel by viewModels{
+        viewModelFactory {
+            initializer {
+                AppViewModel(notesUseCase)
+            }
+        }
+    }
     //private val appViewModel = AppViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

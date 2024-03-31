@@ -19,58 +19,21 @@ class AppRepositoryDB(
         return@withContext appDao.all()
     }
     override fun loadAllSetsFlow(): Flow<List<AdSet>> = appDao.allFlow()
+    override fun loadAllAdsFlow(): Flow<List<Advert>> = appDao.allAdsFlow()
+
+
+    override fun loadAllAdsBySetFlow(id: Long): Flow<List<Advert>> = appDao.allAdsBySetFlow(id)
     override suspend fun clearDatabase()= withContext(Dispatchers.IO){
         appDao.deleteAllSets()
         appDao.deleteAllAds()
     }
     override suspend fun fillDatabase(set: List<AdSet>){
-        //val set = AdSet(id = 1, adverts = listOf(Advert(id = 1, setId = 1, name = "Advert 1")))
-
         set.forEach{adSet ->
             appDao.insertSet(adSet)
             adSet.adverts!!.forEach{
                 appDao.insertAd(it)
             }
-
         }
-
-
-
-            /*
-        var i = 0
-
-            ids!!.forEach {
-                id->
-                run {
-                    adverts?.get(i)?.forEach {
-                        it.adSetId = ids!![i]
-                        appDao.insertAd(it)
-                    }
-                }
-                i++
-            }
-
-             */
-        /*
-            set.forEach{adSet ->
-
-                run {adverts?.get(i)?.forEach {
-                    it.adSetId = ids!![i]
-                    appDao.insertAd(it)
-                }}
-
-                adSet.adverts = adverts?.get(i)
-                i++
-            }
-*/
-
-    /*notes.forEach{
-            appDao.insertSet(it)
-            it.adverts!!.forEach {
-                appDao.insertAd(it)
-            }
-        }
-        */
     }
 
     override suspend fun addSet(note: AdSet): Unit = withContext(Dispatchers.IO){

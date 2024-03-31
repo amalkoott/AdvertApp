@@ -2,39 +2,31 @@ package ru.amalkoott.advtapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-
-
 ///
-val LightPrimary = Color(0xff94720D)
+val LightPrimary = Color(0xffffefb4)
 val LightSecondary = Color(0xff8b5000)
-val LightTertiary = Color(0xff60934D)
+val LightTertiary = Color(0xff84ffdb)
 val LightError= Color(0xffba1a1a)
-val LightBackGround = Color(0xfffffbff)
-val LightOn = Color(0xffffffff)
+//val LightBackGround = Color(0xfffffbff)
+val LightBackGround = Color(0xffffffff)
+val LightOn = Color(0xff5f5943)
+val LightOnTertiary = Color(0xff279474)
 val LightOnBackground = Color(0xff1e1b16)
 val LightOutline = Color(0xff7f7667)
 
-val LightPrimaryContainer = Color(0xffFFEBC2)
-val LightSecondaryContainer = Color(0xfff8f3f2)
+val LightPrimaryContainer = Color(0xffffefb4)
+val LightSecondaryContainer = Color(0xffe7cc85)
 val LightTertiaryContainer = Color(0xffC2F1B1)
 val LightErrorContainer = Color(0xffffdad6)
-val LightSurface = Color(0xfffffbff)
+val LightSurface = Color(0xffffffff)
 val LightSurfaceVariant = Color(0xffede1cf)
 
-val LightOnPrimaryContainer = Color(0xff261a00)
-val LightOnSecondaryContainer = Color(0xff3A2201)
+val LightOnPrimaryContainer = Color(0xff5f5943)
+val LightOnSecondaryContainer = Color(0xff666666)
 val LightOnTertiaryContainer = Color(0xff042100)
 val LightOnErrorContainer = Color(0xff410002)
-val LightOnSurface = Color(0xff1e1b16)
-val LightOnSurfaceVariant = Color(0xff4d4639)
+val LightOnSurface = Color(0xff111111)
+val LightOnSurfaceVariant = Color(0xff666666)
 ///
 ///
 val DarkPrimary = Color(0xfffabd00)

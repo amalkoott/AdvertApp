@@ -56,6 +56,7 @@ class Advert (
     val images: Array<String>
         get() {
             return arrayOf(
+                "https://4-img.onrealt.ru/c326x235q80/files/12-2023/11/6e/79/astrakhan-snyat-kvartiru-na-dlitelnyj-srok-ulitca-treneva-23-191292784.jpg",
                 "https://desktopmania.ru/pics/00/05/13/DesktopMania.ru-5132-300x240.jpg",
                 "https://c.wallhere.com/photos/10/26/1920x1200_px_animals_cats_Tanks-1914705.jpg!s",
                 "https://images.chesscomfiles.com/uploads/v1/user/77559592.9cb711dc.160x160o.e195dd620cda.jpeg",

@@ -7,6 +7,8 @@ import java.util.Dictionary
 interface AppRepository {
     suspend fun loadAllSets(): List<AdSet>
     fun loadAllSetsFlow(): Flow<List<AdSet>>
+    fun loadAllAdsFlow(): Flow<List<Advert>>
+    fun loadAllAdsBySetFlow(id: Long): Flow<List<Advert>>
     suspend fun clearDatabase()
     suspend fun fillDatabase(sets: List<AdSet>)
 

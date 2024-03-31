@@ -62,12 +62,20 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Pink40,
 */
     primary = LightPrimary,
+    onPrimary = LightOn,
     secondary = LightSecondary,
     tertiary = LightTertiary,
     primaryContainer = LightPrimaryContainer,
-        secondaryContainer = LightSecondaryContainer,
+    secondaryContainer = LightSecondaryContainer,
     tertiaryContainer = LightTertiaryContainer,
-    onSecondaryContainer = LightOnSecondaryContainer
+    onPrimaryContainer = LightOnPrimaryContainer,
+    onSecondaryContainer = LightOnSecondaryContainer,
+    onTertiary = LightOnTertiaryContainer,
+    onSurface = LightOnSurface,
+    onSurfaceVariant = LightOnSurfaceVariant,
+    background = LightBackGround,
+    surface = LightSurface,
+    surfaceTint = LightSurface
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),

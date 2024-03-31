@@ -31,6 +31,16 @@ class AppUseCase(
         // метод подписки на данные (что бы это ни значило)
         return appRepo.loadAllSetsFlow()
     }
+    fun advertsFlow(): Flow<List<Advert>> {
+        var flow : Flow<List<Advert>>
+        // метод подписки на данные (что бы это ни значило)
+        return appRepo.loadAllAdsFlow()
+    }
+    fun advertsBySetFlow(id: Long): Flow<List<Advert>> {
+        var flow : Flow<List<Advert>>
+        // метод подписки на данные (что бы это ни значило)
+        return appRepo.loadAllAdsBySetFlow(id)
+    }
     suspend fun saveSet(set: AdSet){
         if (set.id == null){
             appRepo.addSet(set)
@@ -50,7 +60,7 @@ class AppUseCase(
     suspend fun removeAd(ad: Advert){
         appRepo.removeAd(ad)
     }
-    suspend fun getSetsWithAd(id: Long){
-        appRepo.getAdSetsWithAdverts(id)
+    suspend fun getSetsWithAd(id: Long): List<AdSetWithAdverts>{
+        return appRepo.getAdSetsWithAdverts(id)
     }
 }

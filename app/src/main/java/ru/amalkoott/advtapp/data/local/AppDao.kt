@@ -20,7 +20,10 @@ interface AppDao {
 
     @Query("SELECT * FROM AdSet ORDER BY id ASC")
     fun allFlow(): Flow<List<AdSet>>
-
+    @Query("SELECT * FROM Advert ORDER BY id ASC")
+    fun allAdsFlow(): Flow<List<Advert>>
+    @Query("SELECT * FROM Advert WHERE adSetId =:id ORDER BY id ASC")
+    fun allAdsBySetFlow(id: Long): Flow<List<Advert>>
     @Transaction
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertSetWithAd(set: AdSet):Long

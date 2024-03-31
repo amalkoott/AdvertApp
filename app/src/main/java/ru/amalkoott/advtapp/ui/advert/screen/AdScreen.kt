@@ -176,7 +176,7 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
                         )
                     }
                 )
-                Text(text = selectedAd.value!!.price.toString() + " Р",//"2 400 000 Р",
+                Text(text = (selectedAd.value!!.price!!*100000).toString() + " Р",//"2 400 000 Р",
                     Modifier.padding(horizontal = 25.dp, vertical = 20.dp),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,

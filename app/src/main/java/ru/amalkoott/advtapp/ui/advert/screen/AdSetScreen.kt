@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -29,20 +28,14 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ChipElevation
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -57,9 +50,7 @@ import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -70,9 +61,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,7 +69,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
@@ -98,6 +86,7 @@ fun AdSetScreen(vm: AppViewModel) {
     val favs by remember {
         mutableStateOf(vm.favs)
     }
+
 
     val selected by remember { mutableStateOf(vm.selectedSet) }
     val selectedAd by remember { mutableStateOf(vm.selectedAd) }
@@ -183,7 +172,8 @@ fun AdSetScreen(vm: AppViewModel) {
                 }
             } else {
                 // создаем новую подборку
-                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites)//,ads!!)//vm.temp_ads)//, getAdverts)
+                val ads = vm.adsMap[selected.value!!.id]
+                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads!!)//vm.temp_ads)//, getAdverts)
             }
         }
     }
@@ -436,12 +426,6 @@ fun DrawDropmenu(onDeleteSet: ()-> Unit){
                 }
             }
         )
-        /*
-        DropdownMenuItem(
-            text = { Text("Геолокация на все объекты") },
-            onClick = { Toast.makeText(context, "Geoposition", Toast.LENGTH_SHORT).show() }
-        )
-         */
     }
 }
 

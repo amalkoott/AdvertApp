@@ -30,14 +30,40 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.room.Room
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import ru.amalkoott.advtapp.data.local.AppDatabase
 import ru.amalkoott.advtapp.data.local.AppRepositoryDB
+import ru.amalkoott.advtapp.data.remote.ServerAPI
+import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
 import ru.amalkoott.advtapp.domain.AppUseCase
 import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 
 class MainActivity : ComponentActivity() {
+    var httpClient = OkHttpClient.Builder()
+        .addInterceptor { chain ->
+            val request: Request = chain.request().newBuilder()
+                .addHeader(
+                    "Authorization",
+                    "Bearer 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"
+                )
+                .build()
+            chain.proceed(request)
+        }
+        .build()
+
+
+    var retrofit = Retrofit.Builder()
+            .baseUrl("http://127.0.0.1:8080/")
+            .client(httpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+    var api = ServerRequestsRepository(retrofit.create(ServerAPI::class.java))
     private val database: AppDatabase by lazy{
         Room.databaseBuilder(
             this,
@@ -46,7 +72,7 @@ class MainActivity : ComponentActivity() {
             .build()
     }
     private val notesRepo by lazy { AppRepositoryDB(database.notesDao()) }
-    private  val notesUseCase by lazy { AppUseCase(notesRepo) }
+    private  val notesUseCase by lazy { AppUseCase(notesRepo,api) }
     private val appViewModel: AppViewModel by viewModels{
         viewModelFactory {
             initializer {

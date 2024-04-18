@@ -2,12 +2,15 @@ package ru.amalkoott.advtapp.domain
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.coroutines.flow.Flow
+import ru.amalkoott.advtapp.data.remote.ServerAPI
+import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
 import java.util.Dictionary
 
 /*@TODO надо сделать:
 */
 class AppUseCase(
-    private val appRepo: AppRepository
+    private val appRepo: AppRepository,
+    private val appApi: ServerRequestsRepository
 ) {
     suspend fun fillWithInitialSets(initialSets: List<AdSet>){
         // должен очистить содержимое базы

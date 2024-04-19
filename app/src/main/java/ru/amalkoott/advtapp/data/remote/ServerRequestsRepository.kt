@@ -1,35 +1,71 @@
 package ru.amalkoott.advtapp.data.remote
 
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import ru.amalkoott.advtapp.domain.AdSet
+import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRemoteRepository
 
 class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
-    // получаем список объявлений (подборку) по параметрам
-    override suspend fun get(): List<SearchParameters> = withContext(Dispatchers.IO){
-        var issues: List<SearchParameters>?
-        try {
-            val result = serverApi.get()
 
-            if(!result.isSuccessful){
-                Log.w("NotesRepositoryApi","Can't get issues $result")
+    // получаем список объявлений (подборку) по параметрам
+    override suspend fun get(parameters: SearchParameters): List<Advert> = withContext(Dispatchers.IO){
+        val result: JsonArray?
+        // делаем get запрос - получаем Json-строку
+        // конвертим json-строку в подборку
+        try {
+            val gson = Gson()
+            val json = gson.toJsonTree(parameters)
+            val response = serverApi.get(json as JsonObject)
+
+            if(!response.isSuccessful){
+                Log.w("AppRepositoryApi","Can't get issues $response")
                 return@withContext emptyList()
             }
-            issues = result.body()
+            result = response.body()!!.asJsonArray
+            val size = result.size()
         } catch (e: Exception){
-            Log.w("NotesGitHubRepository","Can't get issues", e)
+            Log.w("ServerRequestRepository","Can't get issues", e)
             return@withContext emptyList()
         }
-        val notes = issues?.map{
-            toNote(it)
-        } ?: emptyList()
-        notes
-    }
 
+        return@withContext emptyList()
+        /*
+        val sets = issues?.map{
+            toAdvert(it.toString())
+        } ?: emptyList()
+        sets
+
+         */
+    }
+    private fun toAdvert(request: String): Advert {
+//      Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
+
+        return Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
+    }
+    override suspend fun checkServer(): JsonObject? = withContext(Dispatchers.IO){
+        val result: JsonObject?
+        try {
+            val response = serverApi.check()
+
+            if (!response.isSuccessful){
+                Log.w("AppRepositoryApi","Can't get server $response")
+                return@withContext null
+            }
+            result = response.body()
+            Log.w("Response from server","$result")
+        }catch (e:Exception){
+            Log.w("AppRepositoryApi","$e")
+            return@withContext null
+        }
+        return@withContext  result
+    }
+    /*
     override suspend fun update(set: AdSet): Boolean = withContext(Dispatchers.IO) {
-        var issue = toGitHubIssue(note)
+        var receive = toReceiveSet(set)
         try{
             // пробуем апдейтнуть имеющуюся заметку
             var result = serverApi.update(issue.number!!,issue)
@@ -46,12 +82,14 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
         }
         return@withContext true // return в try catch
     }
-    private fun toNote(issue: GitHubIssue): Note {
-        return Note(issue.title, issue.body, issue.number)
+    */
+
+    /*
+    private fun toReceiveSet(set: AdSet): ServerSet {
+        return ServerSet(note.remoteId, note.title, note.text)
     }
-    private fun toGitHubIssue(note: Note): GitHubIssue {
-        return GitHubIssue(note.remoteId, note.title, note.text)
-    }
+
+     */
 }
 /*
 

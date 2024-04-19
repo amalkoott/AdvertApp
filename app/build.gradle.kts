@@ -113,8 +113,10 @@ dependencies {
     val retrofit_version = "2.9.0"
     implementation ("com.squareup.retrofit2:retrofit:$retrofit_version")
     implementation ("com.squareup.retrofit2:converter-gson:$retrofit_version")
-/*
-    // Splash API
-    implementation ("androidx.core:core-splashscreen:1.0.1")
-*/
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    /*
+        // Splash API
+        implementation ("androidx.core:core-splashscreen:1.0.1")
+    */
 }

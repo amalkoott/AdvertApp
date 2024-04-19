@@ -44,6 +44,9 @@ import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 
 class MainActivity : ComponentActivity() {
+   // val loggingInterceptor = HttpLoggingInterceptor()
+    //loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+
     var httpClient = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val request: Request = chain.request().newBuilder()
@@ -58,8 +61,9 @@ class MainActivity : ComponentActivity() {
 
 
     var retrofit = Retrofit.Builder()
-            .baseUrl("http://127.0.0.1:8080/")
-            .client(httpClient)
+            //.baseUrl("http://192.168.56.1:8080")
+        .baseUrl("http://10.0.2.2:8080")
+        .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

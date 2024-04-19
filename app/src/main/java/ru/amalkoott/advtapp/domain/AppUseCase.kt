@@ -2,6 +2,7 @@ package ru.amalkoott.advtapp.domain
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.coroutines.flow.Flow
+import ru.amalkoott.advtapp.data.remote.SearchParameters
 import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
 import java.util.Dictionary
@@ -44,15 +45,26 @@ class AppUseCase(
         // метод подписки на данные (что бы это ни значило)
         return appRepo.loadAllAdsBySetFlow(id)
     }
-    suspend fun saveSet(set: AdSet){
+    suspend fun saveSet(set: AdSet):Long?{
         if (set.id == null){
-            appRepo.addSet(set)
+            // сначала поиск на сервере
+            //val test = appApi.checkServer()
+            val response = appApi.get(SearchParameters("Снять"))
+            if (response.isNotEmpty()){
+                appRepo.addSet(set)
+            }else{
+                return null
+            }
+            // если ответ null - добавления НЕТ (объявления не найдены)
+            // если ответ не пустой - добавляем
+
         // @TODO при добавлении новой подборки надо отправлять на сервер запрос на поиск объявлений и если объявления не найдены, то не добавлять подборку
         // @TODO либо сделать возможность сохранить подборку, чтобы при появлении объявлений подборка обновилась сама
         }else
         {
             appRepo.updateSet(set)
         }
+        return set.id
     }
     suspend fun removeSet(set: AdSet){
         appRepo.removeSet(set)

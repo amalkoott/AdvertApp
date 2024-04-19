@@ -1,6 +1,7 @@
 package ru.amalkoott.advtapp.data.remote
 
-class ServerSet {
+
+data class ServerSet (public val value: String){
 }
 /*
 

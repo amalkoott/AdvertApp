@@ -173,7 +173,7 @@ fun AdSetScreen(vm: AppViewModel) {
             } else {
                 // создаем новую подборку
                 val ads = vm.adsMap[selected.value!!.id]
-                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads!!)//vm.temp_ads)//, getAdverts)
+                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads)//vm.temp_ads)//, getAdverts)
             }
         }
     }

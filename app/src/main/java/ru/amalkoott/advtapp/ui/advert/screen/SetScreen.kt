@@ -83,7 +83,7 @@ fun AddSet(
     removeAd: (Advert)-> Unit,
     selectedAd: MutableState<Advert?>,
     addFavourites: (Advert)-> Unit,
-    ads: MutableStateFlow<List<Advert>>,
+    ads: MutableStateFlow<List<Advert>>?,
     //getAdverts:()->Unit
     //adSetAdverts: MutableStateFlow<List<Advert>>
 ){
@@ -92,7 +92,8 @@ fun AddSet(
     var update_interval by remember { mutableStateOf(selected.value!!.update_interval) }
     var name by remember { mutableStateOf(selected.value!!.name) }
         // val adverts = selected.value!!.adverts
-    val adverts by ads.collectAsState()
+
+
     //val test_adverts = getAdverts // каждый раз (при открытии окошка) adverts строится новый
     // -> стоит в SetScreen.adverts возварщать MutableStateFlow объект
     //val adverts by adSetAdverts.collectAsState()
@@ -189,6 +190,7 @@ fun AddSet(
             if (selected.value!!.adverts!!.isEmpty()){
                 PrintFilters()
             }else{
+                val adverts by ads!!.collectAsState()
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(1),
                     modifier = Modifier
@@ -198,12 +200,12 @@ fun AddSet(
                 // Карточки с картинками
                 {item {
                     Text(
-                        text = "Объявлений: " + adverts!!.size.toString(),
+                        text = "Объявлений: " + adverts.size.toString(),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(start = 24.dp, top = 24.dp, bottom = 8.dp))
                 }
-                    items(adverts!!){advert ->
+                    items(adverts){advert ->
                         Card(
                             colors = CardDefaults.cardColors(
                                 //containerColor = MaterialTheme.colorScheme.surfaceTint,

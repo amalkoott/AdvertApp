@@ -1,7 +1,8 @@
 package ru.amalkoott.advtapp.data.remote
 
-class SearchParameters {
-}
+data class SearchParameters (
+    val dealType: String?
+)
 /*
 
 data class GitHubIssue(

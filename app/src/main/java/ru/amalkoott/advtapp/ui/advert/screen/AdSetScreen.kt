@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import ru.amalkoott.advtapp.data.remote.SearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
@@ -87,9 +88,94 @@ fun AdSetScreen(vm: AppViewModel) {
         mutableStateOf(vm.favs)
     }
 
+    val search by remember { mutableStateOf(vm.searching) }
+    val createSearching:() -> Unit = { vm.createSearching() }
+
+    val setLivingType:(String) -> Unit = { type -> vm.setLivingType(type)}
+    val setDealType:(String) -> Unit = { type -> vm.setDealType(type)}
+    val setPriceType:(String) -> Unit = { type -> vm.setPriceType(type)}
+    val setRentType:(String) -> Unit = { type -> vm.setRentType(type)}
+    val setFloorType:(String) -> Unit = { type -> vm.setFloorType(type)}
+    val setMinPrice:(String) -> Unit = { type -> vm.setMinPrice(type)}
+    val setMaxPrice:(String) -> Unit = { type -> vm.setMaxPrice(type)}
+    val setMinArea:(String)-> Unit = {type -> vm.setMinArea(type)}
+    val setMaxArea:(String) -> Unit = {type -> vm.setMaxArea(type)}
+    val setMinLArea:(String)-> Unit = {type -> vm.setMinLArea(type)}
+    val setMaxLArea:(String)-> Unit = {type -> vm.setMaxLArea(type)}
+    val setMinKArea:(String)-> Unit = {type -> vm.setMinKArea(type)}
+    val setMaxKArea:(String)-> Unit = {type -> vm.setMaxKArea(type)}
+    val setMinFloor:(String)-> Unit = {type -> vm.setMinFloor(type)}
+    val setMaxFloor:(String)-> Unit = {type -> vm.setMaxFloor(type)}
+    val setMinFloors:(String)-> Unit = {type -> vm.setMinFloors(type)}
+    val setMaxFloors:(String)-> Unit = {type -> vm.setMaxFloors(type)}
+    val setRepair:(String)-> Unit = {type -> vm.setRepair(type)}
+    val setFinish:(String)-> Unit = {type -> vm.setFinish(type)}
+    val setTravelTime:(String)-> Unit = {type -> vm.setTravelTime(type)}
+    val setTravelType:(String)-> Unit = {type -> vm.setTravelType(type)}
+    val setCell:(String)-> Unit = {type -> vm.setCell(type)}
+    val setApart:(String)-> Unit = {type -> vm.setApart(type)}
+    val setRoomType:(String)-> Unit = {type -> vm.setRoomType(type)}
+    val setRoom:(String)-> Unit = {type -> vm.setRoom(type)}
+    val setToilet:(String)-> Unit = {type -> vm.setToiletType(type)}
+    val setWall:(String)-> Unit = {type -> vm.setWallMaterial(type)}
+    val setBalcony:(String)-> Unit = {type -> vm.setBalconyType(type)}
+    val setParking:(String)-> Unit = {type -> vm.setParking(type)}
+    val setLift:(String)-> Unit = {type -> vm.setLiftType(type)}
+    val setAmenities:(String)-> Unit = {type -> vm.setAmenities(type)}
+    val setView:(String)-> Unit = {type -> vm.setView(type)}
+    val setCommunications:(String)-> Unit = {type -> vm.setCommunication(type)}
+    val setInclude:(String)-> Unit = {type -> vm.setInclude(type)}
+    val setExclude:(String)-> Unit = {type -> vm.setExclude(type)}
+    val setRentFeatures:(String)-> Unit = {type -> vm.setRentFeatures(type)}
+    val setCity:(String)-> Unit = {city -> vm.setCity(city)}
+    val setCategory:(String)-> Unit = {category -> vm.setCategory(category)}
+    //val ():-> Unit = {type -> vm}
+    val filterFunctions = mapOf<String,(String)->Unit>(
+        "city" to setCity,
+        "living" to setLivingType,
+        "deal" to setDealType,
+        "price" to setPriceType,
+        "rent" to setRentType,
+        "floor" to setFloorType,
+        "minPrice" to setMinPrice,
+        "maxPrice" to setMaxPrice,
+        "minArea" to setMinArea,
+        "maxArea" to setMaxArea,
+        "minLArea" to setMinLArea,
+        "maxLArea" to setMaxLArea,
+        "minKArea" to setMinKArea,
+        "maxKArea" to setMaxKArea,
+        "minFloor" to setMinFloor,
+        "maxFloor" to setMaxFloor,
+        "minFloors" to setMinFloors,
+        "maxFloors" to setMaxFloors,
+        "repair" to setRepair,
+        "finish" to setFinish,
+        "travelTime" to setTravelTime,
+        "travelType" to setTravelType,
+        "room" to setRoom,
+        "roomType" to setRoomType,
+        "cell" to setCell,
+        "apart" to setApart,
+        "toilet" to setToilet,
+        "wall" to setWall,
+        "balcony" to setBalcony,
+        "parking" to setParking,
+        "lift" to setLift,
+        "amenities" to setAmenities,
+        "view" to setView,
+        "communication" to setCommunications,
+        "include" to setInclude,
+        "exclude" to setExclude,
+        "rentFeatures" to setRentFeatures,
+        "adCategory" to setCategory
+        //"" to set,
+    )
+
 
     val selected by remember { mutableStateOf(vm.selectedSet) }
     val selectedAd by remember { mutableStateOf(vm.selectedAd) }
+    val category by remember { mutableStateOf(vm.category)    }
 
     val setChange:() -> Unit = {vm.onSetChange(selected.value!!.name!!,selected.value!!.update_interval!!)}
     val favouritesClick:() -> Unit = {vm.onFavouritesClick()}
@@ -173,7 +259,7 @@ fun AdSetScreen(vm: AppViewModel) {
             } else {
                 // создаем новую подборку
                 val ads = vm.adsMap[selected.value!!.id]
-                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads)//vm.temp_ads)//, getAdverts)
+                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category)//vm.temp_ads)//, getAdverts)
             }
         }
     }

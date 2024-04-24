@@ -1,8 +1,10 @@
 package ru.amalkoott.advtapp.ui.advert.view
 
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
@@ -10,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import ru.amalkoott.advtapp.data.remote.SearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.AdSetWithAdverts
 import ru.amalkoott.advtapp.domain.Advert
@@ -24,6 +27,9 @@ import java.util.Dictionary
 class AppViewModel(
     private val appUseCase: AppUseCase
 ): ViewModel() {
+
+
+
     val sets = mutableStateListOf<AdSet>(
         AdSet(
             0,
@@ -61,21 +67,9 @@ class AppViewModel(
             LocalDate.now()
         )
     )
-    /*
-    val ads = mutableStateListOf<Advert>(
-        Advert(0,"квартира 1", "супер квартира", 1.2f,null,null,null, 0),
-        Advert(1,"квартира 2", "не очень супер квартира", 6.2f,null,null,null, 0),
-        Advert(2,"квартира 3", "бомж хата", 0.2f,null,null,null, 0),
-        Advert(3,"ауди 1", "ну это пушка, это бомба", 3.4f,null,null,null, 1),
-        Advert(4,"бэмвэ 1", "аджара гуджу", 6.6f,null,null,null, 1),
-        Advert(5,"камри 3.5", "любви достойна только мать", 3.5f,null,null,null, 1),
-        Advert(6,"кило помэло", "покупайте", 0.1f,null,null,null, 2),
-        Advert(7,"манго", "желтые манго очень вкусные", 0.2f,null,null,null, 2),
-        Advert(8,"личики", "описание личиков", 0.3f,null,null,null, 2)
-    )
-    */
-    val adsMap: MutableMap<Long?,MutableStateFlow<List<Advert>>> = mutableMapOf()
 
+    val adsMap: MutableMap<Long?,MutableStateFlow<List<Advert>>> = mutableMapOf()
+    val search: MutableMap<String,String> = mutableMapOf()
     init{
         //@TODO не забыть при смене схемы БД поменять тип adsetID (внешний ключ у Advert) на Long?
 
@@ -209,19 +203,141 @@ class AppViewModel(
         if(favs.contains(advert)) favs.remove(advert)
     }
 
-    // CLICKS
-    /*
-    fun testView(set: AdSet?){
-        viewModelScope.launch {
-            appUseCase.advertsBySetFlow(set?.id!!)
-                .collect{
-                        ad ->
-                    temp_ads.value = ad
-                }
-        }
+    // SEARCH
+    // при клике на новую подборку создается SearchParameters
+    // при установлении какого-либо параметра его значение добавляется к searchParameters
+    var searching = mutableStateOf<SearchParameters?>(null )
+    var category = mutableStateOf<String?>("")
+    fun createSearching(){
+        searching.value = SearchParameters()
     }
-    
-     */
+    fun setCategory(category: String){
+        searching.value!!.category = category
+        this.category.value = category
+    }
+    fun setCity(city: String){
+        searching.value!!.city = city
+    }
+    fun setLivingType(type: String){
+        searching.value!!.livingType = type
+        Log.d("LIVING_TYPE",searching.value!!.livingType.toString())
+    }
+    fun setDealType(type: String){
+        searching.value!!.dealType = type
+        Log.d("DEAL_TYPE",searching.value!!.dealType.toString())
+    }
+    fun setPriceType(type: String){
+        searching.value!!.priceType = type
+        Log.d("PRICE_TYPE",searching.value!!.priceType.toString())
+    }
+    fun setRentType(type: String){
+        searching.value!!.rentType = type
+    }
+    fun setFloorType(type: String){
+        searching.value!!.floorType = type
+    }
+    fun setMinPrice(value: String){
+        searching.value!!.minPrice = value.toFloatOrNull()
+    }
+    fun setMaxPrice(value: String){
+        searching.value!!.maxPrice = value.toFloatOrNull()
+    }
+    fun setMinArea(value: String){
+        searching.value!!.minArea = value.toInt()
+    }
+    fun setMaxArea(value: String){
+        searching.value!!.maxArea = value.toInt()
+    }
+    fun setMinLArea(value: String){
+        searching.value!!.minLArea = value.toInt()
+    }
+    fun setMaxLArea(value: String){
+        searching.value!!.maxLArea = value.toInt()
+    }
+    fun setMinKArea(value: String){
+        searching.value!!.minKArea = value.toInt()
+    }
+    fun setMaxKArea(value: String){
+        searching.value!!.maxLArea = value.toInt()
+    }
+    fun setMinFloor(value: String){
+        searching.value!!.minFloor = value.toInt()
+    }
+    fun setMaxFloor(value: String){
+        searching.value!!.maxFloor = value.toInt()
+    }
+    fun setMinFloors(value: String){
+        searching.value!!.minFloors = value.toInt()
+    }
+    fun setMaxFloors(value: String){
+        searching.value!!.maxFloors = value.toInt()
+    }
+    fun setRepair(value: String){
+        searching.value!!.repair = value
+    }
+    fun setFinish(value: String){
+        searching.value!!.finish = value
+    }
+    fun setTravelTime(value: String){
+        searching.value!!.travelTime = value.toByte()
+    }
+    fun setTravelType(value: String){
+        searching.value!!.travelType = value
+    }
+    fun setCell(value: String){
+        searching.value!!.cell = value
+    }
+    fun setApart(value: String){
+        searching.value!!.apart= value.toBoolean()
+    }
+    fun setRoomType(value: String){
+        searching.value!!.roomType = value.toBoolean()
+    }
+    fun setRoom(value: String){
+        searching.value!!.room = value.toUByte()
+    }
+    fun setToiletType(value: String){
+        searching.value!!.toiletType = value.toBoolean()
+    }
+    fun setWallMaterial(value: String){
+        searching.value!!.wallMaterial = value
+    }
+    fun setBalconyType(value: String){
+        searching.value!!.balconyType = value.toBoolean()
+    }
+    fun setParking(value: String){
+        searching.value!!.parking = value
+    }
+    fun setLiftType(value: String){
+        searching.value!!.liftType = value.toBoolean()
+    }
+    fun setAmenities(value: String){
+        searching.value!!.amenities = value
+    }
+    fun setView(value: String){
+        searching.value!!.view = value
+    }
+    fun setCommunication(value: String){
+        searching.value!!.communication = value
+    }
+    fun setInclude(value: String){
+        searching.value!!.include = value
+    }
+    fun setExclude(value: String){
+        searching.value!!.exclude = value
+    }
+    fun setRentFeatures(value: String){
+        searching.value!!.rentFeature = value
+    }
+    fun set(){
+    }
+    // CLICKS
+    fun onAddSetClicked(){
+        screen_name.value = "Новая подборка"
+        selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null, category = null, last_update = null)
+        sets.add(selectedSet.value!!)
+        //searching = SearchParameters()
+    }
     fun onSetSelected(set: AdSet?){
         selectedSet.value = set
         screen_name.value = selectedSet.value!!.name.toString()
@@ -232,11 +348,7 @@ class AppViewModel(
             update_interval = selectedSet.value!!.update_interval, caption = null, category = null,
             last_update = selectedSet.value!!.last_update)
     }
-    fun onAddSetClicked(){
-        screen_name.value = "Новая подборка"
-        selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null, category = null, last_update = null)
-        sets.add(selectedSet.value!!)
-    }
+
     fun onSetChange(name: String, update_interval: Int){
         selectedSet.value!!.name = name
         selectedSet.value!!.update_interval = update_interval

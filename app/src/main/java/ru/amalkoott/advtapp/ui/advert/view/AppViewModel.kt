@@ -121,10 +121,11 @@ class AppViewModel(
         //@TODO сначала передать searching на сервер,а затем обнулить его
         val set = selectedSet.value
         if (set == null || set.name!!.isBlank()) return
+        if (searching.value == null) return
 
         // сохранение отредактированной подборки
         viewModelScope.launch {
-            appUseCase.saveSet(set)
+            appUseCase.saveSet(set,searching.value)
         }
 
         screen_name.value = "Подборки"
@@ -159,7 +160,7 @@ class AppViewModel(
             appUseCase.removeAd(advert)
         }
         viewModelScope.launch {
-            appUseCase.saveSet(selectedSet.value!!)
+            appUseCase.saveSet(selectedSet.value!!,searching.value)
         }
         selectedAd.value = null
     }
@@ -177,7 +178,7 @@ class AppViewModel(
             appUseCase.removeAd(selectedAd.value!!)
         }
         viewModelScope.launch {
-            appUseCase.saveSet(selectedSet.value!!)
+            appUseCase.saveSet(selectedSet.value!!,searching.value)
         }
         selectedAd.value = null
     }
@@ -211,6 +212,7 @@ class AppViewModel(
     var searching = mutableStateOf<SearchParameters?>(null )
     var category = mutableStateOf<String?>("")
     var dealType = mutableStateOf<Boolean>(false)
+   // var dealType = mutableStateOf<String>("")
     var flatType = mutableStateOf<String>("")
     var city = mutableStateOf<String>("")
     var travel = mutableStateOf<String?>("")
@@ -222,6 +224,7 @@ class AppViewModel(
         searching.value = null
         category.value = null
         dealType.value = false
+        //dealType.value = ""
         flatType.value = ""
         city.value = ""
         travel.value = null
@@ -242,7 +245,7 @@ class AppViewModel(
         Log.d("LIVING_TYPE",searching.value!!.livingType.toString())
     }
     fun setDealType(type: String){
-        searching.value!!.dealType = type.toBoolean()
+        searching.value!!.dealType = type//.toBoolean()
         dealType.value = type.toBoolean()
         Log.d("DEAL_TYPE",searching.value!!.dealType.toString())
     }

@@ -5,13 +5,13 @@ import androidx.compose.runtime.MutableState
 data class SearchParameters (
     var city:String? = null,
     var category: String? = null,
-    var dealType: Boolean? = null,
+    //var dealType: Boolean? = null,
+    var dealType: String? = null,
     var livingType: String? = null,
     var rentType: String? = null,
     var priceType: String? = null,
     var minPrice: Float? = null,
     var maxPrice:Float? = null,
-
     var minArea:Int? = null,
     var maxArea:Int? = null,
     var minLArea:Int? = null,
@@ -43,7 +43,24 @@ data class SearchParameters (
     var exclude:String? = null,
     var rentFeature:String? = null
 ){
+    fun getJson(){
 
+    }
+fun isNotEmpty():Boolean{
+    if ((city == null)||(category == null)||(dealType == null)||(livingType == null) ||(rentType == null)||
+        (priceType == null)||(minPrice == null)||(maxPrice == null)||
+        (minArea == null)||(maxArea == null)||
+        (minLArea == null)||(maxLArea== null)||
+        (minKArea == null)||(maxKArea == null)||
+        (minFloor == null)||(maxFloor== null)||(minFloors == null)||(maxFloors == null)|| (floorType == null)||
+        (repair == null)||(finish == null)||
+        (travelType == null)||(travelTime == null)||
+        (cell == null)||(apart == null)||(roomType == null)||(room == null)||
+        (toiletType == null)||(wallMaterial == null) ||(balconyType == null)||
+        (parking == null)||(liftType == null)||(amenities == null) ||(view == null)||
+        (communication == null)||(include == null)||(exclude == null)||(rentFeature == null)) return false
+    return true
+}
 }
 /*
 

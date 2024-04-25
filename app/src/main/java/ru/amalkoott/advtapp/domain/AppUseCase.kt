@@ -45,16 +45,26 @@ class AppUseCase(
         // метод подписки на данные (что бы это ни значило)
         return appRepo.loadAllAdsBySetFlow(id)
     }
-    suspend fun saveSet(set: AdSet):Long?{
+    suspend fun sendSearching(search: SearchParameters?): List<Advert>?{
+        if (search == null) return null
+        val response = appApi.get(search)
+        //val response = appApi.get(SearchParameters("Снять"))
+        if (response.isNotEmpty()){
+            // response to set и потом сохранять
+        }else{
+            return null
+        }
+        return response
+    }
+    suspend fun saveSet(set: AdSet,search: SearchParameters?):Long?{
         if (set.id == null){
             // сначала поиск на сервере
+            if (sendSearching(search).isNullOrEmpty()) return null
             //val test = appApi.checkServer()
-            val response = appApi.get(SearchParameters("Снять"))
-            if (response.isNotEmpty()){
-                appRepo.addSet(set)
-            }else{
-                return null
-            }
+            //val response = appApi.get(SearchParameters("Снять"))
+
+            appRepo.addSet(set)
+
             // если ответ null - добавления НЕТ (объявления не найдены)
             // если ответ не пустой - добавляем
 

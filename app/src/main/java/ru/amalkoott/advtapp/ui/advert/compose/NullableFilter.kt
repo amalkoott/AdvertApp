@@ -35,7 +35,7 @@ fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue
                         for (key in map.keys) {
                             if (key != type) map[key] = false
                         }
-                        map[type] = !map[type]!!
+                        map[type] = !map[type]!!//@todo возможно здетсь будет проблема с конвертацией туалета (см. vm.setToilet())
                         if (map[type]!!) setValue(type)},
                     label = { Text(text = type)},
                     selected = map[type]!!,
@@ -66,7 +66,6 @@ fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue
          */
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NullableFilter(map: SnapshotStateMap<String,Boolean>, setValue: (String)-> Unit,){

@@ -5,7 +5,7 @@ import androidx.compose.runtime.MutableState
 data class SearchParameters (
     var city:String? = null,
     var category: String? = null,
-    var dealType: String? = null,
+    var dealType: Boolean? = null,
     var livingType: String? = null,
     var rentType: String? = null,
     var priceType: String? = null,

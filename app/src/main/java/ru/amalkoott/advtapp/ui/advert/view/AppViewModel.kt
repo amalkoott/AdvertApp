@@ -118,6 +118,7 @@ class AppViewModel(
     // LOCAL DATABASE USE
     // помечает, что редактирование закончено -> нет выбранных заметок
     fun onEditComplete(){
+        //@TODO сначала передать searching на сервер,а затем обнулить его
         val set = selectedSet.value
         if (set == null || set.name!!.isBlank()) return
 
@@ -129,6 +130,7 @@ class AppViewModel(
         screen_name.value = "Подборки"
         selectedSet.value = null
         edited_set = null
+        cancelSearching()
     }
 
 
@@ -208,8 +210,22 @@ class AppViewModel(
     // при установлении какого-либо параметра его значение добавляется к searchParameters
     var searching = mutableStateOf<SearchParameters?>(null )
     var category = mutableStateOf<String?>("")
+    var dealType = mutableStateOf<Boolean>(false)
+    var flatType = mutableStateOf<String>("")
+    var city = mutableStateOf<String>("")
+    var travel = mutableStateOf<String?>("")
+    var wc = mutableStateOf<Boolean?>(false)
     fun createSearching(){
         searching.value = SearchParameters()
+    }
+    fun cancelSearching(){
+        searching.value = null
+        category.value = null
+        dealType.value = false
+        flatType.value = ""
+        city.value = ""
+        travel.value = null
+        wc.value = false
     }
     fun setCategory(category: String){
         searching.value!!.category = category
@@ -217,13 +233,17 @@ class AppViewModel(
     }
     fun setCity(city: String){
         searching.value!!.city = city
+        this.city.value = city
+        travel.value = "метро"
     }
     fun setLivingType(type: String){
         searching.value!!.livingType = type
+        flatType.value = type
         Log.d("LIVING_TYPE",searching.value!!.livingType.toString())
     }
     fun setDealType(type: String){
-        searching.value!!.dealType = type
+        searching.value!!.dealType = type.toBoolean()
+        dealType.value = type.toBoolean()
         Log.d("DEAL_TYPE",searching.value!!.dealType.toString())
     }
     fun setPriceType(type: String){
@@ -283,6 +303,7 @@ class AppViewModel(
     }
     fun setTravelType(value: String){
         searching.value!!.travelType = value
+        //travel.value = value
     }
     fun setCell(value: String){
         searching.value!!.cell = value
@@ -298,6 +319,7 @@ class AppViewModel(
     }
     fun setToiletType(value: String){
         searching.value!!.toiletType = value.toBoolean()
+        wc.value = value.toBoolean()
     }
     fun setWallMaterial(value: String){
         searching.value!!.wallMaterial = value
@@ -394,6 +416,7 @@ class AppViewModel(
             edited_set = null
             selectedSet.value = null
             favourites.value = false
+            cancelSearching()
 
             settings.value = false
             screen_name.value = "Подборки"

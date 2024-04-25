@@ -51,7 +51,7 @@ fun RangeSliderFilter(
                     .copy(color = MaterialTheme.colorScheme.onSurface),
                 //color = MaterialTheme.colorScheme.surface
             )
-
+            Row{
                 TextField(
                     label = { Text("От",
                         color = MaterialTheme.colorScheme.onSurfaceVariant) },
@@ -62,7 +62,7 @@ fun RangeSliderFilter(
                     //label = { Text("Min Price") },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp).weight(1f),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.surface
@@ -81,7 +81,7 @@ fun RangeSliderFilter(
                     //label = { Text("Max Price") },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp).weight(1f),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.surface
@@ -89,7 +89,7 @@ fun RangeSliderFilter(
                     textStyle = MaterialTheme.typography.bodyLarge
                         .copy(color = MaterialTheme.colorScheme.onSurface),
                 )
-
+            }
         }
 
         RangeSlider(

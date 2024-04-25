@@ -18,13 +18,15 @@ import androidx.compose.ui.unit.sp
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> Unit,){
-    var type by remember { mutableStateOf(true) }
+    var type by remember { mutableStateOf(false) }
     Row(modifier = Modifier.padding(vertical = 8.dp)){
         FilterChip(
             modifier = Modifier.padding(end = 4.dp),
             onClick = {
                 type = !type
-                setValue(firstValue)},
+                //setValue(firstValue)
+                setValue(type.toString())
+                      },
             label = {
                 Text(
                     text = firstValue,
@@ -35,7 +37,9 @@ fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> U
         FilterChip(
             onClick = {
                 type = !type
-                setValue(secondValue)},
+                setValue(type.toString())
+                //setValue(secondValue)
+                      },
             label = {Text(text = secondValue)},
             selected = type,
             leadingIcon = {  }

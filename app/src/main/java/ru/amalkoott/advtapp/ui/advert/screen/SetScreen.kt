@@ -34,6 +34,7 @@ import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
 import ru.amalkoott.advtapp.ui.advert.compose.RangeSliderFilter
 import ru.amalkoott.advtapp.ui.advert.compose.TextFilter
+import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.GeneralSetFilters
 import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.GeneralSetInfo
 import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.SetInfo
 import ru.amalkoott.advtapp.ui.advert.screen.filterScreen.RealEstateFilter
@@ -55,7 +56,11 @@ fun AddSet(
     search: MutableState<SearchParameters?>,
     filterFunctions: Map<String,(String)->Unit>,
     createSearching:()->Unit,
-    category: MutableState<String?>
+    category: MutableState<String?>,
+    dealType: MutableState<Boolean>,
+    flatType: MutableState<String>,
+    city: MutableState<String>,
+    travel:MutableState<String?>
     //getAdverts:()->Unit
     //adSetAdverts: MutableStateFlow<List<Advert>>
 ){
@@ -146,7 +151,7 @@ fun AddSet(
 */
             // если новая подборка, рисуем фильтры
             if (selected.value!!.adverts!!.isEmpty()){
-                PrintFilters(search,filterFunctions,createSearching,category)
+                PrintFilters(search,filterFunctions,createSearching,category,dealType,flatType,city,travel)
             }else{
                 SetInfo(ads,selectAd, removeAd,addFavourites)
                 /*
@@ -332,7 +337,11 @@ fun ImageFromUrl(url: String) {
 fun PrintFilters(search: MutableState<SearchParameters?>,
                  realEstateFunctions: Map<String,(String)->Unit>,
                  createSearching:()->Unit,
-                 ctgry: MutableState<String?>
+                 ctgry: MutableState<String?>,
+                 dealType: MutableState<Boolean>,
+                 flatType: MutableState<String>,
+                 city: MutableState<String>,
+                 travel: MutableState<String?>
 ){
     createSearching()
     val category by remember { mutableStateOf(ctgry) }
@@ -358,13 +367,17 @@ fun PrintFilters(search: MutableState<SearchParameters?>,
                     bottom = 16.dp,
                 )) {
                 DropdownFilter(arrayOf("Недвижимость", "Транспорт", "Услуги"), "Категория",realEstateFunctions["adCategory"]!!)
+                /*
                 RangeSliderFilter("Цена",0f,100f,realEstateFunctions["minPrice"]!!,realEstateFunctions["maxPrice"]!!)
                 TextFilter("Санкт-Петербург", "Город", "Название города",realEstateFunctions["city"]!!)
-
+*/
                 Log.d("MEEEEEEEEEEEEEEEEEEE",search.value!!.toString())
 
                 when(category.value){
-                    "Недвижимость" -> RealEstateFilter(realEstateFunctions)
+                    "Недвижимость" -> {
+                       // GeneralSetFilters(functions = realEstateFunctions)
+                        RealEstateFilter(realEstateFunctions,dealType,flatType,city,travel)
+                    }
                     "Транспорт" -> TransportFilter()
                     "Услуги"-> ServiceFilter()
                     else -> Log.d("me","me")

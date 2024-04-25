@@ -176,6 +176,10 @@ fun AdSetScreen(vm: AppViewModel) {
     val selected by remember { mutableStateOf(vm.selectedSet) }
     val selectedAd by remember { mutableStateOf(vm.selectedAd) }
     val category by remember { mutableStateOf(vm.category)    }
+    val dealType by remember { mutableStateOf(vm.dealType) }
+    val flatType by remember { mutableStateOf(vm.flatType) }
+    val city by remember { mutableStateOf(vm.city) }
+    val travel by remember { mutableStateOf(vm.travel)}
 
     val setChange:() -> Unit = {vm.onSetChange(selected.value!!.name!!,selected.value!!.update_interval!!)}
     val favouritesClick:() -> Unit = {vm.onFavouritesClick()}
@@ -259,7 +263,7 @@ fun AdSetScreen(vm: AppViewModel) {
             } else {
                 // создаем новую подборку
                 val ads = vm.adsMap[selected.value!!.id]
-                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category)//vm.temp_ads)//, getAdverts)
+                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category,dealType,flatType,city,travel)//vm.temp_ads)//, getAdverts)
             }
         }
     }

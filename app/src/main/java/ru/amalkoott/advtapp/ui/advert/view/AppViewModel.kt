@@ -2,8 +2,11 @@ package ru.amalkoott.advtapp.ui.advert.view
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -267,133 +270,188 @@ class AppViewModel(
         }
         travel.value = "метро"
     }
-    fun setLivingType(type: String?){
+    fun setLivingType(type: String?){ // not null
         searching.value!!.livingType = type
         if (type != null) {
             flatType.value = type
         }
-        Log.d("LIVING_TYPE",searching.value!!.livingType.toString())
+        //Log.d("LIVING_TYPE",searching.value!!.livingType.toString())
     }
-    fun setDealType(type: String?){
+    fun setDealType(type: String?){ // not null bool
+        //var result: Boolean? = null
+        //if (type != null) result = type.toBoolean()
+
         searching.value!!.dealType = type//.toBoolean()
         dealType.value = type.toBoolean()
-        Log.d("DEAL_TYPE",searching.value!!.dealType.toString())
+
+       // Log.d("DEAL_TYPE",searching.value!!.dealType.toString())
     }
-    fun setPriceType(type: String?){
+    fun setPriceType(type: String?){ // not null bool
         searching.value!!.priceType = type
-        Log.d("PRICE_TYPE",searching.value!!.priceType.toString())
+       // Log.d("PRICE_TYPE",searching.value!!.priceType.toString())
     }
-    fun setRentType(type: String?){
+    fun setRentType(type: String?){ // not null bool
         searching.value!!.rentType = type
     }
-    fun setFloorType(type: String?){
+    fun setFloorType(type: String?){ // null three
         searching.value!!.floorType = type
     }
-    fun setMinPrice(value: String?){
+    fun setMinPrice(value: String?){ // null float
         searching.value!!.minPrice = value?.toFloatOrNull()
     }
-    fun setMaxPrice(value: String?){
+    fun setMaxPrice(value: String?){ // null float
         searching.value!!.maxPrice = value?.toFloatOrNull()
     }
-    fun setMinArea(value: String?){
-        searching.value!!.minArea = value?.toInt()
+    fun setMinArea(value: String?){ // null int
+        searching.value!!.minArea = value?.toIntOrNull()
     }
-    fun setMaxArea(value: String?){
-        searching.value!!.maxArea = value?.toInt()
+    fun setMaxArea(value: String?){ // null int
+        searching.value!!.maxArea = value?.toIntOrNull()
     }
-    fun setMinLArea(value: String?){
-        searching.value!!.minLArea = value?.toInt()
+    fun setMinLArea(value: String?){ // null int
+        searching.value!!.minLArea = value?.toIntOrNull()
     }
-    fun setMaxLArea(value: String?){
-        searching.value!!.maxLArea = value?.toInt()
+    fun setMaxLArea(value: String?){ // null int
+        searching.value!!.maxLArea = value?.toIntOrNull()
     }
-    fun setMinKArea(value: String?){
-        searching.value!!.minKArea = value?.toInt()
+    fun setMinKArea(value: String?){ // null int
+        searching.value!!.minKArea = value?.toIntOrNull()
     }
     fun setMaxKArea(value: String?){
-        searching.value!!.maxLArea = value?.toInt()
+        searching.value!!.maxLArea = value?.toIntOrNull()
     }
     fun setMinFloor(value: String?){
-        searching.value!!.minFloor = value?.toInt()
+        searching.value!!.minFloor = value?.toIntOrNull()
     }
     fun setMaxFloor(value: String?){
-        searching.value!!.maxFloor = value?.toInt()
+        searching.value!!.maxFloor = value?.toIntOrNull()
     }
     fun setMinFloors(value: String?){
-        searching.value!!.minFloors = value?.toInt()
+        searching.value!!.minFloors = value?.toIntOrNull()
     }
     fun setMaxFloors(value: String?){
-        searching.value!!.maxFloors = value?.toInt()
+        searching.value!!.maxFloors = value?.toIntOrNull()
     }
-    fun setRepair(value: String?){
+    fun setRepair(value: String?){ // null many
         searching.value!!.repair = value
     }
-    fun setFinish(value: String?){
+    fun setFinish(value: String?){ // null many
         searching.value!!.finish = value
     }
-    fun setTravelTime(value: String?){
+    fun setTravelTime(value: String?){ // not null one
         searching.value!!.travelTime = value?.toByte()
+        /*
+        if (value == null){
+            searching.value!!.travelType = null
+            Log.d("VMTravelTypeFromTime","type is ${searching.value!!.travelType}")
+        }
+
+         */
     }
-    fun setTravelType(value: String?){
-        searching.value!!.travelType = value
+    fun setTravelType(value: String?){ // null bool
         //travel.value = value
+        Log.d("VMTravelType","travel type is $value")
+        // если отменяем выбор типа как добраться до метро, то и время обнуляем
+        if (value == null){
+            searching.value!!.travelTime = null
+        }else{
+            val result = parameters["realEstate"]!!["travelType"]!![value]
+            searching.value!!.travelType = result.toString()
+        }
+
     }
-    fun setCell(value: String?){
+    fun setCell(value: String?){ // null many
         searching.value!!.cell = value
     }
-    fun setApart(value: String?){
-        searching.value!!.apart= value.toBoolean()
+    fun setApart(value: String?){ // null bool
+        try {
+            val temp = parameters["realEstate"]!!["apartment"]!![value]
+            searching.value!!.apart= temp
+            Log.d("VMLoggingApart","$value is $temp")
+        }catch (e:Exception){
+            Log.d("VMErrorApart",e.message.toString())
+            searching.value!!.apart = null
+            Log.d("VMLoggingApart","apart is null")
+        }
     }
-    fun setRoomType(value: String?){
-        searching.value!!.roomType = value.toBoolean()
+    fun setRoomType(value: String?){ // null bool
+        try {
+            //searching.value!!.roomType = value.toBoolean()
+            val temp = parameters["realEstate"]!!["roomType"]!![value]
+            searching.value!!.roomType = temp
+            Log.d("VMLoggingApart","$value is $temp")
+        }catch (e:Exception){
+            Log.d("VMErrorApart",e.message.toString())
+            //searching.value!!.apart = null
+            searching.value!!.roomType = null
+            Log.d("VMLoggingApart","apart is null")
+        }
+
     }
-    fun setRoom(value: String?){
+    fun setRoom(value: String?){ // int
         searching.value!!.room = value?.toUByte()
     }
-    fun setToiletType(value: String?){
+    fun setToiletType(value: String?){ //null bool
         searching.value!!.toiletType = value.toBoolean()
         wc.value = value.toBoolean()
+
+        /*//todo предусмотреть смену сортирного словаря на загородный туалет
+        try {
+            //searching.value!!.roomType = value.toBoolean()
+            val temp = parameters["realEstate"]!!["roomType"]!![value]
+            searching.value!!.roomType = temp
+            Log.d("VMLoggingApart","$value is $temp")
+        }catch (e:Exception){
+            Log.d("VMErrorApart",e.message.toString())
+            //searching.value!!.apart = null
+            searching.value!!.roomType = null
+            Log.d("VMLoggingApart","apart is null")
+        }
+
+         */
+
+        Log.d("VMToilet","toilet is $value")
     }
-    fun setWallMaterial(value: String?){
+    fun setWallMaterial(value: String?){ // null many
         searching.value!!.wallMaterial = value
     }
-    fun setBalconyType(value: String?){
+    fun setBalconyType(value: String?){ // null many
         searching.value!!.balconyType = value.toBoolean()
     }
-    fun setParking(value: String?){
+    fun setParking(value: String?){ // null many
         searching.value!!.parking = value
     }
-    fun setLiftType(value: String?){
+    fun setLiftType(value: String?){ // null many
         searching.value!!.liftType = value.toBoolean()
     }
-    fun setAmenities(value: String?){
+    fun setAmenities(value: String?){ // null many
         searching.value!!.amenities = value
     }
-    fun setView(value: String?){
+    fun setView(value: String?){ // null many
         searching.value!!.view = value
     }
-    fun setCommunication(value: String?){
+    fun setCommunication(value: String?){ // null many
         searching.value!!.communication = value
     }
-    fun setInclude(value: String?){
+    fun setInclude(value: String?){ // null words
         searching.value!!.include = value
     }
-    fun setExclude(value: String?){
+    fun setExclude(value: String?){ // null words
         searching.value!!.exclude = value
     }
-    fun setRentFeatures(value: String?){
+    fun setRentFeatures(value: String?){ // null many
         searching.value!!.rentFeature = value
     }
     fun set(){
     }
     // CLICKS
-    fun onAddSetClicked(){
+     fun onAddSetClicked(){
         screen_name.value = "Новая подборка"
         selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null, category = null, last_update = null)
         sets.add(selectedSet.value!!)
         //searching = SearchParameters()
     }
-    fun onSetSelected(set: AdSet?){
+    suspend fun onSetSelected(set: AdSet?){
         selectedSet.value = set
         screen_name.value = selectedSet.value!!.name.toString()
 
@@ -409,18 +467,21 @@ class AppViewModel(
             adsMap?.set(set.id, temp)
         }
 
-
-        val edited_ads: SnapshotStateList<Advert> = selectedSet.value!!.adverts!!.toMutableStateList()
-        edited_set = AdSet(name = selectedSet.value!!.name,
-            adverts = edited_ads,
-            update_interval = selectedSet.value!!.update_interval, caption = null, category = null,
-            last_update = selectedSet.value!!.last_update)
+        viewModelScope.launch {
+            val edited_ads: SnapshotStateList<Advert> = selectedSet.value!!.adverts!!.toMutableStateList()
+            edited_set = AdSet(name = selectedSet.value!!.name,
+                adverts = edited_ads,
+                update_interval = selectedSet.value!!.update_interval, caption = null, category = null,
+                last_update = selectedSet.value!!.last_update)
+        }
     }
 
-    fun onSetChange(name: String, update_interval: Int){
-        selectedSet.value!!.name = name
-        selectedSet.value!!.update_interval = update_interval
-        selectedSet.value!!.last_update = LocalDate.now()
+     fun onSetChange(name: String, update_interval: Int){
+        viewModelScope.launch {
+            selectedSet.value!!.name = name
+            selectedSet.value!!.update_interval = update_interval
+            selectedSet.value!!.last_update = LocalDate.now()
+        }
     }
     fun onFavouritesClick(){
         screen_name.value = "Избранное"
@@ -481,5 +542,112 @@ class AppViewModel(
     private fun getTestSet(): List<Advert>{
         return mutableStateListOf<Advert>()
     }
+
+    val parameters = mapOf(
+        "realEstate" to mapOf(
+            "apartment" to mutableStateMapOf(
+                "Не апартаменты" to false,
+                "Только апартаменты" to false
+        ),
+            "lift" to mutableStateMapOf(
+                "Пассажирский" to false,
+                "Грузовой" to false
+            ),
+            "repair" to mutableStateMapOf(
+                "Косметический" to false,
+                "Евро" to false,
+                "Дизайнерский" to false,
+                "Требуется" to false
+            ),
+            "parking" to mutableStateMapOf(
+                "Наземная" to false,
+                "Подземная" to false,
+                "Многоуровневая" to false,
+            ),
+            "floor" to mutableStateMapOf(
+                "Не первый" to false,
+                "Не последний" to false,
+                "Только последний" to false,
+            ),
+            "finish" to mutableStateMapOf(
+                "Черновая" to false,
+                "Предчистовая" to false,
+                "Чистовая" to false,
+                "Нет" to false
+            ),
+            "rentFeatures" to mutableStateMapOf(
+                "Без предоплаты" to false,
+                "Без залога" to false,
+                "Без комиссии" to false,),
+            "ameneties" to mutableStateMapOf(
+                "Кондиционер" to false,
+                "Холодильник" to false,
+                "Плита" to false,
+                "Микроволновка" to false,
+                "Стиральная машина" to false,
+                "Посудомойка" to false,
+                "Телевизор" to false,
+                "Водонагреватель" to false
+            ),
+            "communications" to mutableStateMapOf(
+                "Газ" to false,
+                "Вода" to false,
+                "Электричество" to false,
+                "Отопление" to false,
+            ),
+            "toilet" to mutableStateMapOf(
+                "Смежный" to false,
+                "Раздельный" to false
+            ),
+            "travelTime" to mutableStateMapOf(
+                "5" to false,
+                "10" to false,
+                "15" to false,
+                "20" to false,
+                "30" to false,
+            ),
+            "travelType" to mutableStateMapOf(
+                "Пешком" to false,
+                "Транспортом" to false,
+            ),
+            "view" to mutableStateMapOf(
+                "На улицу" to false,
+                "Во двор" to false,
+                "На парк" to false,
+                "На водоем" to false,),
+            "balcony" to mutableStateMapOf(
+                "Балкон" to false,
+                "Лоджия" to false
+            ),
+            "material" to mutableStateMapOf(
+                "Кирпичный" to false,
+                "Панельный" to false,
+                "Блочный" to false,
+                "Монолитный" to false,
+                "Монолитно-кирпичный" to false,
+                "Деревянный" to false,
+            ),
+            "roomType" to mutableStateMapOf(
+                "Смежные" to false,
+                "Изолированные" to false
+            ),
+            "cell" to mutableStateMapOf(
+                "2,5" to false,
+                "2,7" to false,
+                "3" to false,
+                "3,5" to false,
+                "4" to false
+            ),
+            "livingType" to mutableStateMapOf(
+                "Вторичка" to true,
+                "Новостройка" to false,
+                "Комната" to false,
+                "Дом, дача" to false,
+                "Таунхаус" to false,
+                "Участок" to false,
+            ),
+            "" to mutableStateMapOf()
+        )
+    )
 
 }

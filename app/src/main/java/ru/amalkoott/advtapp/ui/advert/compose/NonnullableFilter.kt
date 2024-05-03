@@ -18,17 +18,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.domain.Advert
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NonnullableFilter(name:String, map: SnapshotStateMap<String, Boolean>, setValue: (String)-> Unit,){
+    val scope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.padding(vertical = 8.dp)) {
@@ -40,9 +43,11 @@ fun NonnullableFilter(name:String, map: SnapshotStateMap<String, Boolean>, setVa
                 FilterChip(
                     modifier = Modifier.padding(4.dp),
                     onClick = {
-                        for (key in map.keys){ map[key] = false }
-                        map[type] = !map[type]!!
-                        //if (map[type]!!) setValue(type)//selected = type
+                        scope.launch {
+                            for (key in map.keys){ map[key] = false }
+                            map[type] = !map[type]!!
+                            //if (map[type]!!) setValue(type)//selected = type
+                        }
                     },
                     label = {Text(text = type)},
                     selected = map[type]!!,
@@ -54,36 +59,12 @@ fun NonnullableFilter(name:String, map: SnapshotStateMap<String, Boolean>, setVa
                 if (map[type]!!) setValue(type)//selected = type
             }
         }
-        /*
-        LazyHorizontalGrid(rows = GridCells.Fixed(2),
-            Modifier
-                .height((map.size * 32).dp)
-                .padding(0.dp)){
-            val livingTypes = map.keys.toList()
-            items(items = livingTypes){type ->
-                FilterChip(
-                    modifier = Modifier.padding(4.dp),
-                    onClick = {
-                        for (key in map.keys){ map[key] = false }
-                        map[type] = !map[type]!!
-                        if (map[type]!!) setValue(type)//selected = type
-                    },
-                    label = {Text(text = type)},
-                    selected = map[type]!!,
-                    leadingIcon = {
-                        /*Text(text = type)
-                         */
-                    }
-                )
-            }
-        }
-
-         */
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NonnullableFilter(map: SnapshotStateMap<String, Boolean>, setValue: (String)-> Unit,){
+    val scope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween) {
         RowWrap {
@@ -92,9 +73,11 @@ fun NonnullableFilter(map: SnapshotStateMap<String, Boolean>, setValue: (String)
                 FilterChip(
                     modifier = Modifier.padding(4.dp),
                     onClick = {
-                        for (key in map.keys){ map[key] = false }
-                        map[type] = !map[type]!!
-                        if (map[type]!!) setValue(type)//selected = type
+                        scope.launch{
+                            for (key in map.keys){ map[key] = false }
+                            map[type] = !map[type]!!
+                            if (map[type]!!) setValue(type)//selected = type
+                        }
                     },
                     label = {Text(text = type)},
                     selected = map[type]!!,
@@ -105,31 +88,6 @@ fun NonnullableFilter(map: SnapshotStateMap<String, Boolean>, setValue: (String)
                 )
             }
         }
-        /*
-        LazyHorizontalGrid(rows = GridCells.Fixed(2),
-            Modifier
-                .height((map.size * 32).dp)
-                .padding(0.dp)){
-            val livingTypes = map.keys.toList()
-            items(items = livingTypes){type ->
-                FilterChip(
-                    modifier = Modifier.padding(4.dp),
-                    onClick = {
-                        for (key in map.keys){ map[key] = false }
-                        map[type] = !map[type]!!
-                        if (map[type]!!) setValue(type)//selected = type
-                    },
-                    label = {Text(text = type)},
-                    selected = map[type]!!,
-                    leadingIcon = {
-                        /*Text(text = type)
-                         */
-                    }
-                )
-            }
-        }
-
-         */
     }
 }
 

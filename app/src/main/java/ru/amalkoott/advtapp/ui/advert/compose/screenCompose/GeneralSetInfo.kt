@@ -13,23 +13,67 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.AdSet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: ()-> Unit) {
+fun GeneralSetInfo(
+    name: String,
+    updateInterval: Int,
+    onNameChange: (String) -> Unit,
+    onUpdateIntervalChange: (Int) -> Unit
+) {
+    Column {
+        TextField(
+            value = name,
+            onValueChange = { onNameChange(it) },
+            label = { Text("Название подборки") },
+            placeholder = { Text("Введите название") },
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+        )
+        TextField(
+            value = updateInterval.toString(),
+            onValueChange = {
+                try {
+                    onUpdateIntervalChange(it.toInt())
+                } catch (e: NumberFormatException) {
+                    onUpdateIntervalChange(10) // По умолчанию
+                }
+            },
+            label = { Text("Интервал обновления") },
+            placeholder = { Text("Введите значение") },
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
+) {
+    val scope = rememberCoroutineScope()
     var update_interval by remember { mutableStateOf(selected.value!!.update_interval) }
     var name by remember { mutableStateOf(selected.value!!.name) }
+
+
     Column{
         TextField(
             value = name!!,
-            onValueChange = { 
+            onValueChange = {
                 name = it
                 selected.value!!.name = it
-                setChange() },
+                scope.launch {
+                    setChange()
+                }
+                 },
             label = { Text("Название подборки",
                 color = MaterialTheme.colorScheme.onSurfaceVariant) },
             placeholder = { Text(
@@ -54,15 +98,17 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: ()-> Unit) {
         TextField(
             value = update_interval.toString(),
             onValueChange = {
-                try{
-                    update_interval = it.toInt()
-                    selected.value!!.update_interval = it.toInt()
-                }catch (e: NumberFormatException){
-                    // если интервал не указан, то идет значение по умолчанию
-                    update_interval = 10
-                    selected.value!!.update_interval = 10
+                    try{
+                        update_interval = it.toInt()
+                        selected.value!!.update_interval = it.toInt()
+                    }catch (e: NumberFormatException){
+                        // если интервал не указан, то идет значение по умолчанию
+                        update_interval = 10
+                        selected.value!!.update_interval = 10
+                    }
+                scope.launch {
+                    setChange()
                 }
-                setChange()
             },
             label = { Text("Интервал обновления",
                 color = MaterialTheme.colorScheme.onSurfaceVariant) },

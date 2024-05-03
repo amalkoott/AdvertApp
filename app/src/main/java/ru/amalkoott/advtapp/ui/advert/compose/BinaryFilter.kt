@@ -10,10 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +49,10 @@ fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> U
             leadingIcon = {  }
         )
     }
-    setValue(type.toString())
+    val scope = rememberCoroutineScope()
+    scope.launch{
+        setValue(type.toString())
+    }
 }
 
 

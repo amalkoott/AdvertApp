@@ -18,14 +18,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Unit) {
+    val scope = rememberCoroutineScope()
     Column(modifier = Modifier
         .padding(
             start = 16.dp,
@@ -82,6 +85,8 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
             }
         }
         //Toast.makeText(context, "item", Toast.LENGTH_SHORT).show()
-        if (!expanded) setCategory(selectedText)
+        scope.launch {
+            if (!expanded) setCategory(selectedText)
+        }
     }
 }

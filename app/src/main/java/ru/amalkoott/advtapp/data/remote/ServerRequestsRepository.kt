@@ -15,6 +15,7 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
     // получаем список объявлений (подборку) по параметрам
     override suspend fun get(parameters: SearchParameters): List<Advert> = withContext(Dispatchers.IO){
        // val result: JsonArray?
+        // todo отправляем на сервак параметры (принимается вродеп норм)
         val result = mutableListOf<Advert>()
         val resultList: JsonArray
         // делаем get запрос - получаем Json-строку

@@ -69,7 +69,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import ru.amalkoott.advtapp.data.remote.SearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
@@ -181,7 +180,8 @@ fun AdSetScreen(vm: AppViewModel) {
     val city by remember { mutableStateOf(vm.city) }
     val travel by remember { mutableStateOf(vm.travel)}
 
-    val setChange:() -> Unit = {vm.onSetChange(selected.value!!.name!!,selected.value!!.update_interval!!)}
+    val scope = rememberCoroutineScope()
+    val setChange: suspend () -> Unit = { vm.onSetChange(selected.value!!.name!!,selected.value!!.update_interval!!)    }
     val favouritesClick:() -> Unit = {vm.onFavouritesClick()}
     val settingsClick:() -> Unit = {vm.onFavouritesClick()}
     val onBackClick:() -> Unit = {vm.onBackClick()}
@@ -191,7 +191,9 @@ fun AdSetScreen(vm: AppViewModel) {
         advrt -> vm.onRemoveAd(advrt)
     }
     val selectSet: (AdSet) -> Unit = { set ->
-        vm.onSetSelected(set)
+        scope.launch {
+            vm.onSetSelected(set)
+        }
     }
     val selectAd: (Advert) -> Unit = {
         advert ->
@@ -205,13 +207,14 @@ fun AdSetScreen(vm: AppViewModel) {
         advert -> vm.onDeleteFavourites(advert)
     }
 
+    val filterParameters = vm.parameters
     val favourites by remember { mutableStateOf(vm.favourites) }
     val settings by remember { mutableStateOf(vm.settings) }
 
     val screen_name by remember { mutableStateOf(vm.screen_name) }
 
     var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+    //val scope = rememberCoroutineScope()
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -263,7 +266,7 @@ fun AdSetScreen(vm: AppViewModel) {
             } else {
                 // создаем новую подборку
                 val ads = vm.adsMap[selected.value!!.id]
-                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category,dealType,flatType,city,travel)//vm.temp_ads)//, getAdverts)
+                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category,dealType,flatType,city,travel, filterParameters)//vm.temp_ads)//, getAdverts)
             }
         }
     }

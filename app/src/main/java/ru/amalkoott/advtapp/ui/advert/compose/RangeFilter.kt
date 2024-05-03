@@ -16,12 +16,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +32,7 @@ fun RangeFilter(
     setMinValue:(String)-> Unit,
     setMaxValue:(String) -> Unit
 ){
+    val scope = rememberCoroutineScope()
     var minValue by remember { mutableStateOf(0) }
     var maxValue by remember { mutableStateOf(0) }
     Column(
@@ -49,11 +52,13 @@ fun RangeFilter(
                     color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 value = minValue.toString(),
                 onValueChange = {
-                    try {
-                        minValue = Integer.parseInt(it)
-                        setMinValue(it)
-                    }catch (e:NumberFormatException){
-                        Log.d("NumberFormatException", "")
+                    scope.launch {
+                        try {
+                            minValue = Integer.parseInt(it)
+                            setMinValue(it)
+                        }catch (e:NumberFormatException){
+                            Log.d("NumberFormatException", "")
+                        }
                     }
                 },
                 //label = { Text("Min Price") },
@@ -73,11 +78,13 @@ fun RangeFilter(
                     color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 value = maxValue.toString(),
                 onValueChange = {
-                    try {
-                        maxValue = Integer.parseInt(it)
-                        setMaxValue(it)
-                    }catch (e:NumberFormatException){
-                        Log.d("NumberFormatException", "")
+                    scope.launch {
+                        try {
+                            maxValue = Integer.parseInt(it)
+                            setMaxValue(it)
+                        }catch (e:NumberFormatException){
+                            Log.d("NumberFormatException", "")
+                        }
                     }
                 },
                 //label = { Text("Max Price") },

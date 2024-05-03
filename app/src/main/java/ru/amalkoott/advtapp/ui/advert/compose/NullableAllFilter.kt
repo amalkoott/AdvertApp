@@ -20,9 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+// может быть выбрано один, два или больше (все) или ничего
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue: (String)-> Unit,){
+fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue: (String?)-> Unit,){
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.padding(vertical = 8.dp)) {
@@ -35,11 +36,14 @@ fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setVa
                     modifier = Modifier.padding(0.dp),
                     onClick = {
                         map[type] = !map[type]!!
-                        if (map[type]!!)setValue(type)},
+                        if (map[type]!!) { setValue(type); return@FilterChip }
+                        else{ setValue(null)}
+                              },
                     label = { Text(text = type)},
                     selected = map[type]!!,
                     leadingIcon = { }
                 )
+                //if (map[type]!!)setValue(type)
             }
         }
         /*

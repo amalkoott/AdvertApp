@@ -57,7 +57,7 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
                         focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.surface
                     ),
-                    onValueChange = {},
+                    onValueChange = { },
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier.menuAnchor()
@@ -73,13 +73,15 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
                             onClick = {
                                 selectedText = item
                                 expanded = false
-                                setCategory(item)
-                                Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
+                             //   setCategory(item)
+                                //Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
                             }
                         )
                     }
                 }
             }
         }
+        //Toast.makeText(context, "item", Toast.LENGTH_SHORT).show()
+        if (!expanded) setCategory(selectedText)
     }
 }

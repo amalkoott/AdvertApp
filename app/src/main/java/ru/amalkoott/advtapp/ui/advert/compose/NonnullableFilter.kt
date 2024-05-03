@@ -42,7 +42,7 @@ fun NonnullableFilter(name:String, map: SnapshotStateMap<String, Boolean>, setVa
                     onClick = {
                         for (key in map.keys){ map[key] = false }
                         map[type] = !map[type]!!
-                        if (map[type]!!) setValue(type)//selected = type
+                        //if (map[type]!!) setValue(type)//selected = type
                     },
                     label = {Text(text = type)},
                     selected = map[type]!!,
@@ -51,6 +51,7 @@ fun NonnullableFilter(name:String, map: SnapshotStateMap<String, Boolean>, setVa
                          */
                     }
                 )
+                if (map[type]!!) setValue(type)//selected = type
             }
         }
         /*

@@ -12,7 +12,7 @@ import ru.amalkoott.advtapp.ui.advert.compose.RangeFilter
 import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.GeneralSetFilters
 
 @Composable
-fun RealEstateFilter(funs: Map<String, (String) -> Unit>,
+fun RealEstateFilter(funs: Map<String, (String?) -> Unit>,
                      dealType: MutableState<Boolean>,
                      flatType: MutableState<String>,
                      city: MutableState<String>,
@@ -51,7 +51,7 @@ fun GeneralRealEstateFilters(
     dealType: MutableState<Boolean>,
     flatType: MutableState<String>,
     travel: MutableState<String?>,
-    funs: Map<String, (String) -> Unit>
+    funs: Map<String, (String?) -> Unit>
     /*
     setLivingType:(String) -> Unit,
     setMinArea:(String) -> Unit,
@@ -206,13 +206,16 @@ fun GeneralRealEstateFilters(
 
 @Composable
 fun FlatFilters(
-    setMinFloor: (String) -> Unit,
-    setMaxFloor: (String) -> Unit,
-    setFloor: (String) -> Unit,
-    setRepair: (String) -> Unit,
-    setApart: (String) -> Unit,
-    setParking: (String) -> Unit,
-    setLift: (String) -> Unit,
+    setMinFloor: (String?) -> Unit,
+    setMaxFloor: (String?) -> Unit,
+    setFloor: (String?) -> Unit,
+    setRepair: (String?) -> Unit,
+    setApart: (String?) -> Unit,
+    setParking: (String?) -> Unit,
+    setLift: (String?) -> Unit,
+
+    // эксперимент с аппарт
+    //apart: MutableMap<String,Boolean>
 )
 {
     val floorTypePairs = remember { mutableStateMapOf<String,Boolean>(
@@ -261,8 +264,8 @@ fun FlatFilters(
 
 @Composable
 fun CountryFilters(
-    setRepair: (String) -> Unit,
-    setCommunication: (String) -> Unit,
+    setRepair: (String?) -> Unit,
+    setCommunication: (String?) -> Unit,
 ){
     // ремонт: нужен, косметический, евро, дизайн (все, кроме новостроек) (можно null) flat type
     val repairPairs = remember { mutableStateMapOf<String,Boolean>(
@@ -285,7 +288,7 @@ fun CountryFilters(
 
 @Composable
 fun LayoutFilters(
-    setFinish: (String) -> Unit,
+    setFinish: (String?) -> Unit,
 ){
     // отделка: нет, черновая, предчистовая, чистовая (только новостройки) (можно null) flat type
     val finishPairs = remember { mutableStateMapOf<String,Boolean>(
@@ -299,7 +302,7 @@ fun LayoutFilters(
 
 @Composable
 fun SaleFilters(
-    setPriceType:(String) -> Unit
+    setPriceType:(String?) -> Unit
 ){
 // цена: за все-за м2 (только для покупки) deal type
     BinaryFilter(firstValue = "За все", secondValue = "За м2", setPriceType)//funs["price"]!!)
@@ -307,9 +310,9 @@ fun SaleFilters(
 
 @Composable
 fun RentFilters(
-    setRentType:(String) -> Unit,
-    setAmenities:(String) -> Unit,
-    setRentFeatures:(String) -> Unit
+    setRentType:(String?) -> Unit,
+    setAmenities:(String?) -> Unit,
+    setRentFeatures:(String?) -> Unit
 ){
 // съем
     // - город

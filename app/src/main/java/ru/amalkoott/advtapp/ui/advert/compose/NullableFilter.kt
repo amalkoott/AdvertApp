@@ -19,9 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+// может быть выбрано что-то одно или ничего
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue: (String)-> Unit,){
+fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue: (String?)-> Unit,){
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.padding(vertical = 8.dp)) {
@@ -36,7 +37,8 @@ fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue
                             if (key != type) map[key] = false
                         }
                         map[type] = !map[type]!!//@todo возможно здетсь будет проблема с конвертацией туалета (см. vm.setToilet())
-                        if (map[type]!!) setValue(type)},
+                        if (map[type]!!) { setValue(type); return@FilterChip }
+                        else{ setValue(null)}},
                     label = { Text(text = type)},
                     selected = map[type]!!,
                     leadingIcon = { }
@@ -68,7 +70,7 @@ fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NullableFilter(map: SnapshotStateMap<String,Boolean>, setValue: (String)-> Unit,){
+fun NullableFilter(map: SnapshotStateMap<String,Boolean>, setValue: (String?)-> Unit,){
     RowWrap {
         val livingTypes = map.keys.toList()
         livingTypes.forEach { type->
@@ -77,11 +79,14 @@ fun NullableFilter(map: SnapshotStateMap<String,Boolean>, setValue: (String)-> U
                 onClick = {
                     for (key in map.keys){ if(key != type) map[key] = false }
                     map[type] = !map[type]!!
-                    if (map[type]!!)setValue(type)},
+                    if (map[type]!!) { setValue(type); return@FilterChip }
+                    else{ setValue(null)}
+                },
                 label = { Text(text = type)},
                 selected = map[type]!!,
                 leadingIcon = { }
             )
+            //if (map[type]!!)setValue(type)
         }
     }
 

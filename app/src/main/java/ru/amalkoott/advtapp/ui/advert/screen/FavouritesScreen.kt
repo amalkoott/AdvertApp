@@ -76,7 +76,7 @@ fun PrintFavourites(favs: SnapshotStateList<Advert>,
                                     fontWeight = FontWeight.SemiBold,
                                     )
                                 Text(
-                                    text = (advert.price!! * 100000).toString() + ' ' + '₽',
+                                    text = (advert.price!!).toString() + ' ' + '₽',
                                     fontWeight = FontWeight.SemiBold,
                                     //modifier = Modifier.padding(top = 15.dp, bottom = 5.dp)
                                 )

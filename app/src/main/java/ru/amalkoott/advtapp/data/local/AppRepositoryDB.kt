@@ -2,6 +2,7 @@ package ru.amalkoott.advtapp.data.local
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.AdSet
@@ -37,7 +38,16 @@ class AppRepositoryDB(
     }
 
     override suspend fun addSet(note: AdSet): Unit = withContext(Dispatchers.IO){
-        appDao.insertSet(note)
+        val id = async { appDao.insertSet(note) }
+        //println(id.await())
+        for (ad in note.adverts!!){
+            ad.adSetId = id.await()
+            appDao.insertAd(ad)
+        }
+        note.id = id.await()
+
+        appDao.updateSet(note)
+
     }
     override suspend fun updateSet(note: AdSet) = withContext(Dispatchers.IO){
         appDao.updateSet(note)

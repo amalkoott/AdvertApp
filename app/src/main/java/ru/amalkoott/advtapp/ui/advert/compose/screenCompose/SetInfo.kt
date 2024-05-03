@@ -126,14 +126,14 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                                 modifier = Modifier.padding(top = 8.dp, bottom = 0.dp),
                             )
                             Text(
-                                text = (advert.price!! * 100000).toString() + ' ' + '₽',
+                                text = (advert.price!!).toString() + ' ' + '₽',
                                 fontSize = 18.sp,
                                 modifier = Modifier.padding(top = 0.dp, bottom = 0.dp),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         Text(
-                            text = advert.ad_caption.toString(),
+                            text = advert.description.toString(),
                             overflow = TextOverflow.Ellipsis,
                             maxLines = 2,
                             lineHeight = 16.sp,

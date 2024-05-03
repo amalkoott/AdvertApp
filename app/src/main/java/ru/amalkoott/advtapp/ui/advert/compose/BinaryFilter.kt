@@ -25,7 +25,7 @@ fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> U
             onClick = {
                 type = !type
                 //setValue(firstValue)
-                setValue(type.toString())
+              //  setValue(type.toString())
                       },
             label = {
                 Text(
@@ -37,7 +37,7 @@ fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> U
         FilterChip(
             onClick = {
                 type = !type
-                setValue(type.toString())
+               // setValue(type.toString())
                 //setValue(secondValue)
                       },
             label = {Text(text = secondValue)},
@@ -45,6 +45,7 @@ fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> U
             leadingIcon = {  }
         )
     }
+    setValue(type.toString())
 }
 
 

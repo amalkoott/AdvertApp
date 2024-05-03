@@ -1,24 +1,25 @@
 package ru.amalkoott.advtapp.ui.advert.view
 
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import ru.amalkoott.advtapp.data.remote.SearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.AdSetWithAdverts
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppUseCase
 import java.time.LocalDate
-import java.util.Dictionary
 
 // viewModel для общих нужд:
 // - настройки пользователя
@@ -28,8 +29,8 @@ class AppViewModel(
     private val appUseCase: AppUseCase
 ): ViewModel() {
 
-
-
+    val sets = mutableStateListOf<AdSet>()
+/*
     val sets = mutableStateListOf<AdSet>(
         AdSet(
             0,
@@ -67,15 +68,17 @@ class AppViewModel(
             LocalDate.now()
         )
     )
-
+    */
     val adsMap: MutableMap<Long?,MutableStateFlow<List<Advert>>> = mutableMapOf()
     val search: MutableMap<String,String> = mutableMapOf()
     init{
         //@TODO не забыть при смене схемы БД поменять тип adsetID (внешний ключ у Advert) на Long?
 
         viewModelScope.launch {
-            //appUseCase.fillWithInitialSets(emptyList())
-            appUseCase.fillWithInitialSets(sets)
+            appUseCase.fillWithInitialSets(emptyList())
+          //  appUseCase.fillWithInitialSets(sets)
+
+
 
             //appUseCase.loadRemoteNotes()
         }
@@ -86,18 +89,20 @@ class AppViewModel(
                     adSet.value = note
                 }
         }
-        sets.forEach{
-            adsMap?.put(it.id,MutableStateFlow<List<Advert>>(emptyList()))
-            var temp = MutableStateFlow<List<Advert>>(emptyList())
-            viewModelScope.launch {
-                appUseCase.advertsBySetFlow(it.id!!)
-                    .collect{
-                            ad -> temp.value = ad
-                    }
-            }
-            adsMap?.set(it.id, temp)
-        }
 
+        if (sets.isNotEmpty()){
+            sets.forEach{
+                adsMap?.put(it.id,MutableStateFlow<List<Advert>>(emptyList()))
+                val temp = MutableStateFlow<List<Advert>>(emptyList())
+                viewModelScope.launch {
+                    appUseCase.advertsBySetFlow(it.id!!)
+                        .collect{
+                                ad -> temp.value = ad
+                        }
+                }
+                adsMap?.set(it.id, temp)
+            }
+        }
     }
     var adSet = MutableStateFlow<List<AdSet>>(emptyList())
     var screen_name = mutableStateOf<String>("Подборки")
@@ -123,17 +128,38 @@ class AppViewModel(
         if (set == null || set.name!!.isBlank()) return
         if (searching.value == null) return
 
-        // сохранение отредактированной подборки
+        // сохранение отредактированной подборки ** было launch
+
+
         viewModelScope.launch {
             appUseCase.saveSet(set,searching.value)
         }
+
+        // Обновлять объявления???
+
 
         screen_name.value = "Подборки"
         selectedSet.value = null
         edited_set = null
         cancelSearching()
     }
+    private suspend fun test(set: AdSet) = coroutineScope {
+        val id = async { appUseCase.saveSet(set,searching.value) }
+        println("message: ${id.await()}")
+        println("Program has finished with id")
 
+        val message: Deferred<String> = async{ getMessage()}
+        println("message: ${message.await()}")
+        println("Program has finished")
+    }
+    suspend fun getMessage() : String{
+        delay(500L)  // имитация продолжительной работы
+        return "Hello"
+    }
+    private suspend fun saveSetAndGetID(set: AdSet): Long? = coroutineScope{
+        val id = async {   appUseCase.saveSet(set, searching.value) }
+        return@coroutineScope id.await()
+    }
 
     fun onDeleteSet(){
         sets.remove(selectedSet.value)
@@ -230,128 +256,132 @@ class AppViewModel(
         travel.value = null
         wc.value = false
     }
-    fun setCategory(category: String){
+    fun setCategory(category: String?){
         searching.value!!.category = category
         this.category.value = category
     }
-    fun setCity(city: String){
+    fun setCity(city: String?){
         searching.value!!.city = city
-        this.city.value = city
+        if (city != null) {
+            this.city.value = city
+        }
         travel.value = "метро"
     }
-    fun setLivingType(type: String){
+    fun setLivingType(type: String?){
         searching.value!!.livingType = type
-        flatType.value = type
+        if (type != null) {
+            flatType.value = type
+        }
         Log.d("LIVING_TYPE",searching.value!!.livingType.toString())
     }
-    fun setDealType(type: String){
+    fun setDealType(type: String?){
         searching.value!!.dealType = type//.toBoolean()
         dealType.value = type.toBoolean()
         Log.d("DEAL_TYPE",searching.value!!.dealType.toString())
     }
-    fun setPriceType(type: String){
+    fun setPriceType(type: String?){
         searching.value!!.priceType = type
         Log.d("PRICE_TYPE",searching.value!!.priceType.toString())
     }
-    fun setRentType(type: String){
+    fun setRentType(type: String?){
         searching.value!!.rentType = type
     }
-    fun setFloorType(type: String){
+    fun setFloorType(type: String?){
         searching.value!!.floorType = type
     }
-    fun setMinPrice(value: String){
-        searching.value!!.minPrice = value.toFloatOrNull()
+    fun setMinPrice(value: String?){
+        searching.value!!.minPrice = value?.toFloatOrNull()
     }
-    fun setMaxPrice(value: String){
-        searching.value!!.maxPrice = value.toFloatOrNull()
+    fun setMaxPrice(value: String?){
+        searching.value!!.maxPrice = value?.toFloatOrNull()
     }
-    fun setMinArea(value: String){
-        searching.value!!.minArea = value.toInt()
+    fun setMinArea(value: String?){
+        searching.value!!.minArea = value?.toInt()
     }
-    fun setMaxArea(value: String){
-        searching.value!!.maxArea = value.toInt()
+    fun setMaxArea(value: String?){
+        searching.value!!.maxArea = value?.toInt()
     }
-    fun setMinLArea(value: String){
-        searching.value!!.minLArea = value.toInt()
+    fun setMinLArea(value: String?){
+        searching.value!!.minLArea = value?.toInt()
     }
-    fun setMaxLArea(value: String){
-        searching.value!!.maxLArea = value.toInt()
+    fun setMaxLArea(value: String?){
+        searching.value!!.maxLArea = value?.toInt()
     }
-    fun setMinKArea(value: String){
-        searching.value!!.minKArea = value.toInt()
+    fun setMinKArea(value: String?){
+        searching.value!!.minKArea = value?.toInt()
     }
-    fun setMaxKArea(value: String){
-        searching.value!!.maxLArea = value.toInt()
+    fun setMaxKArea(value: String?){
+        searching.value!!.maxLArea = value?.toInt()
     }
-    fun setMinFloor(value: String){
-        searching.value!!.minFloor = value.toInt()
+    fun setMinFloor(value: String?){
+        searching.value!!.minFloor = value?.toInt()
     }
-    fun setMaxFloor(value: String){
-        searching.value!!.maxFloor = value.toInt()
+    fun setMaxFloor(value: String?){
+        searching.value!!.maxFloor = value?.toInt()
     }
-    fun setMinFloors(value: String){
-        searching.value!!.minFloors = value.toInt()
+    fun setMinFloors(value: String?){
+        searching.value!!.minFloors = value?.toInt()
     }
-    fun setMaxFloors(value: String){
-        searching.value!!.maxFloors = value.toInt()
+    fun setMaxFloors(value: String?){
+        searching.value!!.maxFloors = value?.toInt()
     }
-    fun setRepair(value: String){
+    fun setRepair(value: String?){
         searching.value!!.repair = value
     }
-    fun setFinish(value: String){
+    fun setFinish(value: String?){
         searching.value!!.finish = value
     }
-    fun setTravelTime(value: String){
-        searching.value!!.travelTime = value.toByte()
+    fun setTravelTime(value: String?){
+        searching.value!!.travelTime = value?.toByte()
     }
-    fun setTravelType(value: String){
+    fun setTravelType(value: String?){
         searching.value!!.travelType = value
         //travel.value = value
     }
-    fun setCell(value: String){
+    fun setCell(value: String?){
         searching.value!!.cell = value
     }
-    fun setApart(value: String){
+    fun setApart(value: String?){
         searching.value!!.apart= value.toBoolean()
     }
-    fun setRoomType(value: String){
+    fun setRoomType(value: String?){
         searching.value!!.roomType = value.toBoolean()
     }
-    fun setRoom(value: String){
-        searching.value!!.room = value.toUByte()
+    fun setRoom(value: String?){
+        searching.value!!.room = value?.toUByte()
     }
-    fun setToiletType(value: String){
+    fun setToiletType(value: String?){
         searching.value!!.toiletType = value.toBoolean()
         wc.value = value.toBoolean()
     }
-    fun setWallMaterial(value: String){
+    fun setWallMaterial(value: String?){
         searching.value!!.wallMaterial = value
     }
-    fun setBalconyType(value: String){
+    fun setBalconyType(value: String?){
         searching.value!!.balconyType = value.toBoolean()
     }
-    fun setParking(value: String){
+    fun setParking(value: String?){
         searching.value!!.parking = value
     }
-    fun setLiftType(value: String){
+    fun setLiftType(value: String?){
         searching.value!!.liftType = value.toBoolean()
     }
-    fun setAmenities(value: String){
+    fun setAmenities(value: String?){
         searching.value!!.amenities = value
     }
-    fun setView(value: String){
+    fun setView(value: String?){
         searching.value!!.view = value
     }
-    fun setCommunication(value: String){
+    fun setCommunication(value: String?){
         searching.value!!.communication = value
     }
-    fun setInclude(value: String){
+    fun setInclude(value: String?){
         searching.value!!.include = value
     }
-    fun setExclude(value: String){
+    fun setExclude(value: String?){
         searching.value!!.exclude = value
     }
-    fun setRentFeatures(value: String){
+    fun setRentFeatures(value: String?){
         searching.value!!.rentFeature = value
     }
     fun set(){
@@ -366,6 +396,19 @@ class AppViewModel(
     fun onSetSelected(set: AdSet?){
         selectedSet.value = set
         screen_name.value = selectedSet.value!!.name.toString()
+
+        if(!adsMap.contains(set!!.id)){
+            adsMap?.put(set.id,MutableStateFlow<List<Advert>>(emptyList()))
+            val temp = MutableStateFlow<List<Advert>>(emptyList())
+            viewModelScope.launch {
+                appUseCase.advertsBySetFlow(set.id!!)
+                    .collect{
+                            ad -> temp.value = ad
+                    }
+            }
+            adsMap?.set(set.id, temp)
+        }
+
 
         val edited_ads: SnapshotStateList<Advert> = selectedSet.value!!.adverts!!.toMutableStateList()
         edited_set = AdSet(name = selectedSet.value!!.name,

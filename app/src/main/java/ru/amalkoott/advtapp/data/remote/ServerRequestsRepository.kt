@@ -3,6 +3,7 @@ package ru.amalkoott.advtapp.data.remote
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,7 +14,9 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
 
     // получаем список объявлений (подборку) по параметрам
     override suspend fun get(parameters: SearchParameters): List<Advert> = withContext(Dispatchers.IO){
-        val result: JsonArray?
+       // val result: JsonArray?
+        val result = mutableListOf<Advert>()
+        val resultList: JsonArray
         // делаем get запрос - получаем Json-строку
         // конвертим json-строку в подборку
         try {
@@ -25,14 +28,24 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
                 Log.w("AppRepositoryApi","Can't get issues $response")
                 return@withContext emptyList()
             }
-            result = response.body()!!.asJsonArray
-            val size = result.size()
+            resultList = response.body()!!.asJsonArray
+            /*
+            for (item in resultList){
+                result.add(toAdvert(item))
+            }
+            */
+            //result = response.body()!!.asJsonArray
+           // val size = result.size()
         } catch (e: Exception){
             Log.w("ServerRequestRepository","Can't get issues", e)
             return@withContext emptyList()
         }
+        val set = resultList.map {
+            toAdvert(it)
+        } ?: emptyList()
+        return@withContext set
 
-        return@withContext emptyList()
+       // return@withContext emptyList()
         /*
         val sets = issues?.map{
             toAdvert(it.toString())
@@ -41,10 +54,111 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
 
          */
     }
-    private fun toAdvert(request: String): Advert {
+    private fun toAdvert(request: JsonElement): Advert {
 //      Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
+        val jsonAdvert = request.asJsonObject
+        var title: String? = null
+        var desc: String? = null
+        var price: String? = null
+        var address: String? = null
+        var loc: String? = null
+        var url: String? = null
+        var images: String? = null
 
-        return Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
+        try {
+            title = jsonAdvert["title"].asString
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            desc = jsonAdvert["description"].asString
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            price = jsonAdvert["price"].asString
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            address = jsonAdvert["address"].asString
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            loc = jsonAdvert["location"].toString()
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            url = jsonAdvert["url"].asString
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            images = jsonAdvert["images"].asString
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+/*
+        try {
+
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+*/
+
+
+        //return Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
+        return Advert(
+            id = null,
+            name = title,
+            description = desc,
+            price = price,
+            location = loc,
+            address = address,
+            url = url,
+            imagesURL = images,
+            null, 0
+        )
     }
     override suspend fun checkServer(): JsonObject? = withContext(Dispatchers.IO){
         val result: JsonObject?

@@ -54,7 +54,7 @@ fun AddSet(
     addFavourites: (Advert)-> Unit,
     ads: MutableStateFlow<List<Advert>>?,
     search: MutableState<SearchParameters?>,
-    filterFunctions: Map<String,(String)->Unit>,
+    filterFunctions: Map<String,(String?)->Unit>,
     createSearching:()->Unit,
     category: MutableState<String?>,
     dealType: MutableState<Boolean>,
@@ -335,7 +335,7 @@ fun ImageFromUrl(url: String) {
 
 @Composable
 fun PrintFilters(search: MutableState<SearchParameters?>,
-                 realEstateFunctions: Map<String,(String)->Unit>,
+                 realEstateFunctions: Map<String,(String?)->Unit>,
                  createSearching:()->Unit,
                  ctgry: MutableState<String?>,
                  dealType: MutableState<Boolean>,

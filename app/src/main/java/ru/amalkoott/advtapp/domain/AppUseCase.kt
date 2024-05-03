@@ -1,11 +1,9 @@
 package ru.amalkoott.advtapp.domain
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import ru.amalkoott.advtapp.data.remote.SearchParameters
-import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
-import java.util.Dictionary
 
 /*@TODO надо сделать:
 */
@@ -49,22 +47,36 @@ class AppUseCase(
         if (search == null) return null
         val response = appApi.get(search)
         //val response = appApi.get(SearchParameters("Снять"))
-        if (response.isNotEmpty()){
+        return if (response.isNotEmpty()){
             // response to set и потом сохранять
+            //val set = AdSet(name = "",adverts = response, update_interval = 10, caption = null, category = null, last_update = null)
+            response
         }else{
-            return null
+            null
         }
-        return response
+        //return response
     }
     suspend fun saveSet(set: AdSet,search: SearchParameters?):Long?{
         if (set.id == null){
+            val adverts = sendSearching(search)
             // сначала поиск на сервере
-            if (sendSearching(search).isNullOrEmpty()) return null
+            if (adverts.isNullOrEmpty()) return null
             //val test = appApi.checkServer()
             //val response = appApi.get(SearchParameters("Снять"))
+            // @TODO собирать set.caption из параметров поиска
+            set.adverts = adverts
+
+            set.caption = toCaption(search)
 
             appRepo.addSet(set)
-
+            /*
+            val id = set.id
+            for (ad in adverts){
+                ad.adSetId = id
+            }
+            set.adverts = adverts
+            appRepo.updateSet(set)
+             */
             // если ответ null - добавления НЕТ (объявления не найдены)
             // если ответ не пустой - добавляем
 
@@ -75,6 +87,17 @@ class AppUseCase(
             appRepo.updateSet(set)
         }
         return set.id
+    }
+    private fun toCaption(search: SearchParameters?): String{
+        var caption = ""
+        val gson = Gson()
+        val json = gson.toJsonTree(search)
+        val map: Map<*, *> = gson.fromJson(json, MutableMap::class.java)
+
+        for (key in map.keys){
+            caption += "$key: ${map[key]}\n"
+        }
+        return caption
     }
     suspend fun removeSet(set: AdSet){
         appRepo.removeSet(set)

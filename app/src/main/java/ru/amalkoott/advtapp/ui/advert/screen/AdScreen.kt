@@ -79,85 +79,6 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
         "https://c.wallhere.com/photos/10/26/1920x1200_px_animals_cats_Tanks-1914705.jpg!s",
         "https://images.chesscomfiles.com/uploads/v1/user/77559592.9cb711dc.160x160o.e195dd620cda.jpeg",
     )
-/*
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = TopAppBarDefaults.mediumTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
-                    ),
-                    title = {
-                        Text(
-                            text = selectedAd.value!!.name//"screen_name.value"
-                        )
-
-                    },
-                    actions = {
-//                        DrawDropmenu(U)
-                    },
-                    navigationIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Localized description"
-                        )
-
-                    }
-
-                )
-            },
-            bottomBar = {
-                BottomAppBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    actions = {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(IntrinsicSize.Max),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                        ){
-                            Button(
-                                onClick = {
-                                },
-                                border = BorderStroke(10.dp, MaterialTheme.colorScheme.background),
-                                shape = RoundedCornerShape(50),
-                                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Magenta, contentColor = Color.Red),
-
-                                modifier = Modifier
-                                    .width(165.dp)
-                                    .height(65.dp),
-                                content = {
-                                    Icon(
-                                        Icons.Filled.Favorite,
-                                        contentDescription = "Localized description",
-                                    )
-                                }
-                            )
-                            Button(
-                                onClick = {
-                                },
-                                border = BorderStroke(15.dp, MaterialTheme.colorScheme.background),
-                                shape = RoundedCornerShape(50),
-                                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Cyan, contentColor = Color.Red),
-
-                                modifier = Modifier
-                                    .width(170.dp)
-                                    .height(70.dp),
-                                content = {
-                                    Icon(
-                                        Icons.Filled.Favorite,
-                                        contentDescription = "Localized description",
-                                    )
-                                }
-                            )
-                        }
-                    },
-                    containerColor = Color.Transparent
-                )
-            },
-
-            ){
-            */
             Column(
                 Modifier
                     .padding(bottom = 10.dp)
@@ -176,56 +97,12 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
                         )
                     }
                 )
-                Text(text = (selectedAd.value!!.price!!*100000).toString() + " Р",//"2 400 000 Р",
+                Text(text = (selectedAd.value!!.price!!).toString() + " Р",
                     Modifier.padding(horizontal = 25.dp, vertical = 20.dp),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1)
-/*
-                Row(
-                    Modifier.fillMaxWidth().fillMaxHeight().padding(top = 10.dp, bottom = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically){
 
-                    SuggestionChip(
-                        colors = SuggestionChipDefaults.suggestionChipColors(MaterialTheme.colorScheme.tertiaryContainer),
-                        border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
-                        onClick = { Log.d("footage","24")  },
-                        label = { Text(
-                            text = selectedAd.value!!.footage.toString() + "\nкв.м",//"24\nкв.м",
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.width(60.dp).padding(vertical = 7.dp),
-                            textAlign = TextAlign.Center,
-
-                            lineHeight = 12.sp)}
-                    )
-                    SuggestionChip(
-                        colors = SuggestionChipDefaults.suggestionChipColors(MaterialTheme.colorScheme.tertiaryContainer),
-                        border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
-                        onClick = { Log.d("footage","24")  },
-                        label = { Text(
-                            text = selectedAd.value!!.room.toString() +
-                                    "\nкомн.",
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.width(60.dp).padding(vertical = 7.dp),
-                            textAlign = TextAlign.Center,
-
-                            lineHeight = 12.sp)}
-                    )
-                    SuggestionChip(
-                        colors = SuggestionChipDefaults.suggestionChipColors(MaterialTheme.colorScheme.tertiaryContainer),
-                        border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
-                        onClick = { Log.d("footage","24")  },
-                        label = { Text(
-                            text = selectedAd.value!!.floor.toString() + "\nиз 19",
-                            color = MaterialTheme.colorScheme.onTertiaryContainer,
-                            modifier = Modifier.width(60.dp).padding(vertical = 7.dp),
-                            textAlign = TextAlign.Center,
-
-                            lineHeight = 12.sp)}
-                    )
-                }
-*/
                 Column(Modifier.padding(horizontal = 25.dp, vertical = 10.dp),) {
                     Row(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)) {
                         Icon(
@@ -233,10 +110,21 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
                             contentDescription = "Localized description",
                         )
 
+                        // местоположение (адрес)
                         Text(modifier = Modifier.padding(start = 5.dp),
-                            text = selectedAd.value!!.location.toString(),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
+                            text = selectedAd.value!!.address.toString(),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Normal,)
+
+
+                        // до метро\центра
+                        if (selectedAd.value!!.location != null){
+                            Text(modifier = Modifier.padding(start = 5.dp),
+                                text = selectedAd.value!!.location.toString(),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Normal,)
+                        }
+
                     }
 
                     Text(
@@ -247,7 +135,7 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
 
                     Text(
                         modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
-                        text = selectedAd.value!!.ad_caption.toString(),
+                        text = selectedAd.value!!.description.toString(),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Normal,)
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TextFilter(value:String, name:String, placeholder:String, setValue:(String)->Unit){
     var textValue by remember { mutableStateOf(value) }
+    if (value != "") setValue(value)
     TextField(
         value = textValue,
         onValueChange = {

@@ -68,8 +68,6 @@ fun GeneralRealEstateFilters(
 
     val isShowMore = remember { mutableStateOf(false) }
 
-
-
     when(flatType.value){
         "Вторичка" -> FlatFilters(
             funs["minFloor"]!!,

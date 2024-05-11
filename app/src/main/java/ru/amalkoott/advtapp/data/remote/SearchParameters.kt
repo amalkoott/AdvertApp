@@ -8,6 +8,7 @@ data class SearchParameters (
     //var dealType: Boolean? = null,
     var dealType: String? = null,
     var livingType: String? = null,
+
     var rentType: String? = null,
     var priceType: String? = null,
     var minPrice: Float? = null,
@@ -61,6 +62,56 @@ fun isNotEmpty():Boolean{
         (communication == null)||(include == null)||(exclude == null)||(rentFeature == null)) return false
     return true
 }
+    fun cancelRent(){
+        // обнуление всех rent-параметров
+         rentType= null
+         amenities = null
+         rentFeature = null
+
+    }
+    fun cancelSale(){
+        // обнуление всех sale-параметро
+        priceType = null
+    }
+    fun cancelLayout(){
+        minFloor = null // этаж
+         maxFloor= null
+         minFloors= null // этажность
+         maxFloors= null
+         floorType = null
+
+         finish = null
+         travelTime = null
+         travelType = null
+         apart = null
+
+    }
+    fun cancelCountry(){
+         communication = null
+         toiletType = null
+
+         travelTime = null
+         travelType = null
+         repair = null
+
+    }
+    fun cancelFlat(){
+         floorType= null
+
+         repair = null
+
+         parking = null
+         toiletType= null
+         apart = null
+
+         travelTime = null
+         travelType = null
+
+
+         minFloor= null // этаж
+         maxFloor= null
+
+    }
 }
 /*
 

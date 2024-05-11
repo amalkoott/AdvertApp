@@ -28,16 +28,23 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.google.accompanist.pager.ExperimentalPagerApi
 import ru.amalkoott.advtapp.domain.Advert
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PrintFavourites(favs: SnapshotStateList<Advert>,
                     deleteFavourites: (Advert)-> Unit,
                     selectedAd: MutableState<Advert?>,
                     selectAd: (Advert)-> Unit){
+    // TODO красиво оформить список избранного
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
         modifier = Modifier
@@ -103,12 +110,18 @@ fun PrintFavourites(favs: SnapshotStateList<Advert>,
                                     )
                                 })
                         }
-
                         Card(modifier = Modifier
                             .fillMaxSize()
                             .weight(1f),) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(advert.images[0])
+                                    .build(),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.height(250.dp)
+                            )
                         }
-
                 }
             }
         }

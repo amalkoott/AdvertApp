@@ -210,6 +210,9 @@ fun AdSetScreen(vm: AppViewModel) {
     val filterParameters = vm.parameters
     val favourites by remember { mutableStateOf(vm.favourites) }
     val settings by remember { mutableStateOf(vm.settings) }
+    val loading by remember { mutableStateOf(vm.loading) }
+    val successfulSearch by remember { mutableStateOf(vm.successfulSearch) }
+    val onCancelSearch:() -> Unit = { vm.cancelSearching()}
 
     val screen_name by remember { mutableStateOf(vm.screen_name) }
 
@@ -221,53 +224,59 @@ fun AdSetScreen(vm: AppViewModel) {
             DrawSheet(scope,drawerState,favouritesClick, settingsClick)
         },
     ) {
-        Scaffold(
-            topBar = {
-                DrawTopBar(screen_name,selected,selectedAd,removeSelectedAd,onDeleteSet,favourites,settings, onBackClick ,scope, drawerState)
-            },
-            floatingActionButton = {
-                if(!favourites.value && !settings.value && selectedAd.value == null){
-                    FloatingActionButton(
-                        onClick = {
-                            if(selected.value != null ){
-                                // сохраняем
-                                vm.onEditComplete()
-                            }else{
-                                // Добавляем
-                                vm.onAddSetClicked()
-                            }
+        if (loading.value){
+            LoadScreen(value = true, isSuccessful = successfulSearch, cancelSearch = onCancelSearch)
+        }else{
+            Scaffold(
+                topBar = {
+                    DrawTopBar(screen_name,selected,selectedAd,removeSelectedAd,onDeleteSet,favourites,settings, onBackClick ,scope, drawerState)
+                },
+                floatingActionButton = {
+                    if(!favourites.value && !settings.value && selectedAd.value == null){
+                        FloatingActionButton(
+                            onClick = {
+                                if(selected.value != null ){
+                                    // сохраняем
+                                    vm.onEditComplete()
+                                }else{
+                                    // Добавляем
+                                    vm.onAddSetClicked()
+                                }
 
-                        },
-                        contentColor = MaterialTheme.colorScheme.onTertiary,
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(defaultElevation = 8.dp),
-                        shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
-                        content = {
-                            if(selected.value != null) Icon(Icons.Filled.Done, contentDescription = "Сохранить")
-                            else Icon(Icons.Filled.Add, contentDescription = "Добавить") }
-                    )
-                }
-            }
-
-        ) {
-            if (selected.value == null) {
-                if (favourites.value) {
-                    if(selectedAd.value == null){
-                        PrintFavourites(favs, deleteFavourites, selectedAd, selectAd)
-                    }else{
-                        PrintAdvert(selectedAd)
+                            },
+                            contentColor = MaterialTheme.colorScheme.onTertiary,
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(defaultElevation = 8.dp),
+                            shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
+                            content = {
+                                if(selected.value != null) Icon(Icons.Filled.Done, contentDescription = "Сохранить")
+                                else Icon(Icons.Filled.Add, contentDescription = "Добавить") }
+                        )
                     }
-                } else {
-                    if (settings.value) {
-                        PrintSettings()
-                    } else
-                        PrintSet(sets, selected,selectSet)
                 }
-            } else {
-                // создаем новую подборку
-                val ads = vm.adsMap[selected.value!!.id]
-                AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category,dealType,flatType,city,travel, filterParameters)//vm.temp_ads)//, getAdverts)
-            }
+
+            ) {
+                if (selected.value == null) {
+                    if (favourites.value) {
+                        if(selectedAd.value == null){
+                            PrintFavourites(favs, deleteFavourites, selectedAd, selectAd)
+                        }else{
+                            PrintAdvert(selectedAd)
+                        }
+                    } else {
+                        if (settings.value) {
+                            PrintSettings()
+                        } else {
+                            PrintSet(sets, selected, selectSet)
+                        }
+                    }
+
+                } else {
+                    // создаем новую подборку
+                    val ads = vm.adsMap[selected.value!!.id]
+                    AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category,dealType,flatType,city,travel, filterParameters)//vm.temp_ads)//, getAdverts)
+                }
+            } 
         }
     }
 }

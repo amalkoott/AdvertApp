@@ -33,6 +33,8 @@ class AppViewModel(
 ): ViewModel() {
 
     val sets = mutableStateListOf<AdSet>()
+
+
 /*
     val sets = mutableStateListOf<AdSet>(
         AdSet(
@@ -78,10 +80,8 @@ class AppViewModel(
         //@TODO не забыть при смене схемы БД поменять тип adsetID (внешний ключ у Advert) на Long?
 
         viewModelScope.launch {
-            appUseCase.fillWithInitialSets(emptyList())
+          //  appUseCase.fillWithInitialSets(emptyList())
           //  appUseCase.fillWithInitialSets(sets)
-
-
 
             //appUseCase.loadRemoteNotes()
         }
@@ -114,6 +114,8 @@ class AppViewModel(
 
     var favourites = mutableStateOf(false)
     var settings = mutableStateOf(false)
+    var loading = mutableStateOf(false)
+    var successfulSearch = mutableStateOf<Boolean?>(null)
 
     var favs = mutableStateListOf<Advert>()
 
@@ -135,7 +137,11 @@ class AppViewModel(
 
 
         viewModelScope.launch {
-            appUseCase.saveSet(set,searching.value)
+            if (appUseCase.saveSet(set,searching.value) != null) successfulSearch.value = true
+            else successfulSearch.value = false
+
+                    // cancelSearching()
+            if (successfulSearch.value == true) loading.value = false
         }
 
         // Обновлять объявления???
@@ -144,8 +150,12 @@ class AppViewModel(
         screen_name.value = "Подборки"
         selectedSet.value = null
         edited_set = null
-        cancelSearching()
+
+        loading.value = true
+
+        //TODO при сохранении изменений cancelSearching() должен быть только когда известен результат поиска
     }
+    /*
     private suspend fun test(set: AdSet) = coroutineScope {
         val id = async { appUseCase.saveSet(set,searching.value) }
         println("message: ${id.await()}")
@@ -155,6 +165,7 @@ class AppViewModel(
         println("message: ${message.await()}")
         println("Program has finished")
     }
+
     suspend fun getMessage() : String{
         delay(500L)  // имитация продолжительной работы
         return "Hello"
@@ -163,7 +174,7 @@ class AppViewModel(
         val id = async {   appUseCase.saveSet(set, searching.value) }
         return@coroutineScope id.await()
     }
-
+*/
     fun onDeleteSet(){
         sets.remove(selectedSet.value)
         viewModelScope.launch {
@@ -250,6 +261,9 @@ class AppViewModel(
         searching.value = SearchParameters()
     }
     fun cancelSearching(){
+        loading.value = false
+        successfulSearch.value = null
+
         searching.value = null
         category.value = null
         dealType.value = false
@@ -283,6 +297,8 @@ class AppViewModel(
 
         searching.value!!.dealType = type//.toBoolean()
         dealType.value = type.toBoolean()
+
+        if(type.toBoolean()) searching.value!!.cancelSale() else searching.value!!.cancelRent()
 
        // Log.d("DEAL_TYPE",searching.value!!.dealType.toString())
     }

@@ -1,6 +1,7 @@
 package ru.amalkoott.advtapp.data.remote
 
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -9,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRemoteRepository
+import java.net.SocketTimeoutException
 
 class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
 
@@ -23,6 +25,7 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
         try {
             val gson = Gson()
             val json = gson.toJsonTree(parameters)
+
             val response = serverApi.get(json as JsonObject)
 
             if(!response.isSuccessful){
@@ -37,8 +40,18 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
             */
             //result = response.body()!!.asJsonArray
            // val size = result.size()
-        } catch (e: Exception){
+        }catch (e: Exception){
             Log.w("ServerRequestRepository","Can't get issues", e)
+            if(e.message == "timeout"){
+                Log.w("ServerRequestRepository","TIMEOUT")
+                return@withContext emptyList()
+            }
+            if(e.message?.contains("failed to connect") == true){
+                Log.w("ServerRequestRepository","FAILED TO CONNECT")
+                return@withContext emptyList()
+            }
+            Log.w("ServerRequestRepository","UNDEFINED ERROR")
+
             return@withContext emptyList()
         }
         val set = resultList.map {

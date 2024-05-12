@@ -59,6 +59,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,9 +69,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.ui.advert.compose.DropMenu
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 import java.time.LocalDate
@@ -83,9 +87,14 @@ import java.time.LocalDate
 @Composable
 fun AdSetScreen(vm: AppViewModel) {
     val sets by vm.adSet.collectAsState()
+    val favs by vm.favList.collectAsState()
+    /*
     val favs by remember {
-        mutableStateOf(vm.favs)
+//        mutableStateOf(vm.favs)
+        mutableStateOf(vm.favList.values.toMutableStateList())
     }
+
+     */
 
     val search by remember { mutableStateOf(vm.searching) }
     val createSearching:() -> Unit = { vm.createSearching() }
@@ -187,6 +196,7 @@ fun AdSetScreen(vm: AppViewModel) {
     val onBackClick:() -> Unit = {vm.onBackClick()}
     val onDeleteSet:() -> Unit = { vm.onDeleteSet()}
     val removeSelectedAd:() -> Unit = {vm.onRemoveAd()}
+    val onUpdateSet: ()-> Unit ={vm.onUpdateSet()}
     val removeAd:(Advert) -> Unit = {
         advrt -> vm.onRemoveAd(advrt)
     }
@@ -206,6 +216,11 @@ fun AdSetScreen(vm: AppViewModel) {
     val deleteFavourites: (Advert) -> Unit = {
         advert -> vm.onDeleteFavourites(advert)
     }
+
+    val adsCount: (Long) -> MutableStateFlow<Int> = {
+            id -> vm.getAdsCountInSet(id)
+    }
+
 
     val filterParameters = vm.parameters
     val favourites by remember { mutableStateOf(vm.favourites) }
@@ -229,7 +244,7 @@ fun AdSetScreen(vm: AppViewModel) {
         }else{
             Scaffold(
                 topBar = {
-                    DrawTopBar(screen_name,selected,selectedAd,removeSelectedAd,onDeleteSet,favourites,settings, onBackClick ,scope, drawerState)
+                    DrawTopBar(screen_name,selected,selectedAd,removeSelectedAd,onDeleteSet, onUpdateSet,favourites,settings, onBackClick ,scope, drawerState)
                 },
                 floatingActionButton = {
                     if(!favourites.value && !settings.value && selectedAd.value == null){
@@ -267,7 +282,7 @@ fun AdSetScreen(vm: AppViewModel) {
                         if (settings.value) {
                             PrintSettings()
                         } else {
-                            PrintSet(sets, selected, selectSet)
+                            PrintSet(sets, selected, selectSet, adsCount)
                         }
                     }
 
@@ -286,7 +301,10 @@ fun AdSetScreen(vm: AppViewModel) {
 @Composable
 fun PrintSet(sets: List<AdSet>,
              selected: MutableState<AdSet?>,
-             selectSet: (AdSet)-> Unit){
+             selectSet: (AdSet)-> Unit,
+             adsCount: (Long)-> MutableStateFlow<Int>
+){
+    val scope = rememberCoroutineScope()
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
         modifier = Modifier
@@ -352,7 +370,14 @@ fun PrintSet(sets: List<AdSet>,
                             .height(48.dp)
                             .padding(start = 24.dp)
                     ){
-                        Text(text = "Объявлений: "+ set.adverts!!.count().toString(), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        /*
+                        var count: Int? = null
+                        scope.launch {
+                            count = adsCount(set.id!!)
+                        }
+                        */
+                        val count = adsCount(set.id!!).collectAsState().value
+                        Text(text = "Объявлений: " + count/* + set.adverts!!.count().toString() */, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(text = "Обновлено: " + set.last_update.toString(), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
@@ -415,6 +440,7 @@ fun DrawTopBar(screen_name: MutableState<String>,
                selectedAd: MutableState<Advert?>,
                removeSelectedAd: () -> Unit,
                onDeleteSet: () -> Unit,
+               onUpdateSet: () -> Unit,
                favourites: MutableState<Boolean>,
                settings: MutableState<Boolean>,
                onBackClick: () -> Unit,
@@ -435,10 +461,10 @@ fun DrawTopBar(screen_name: MutableState<String>,
         actions = {
             if (selected.value != null){
                 if (selectedAd.value != null){
-                    DrawDropmenu(removeSelectedAd)
+                    DropMenu(removeSelectedAd)
                 }else{
                     if (selected.value!!.name != ""){
-                        DrawDropmenu(onDeleteSet)
+                        DropMenu(onDeleteSet, onUpdateSet)
                     }
                 }
             }
@@ -490,46 +516,6 @@ fun DrawTopBar(screen_name: MutableState<String>,
     )
 }
 
-@Composable
-fun DrawDropmenu(onDeleteSet: ()-> Unit){
-    val coroutineScope = rememberCoroutineScope()
-    var expanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    IconButton(onClick = {
-        coroutineScope.launch {
-            expanded = !expanded
-        }
-    }) {
-        Icon(
-            imageVector = Icons.Filled.MoreVert,
-            contentDescription = "Localized description"
-        )
-    }
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false }
-    ) {
-        DropdownMenuItem(
-            text = { Text("Удалить") },
-            onClick = {
-                coroutineScope.launch {
-                    // Здесь можно выполнить асинхронную операцию, например, вызов удаления
-                    Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
-                    onDeleteSet()
-                }
-            }
-        )
-        DropdownMenuItem(
-            text = { Text("Обновить") },
-            onClick = {
-                coroutineScope.launch {
-                    // Здесь можно выполнить другую асинхронную операцию, например, обновление данных
-                    Toast.makeText(context, "Update", Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
-    }
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "InvalidColorHexValue")
 @OptIn(ExperimentalMaterial3Api::class)

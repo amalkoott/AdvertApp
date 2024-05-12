@@ -40,7 +40,7 @@ import ru.amalkoott.advtapp.domain.Advert
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun PrintFavourites(favs: SnapshotStateList<Advert>,
+fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
                     deleteFavourites: (Advert)-> Unit,
                     selectedAd: MutableState<Advert?>,
                     selectAd: (Advert)-> Unit){

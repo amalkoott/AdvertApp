@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Card
@@ -197,13 +198,24 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                                     .height(48.dp),
                                 //.padding(all = 8.dp),
                                 content = {
-                                    Icon(
-                                        Icons.Filled.FavoriteBorder,
-                                        modifier = Modifier
-                                            .height(24.dp)
-                                            .width(24.dp),
-                                        contentDescription = "Localized description",
-                                    )
+                                    if (advert.isFavourite){
+                                        Icon(
+                                            Icons.Filled.Favorite,
+                                            modifier = Modifier
+                                                .height(24.dp)
+                                                .width(24.dp),
+                                            contentDescription = "Localized description",
+                                        )
+                                    }else{
+                                        Icon(
+                                            Icons.Filled.FavoriteBorder,
+                                            modifier = Modifier
+                                                .height(24.dp)
+                                                .width(24.dp),
+                                            contentDescription = "Localized description",
+                                        )
+                                    }
+
                                 })
                         }
                     }

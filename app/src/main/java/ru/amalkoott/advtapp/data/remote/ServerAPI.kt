@@ -18,9 +18,11 @@ interface ServerAPI {
     @GET("/check")
     suspend fun check(): Response<JsonObject?>
 
+    /*
     // обновление заданной подборки
-    @PATCH("issues/{number}")
-    suspend fun update(@Path("number") number: Long, @Body issue: ServerSet): Response<ServerSet>
+    @GET("issues/{number}")
+    suspend fun update(@Query("parameters") parameters: JsonObject): Response<JsonArray?>
+    */
 }
 
 /*

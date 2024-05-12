@@ -1,9 +1,13 @@
 package ru.amalkoott.advtapp.domain
 
+import android.annotation.SuppressLint
+import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import kotlinx.coroutines.flow.Flow
-import ru.amalkoott.advtapp.data.remote.SearchParameters
+import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
+
 
 /*@TODO надо сделать:
 */
@@ -28,10 +32,13 @@ class AppUseCase(
     }
 
      */
-    fun notesFlow(): Flow<List<AdSet>> {
+    fun setsFlow(): Flow<List<AdSet>> {
         var flow : Flow<List<AdSet>>
         // метод подписки на данные (что бы это ни значило)
         return appRepo.loadAllSetsFlow()
+    }
+    fun favouritesFlow(): Flow<List<Advert>>{
+        return appRepo.loadFavourites()
     }
     fun advertsFlow(): Flow<List<Advert>> {
         var flow : Flow<List<Advert>>
@@ -43,7 +50,7 @@ class AppUseCase(
         // метод подписки на данные (что бы это ни значило)
         return appRepo.loadAllAdsBySetFlow(id)
     }
-    suspend fun sendSearching(search: SearchParameters?): List<Advert>?{
+    suspend fun sendSearching(search: RealEstateSearchParameters?): List<Advert>?{
         if (search == null) return null
         val response = appApi.get(search)
         //val response = appApi.get(SearchParameters("Снять"))
@@ -56,7 +63,64 @@ class AppUseCase(
         }
         //return response
     }
-    suspend fun saveSet(set: AdSet,search: SearchParameters?):Long?{
+// todo удаление подборки - удаление black list с ее id
+    @SuppressLint("SuspiciousIndentation")
+    suspend fun updateSet(adSet: AdSet){
+        val parameters = RealEstateSearchParameters()
+        // todo собираем parameters через set.caption (можно в json конвертить строку)
+        val gson = Gson()
+      /*
+        val temp = gson.toJsonTree(adSet.caption)
+    val json = temp.asJsonObject
+    */
+    val jelem: JsonElement = gson.fromJson<JsonElement>(adSet.caption, JsonElement::class.java)
+    val json = jelem.asJsonObject
+
+        try {
+            parameters.category = json["category"]?.toString()
+            parameters.city = json["city"]?.toString()
+            parameters.dealType = json["dealType"]?.toString()
+            parameters.livingType = json["livingType"]?.toString()
+            parameters.priceType = json["priceType"]?.toString()
+
+            val adverts = sendSearching(parameters)!!.toMutableList()
+            if (adverts.isEmpty()) return
+
+            val blackList = appRepo.getBlackList(adSet.id!!)
+            if (blackList.isNotEmpty()){
+                blackList.forEach{
+                    blackList -> adverts.toList().forEach {
+                        advert -> if (blackList.hash == advert.hash) {
+                            // удаляем из adverts
+                            adverts.remove(advert)
+                            return@forEach
+            } } } }
+            // удаляем все объявления - оптимальный способ, т.к. объявления на локалке могут устареть
+            appRepo.deleteAdvertsBySet(adSet.id!!)
+
+            // вставляем новые объявления в бд
+            adverts.forEach {
+                it.adSetId = adSet.id
+                appRepo.addAdv(it)
+            }
+
+        }catch (e:Exception){
+            Log.w("RemoteUpdateSetError",e.message!!)
+        }
+    }
+    private fun isEqualAdvert(first: BlackList, second: Advert): Boolean{
+        // isFavourite и id смысла сравнивать нет
+        return first.hash == second.hash
+        /*
+        return (first.name == second.name) &&
+                (first.description == second.description) &&
+                (first.price == second.price) &&
+                (first.location == second.location) &&
+                (first.address == second.address)
+
+         */
+    }
+    suspend fun saveSet(set: AdSet,search: RealEstateSearchParameters?):Long?{
         if (set.id == null){
             val adverts = sendSearching(search)
             // сначала поиск на сервере
@@ -69,34 +133,30 @@ class AppUseCase(
             set.caption = toCaption(search)
 
             appRepo.addSet(set)
-            /*
-            val id = set.id
-            for (ad in adverts){
-                ad.adSetId = id
-            }
-            set.adverts = adverts
-            appRepo.updateSet(set)
-             */
-            // если ответ null - добавления НЕТ (объявления не найдены)
-            // если ответ не пустой - добавляем
 
-        // @TODO при добавлении новой подборки надо отправлять на сервер запрос на поиск объявлений и если объявления не найдены, то не добавлять подборку
-        // @TODO либо сделать возможность сохранить подборку, чтобы при появлении объявлений подборка обновилась сама
         }else
         {
-            appRepo.updateSet(set)
+            // обновление без сервака
+           appRepo.updateSet(set)
         }
         return set.id
     }
-    private fun toCaption(search: SearchParameters?): String{
+    suspend fun getAdvertCount(id: Long): Flow<Int>{
+        //val count = appRepo.getAdvertsCount(id)
+        return appRepo.getAdvertsCount(id)
+    }
+    private fun toCaption(search: RealEstateSearchParameters?): String{
         var caption = ""
         val gson = Gson()
         val json = gson.toJsonTree(search)
+        caption = json.toString()
+        /*
         val map: Map<*, *> = gson.fromJson(json, MutableMap::class.java)
 
         for (key in map.keys){
             caption += "$key: ${map[key]}\n"
         }
+         */
         return caption
     }
     suspend fun removeSet(set: AdSet){
@@ -106,9 +166,31 @@ class AppUseCase(
 
     }
     suspend fun removeAd(ad: Advert){
+        val blackAdvert = BlackList(
+            id = ad.id,
+            name = ad.name,
+            description = ad.description,
+            price = ad.price,
+            location = ad.location,
+            address = ad.address,
+            url = ad.url,
+            imagesURL = ad.imagesURL,
+            additionalParam = ad.additionalParam,
+            adSetId = ad.adSetId,
+            isFavourite = false,
+            hash = ad.hash)
+        // добавляем в черный список
+        appRepo.addToBlackList(blackAdvert)
         appRepo.removeAd(ad)
     }
     suspend fun getSetsWithAd(id: Long): List<AdSetWithAdverts>{
         return appRepo.getAdSetsWithAdverts(id)
+    }
+
+    suspend fun addFavourites(id: Long){
+        appRepo.setAdAsFavourite(id)
+    }
+    suspend fun deleteFavourites(id: Long){
+        appRepo.setAdAsNonFavourite(id)
     }
 }

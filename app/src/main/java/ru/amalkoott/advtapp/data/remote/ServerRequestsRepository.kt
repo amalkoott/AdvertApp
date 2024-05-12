@@ -1,7 +1,6 @@
 package ru.amalkoott.advtapp.data.remote
 
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -10,12 +9,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRemoteRepository
-import java.net.SocketTimeoutException
 
 class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
 
     // получаем список объявлений (подборку) по параметрам
-    override suspend fun get(parameters: SearchParameters): List<Advert> = withContext(Dispatchers.IO){
+    override suspend fun get(parameters: RealEstateSearchParameters): List<Advert> = withContext(Dispatchers.IO){
        // val result: JsonArray?
         // todo отправляем на сервак параметры (принимается вродеп норм)
         val result = mutableListOf<Advert>()
@@ -71,6 +69,7 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
     private fun toAdvert(request: JsonElement): Advert {
 //      Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
         val jsonAdvert = request.asJsonObject
+        var hash: String? = null
         var title: String? = null
         var desc: String? = null
         var price: String? = null
@@ -79,6 +78,13 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
         var url: String? = null
         var images: String? = null
 
+        try {
+            hash = jsonAdvert["hash"].asString
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
         try {
             title = jsonAdvert["title"].asString
         }catch (e: NullPointerException){
@@ -163,6 +169,7 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
 
         //return Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
         return Advert(
+            hash = hash,
             id = null,
             name = title,
             description = desc,
@@ -171,7 +178,7 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
             address = address,
             url = url,
             imagesURL = images,
-            null, 0
+            additionalParam = null, adSetId = 0
         )
     }
     override suspend fun checkServer(): JsonObject? = withContext(Dispatchers.IO){
@@ -191,6 +198,7 @@ class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
         }
         return@withContext  result
     }
+
     /*
     override suspend fun update(set: AdSet): Boolean = withContext(Dispatchers.IO) {
         var receive = toReceiveSet(set)

@@ -4,21 +4,14 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import ru.amalkoott.advtapp.data.remote.SearchParameters
+import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppUseCase
@@ -86,27 +79,21 @@ class AppViewModel(
             //appUseCase.loadRemoteNotes()
         }
         viewModelScope.launch{
-            appUseCase.notesFlow()
+            appUseCase.setsFlow()
                 .collect{
                         note ->
                     adSet.value = note
                 }
         }
-
-        if (sets.isNotEmpty()){
-            sets.forEach{
-                adsMap?.put(it.id,MutableStateFlow<List<Advert>>(emptyList()))
-                val temp = MutableStateFlow<List<Advert>>(emptyList())
-                viewModelScope.launch {
-                    appUseCase.advertsBySetFlow(it.id!!)
-                        .collect{
-                                ad -> temp.value = ad
-                        }
-                }
-                adsMap?.set(it.id, temp)
+        viewModelScope.launch{
+            appUseCase.favouritesFlow().collect{
+                // todo обработка дубликатов (возможно лучше просто не выдавать в этом DAO объявления с одинаковыми параметрами)
+                favList.value = it
             }
         }
+
     }
+
     var adSet = MutableStateFlow<List<AdSet>>(emptyList())
     var screen_name = mutableStateOf<String>("Подборки")
     var selectedSet = mutableStateOf<AdSet?>(null )
@@ -118,7 +105,8 @@ class AppViewModel(
     var successfulSearch = mutableStateOf<Boolean?>(null)
 
     var favs = mutableStateListOf<Advert>()
-
+    //var favList = mutableStateMapOf<String,Advert>()
+    var favList = MutableStateFlow<List<Advert>>(emptyList())
     var edited_set: AdSet? = null
 
     //@TODO здесь было просто мутбл стэйт
@@ -127,6 +115,12 @@ class AppViewModel(
 
     // LOCAL DATABASE USE
     // помечает, что редактирование закончено -> нет выбранных заметок
+    fun onUpdateSet(){
+        // для selected
+        viewModelScope.launch {
+            appUseCase.updateSet(selectedSet.value!!)
+        }
+    }
     fun onEditComplete(){
         //@TODO сначала передать searching на сервер,а затем обнулить его
         val set = selectedSet.value
@@ -134,8 +128,6 @@ class AppViewModel(
         if (searching.value == null) return
 
         // сохранение отредактированной подборки ** было launch
-
-
         viewModelScope.launch {
             if (appUseCase.saveSet(set,searching.value) != null) successfulSearch.value = true
             else successfulSearch.value = false
@@ -155,26 +147,6 @@ class AppViewModel(
 
         //TODO при сохранении изменений cancelSearching() должен быть только когда известен результат поиска
     }
-    /*
-    private suspend fun test(set: AdSet) = coroutineScope {
-        val id = async { appUseCase.saveSet(set,searching.value) }
-        println("message: ${id.await()}")
-        println("Program has finished with id")
-
-        val message: Deferred<String> = async{ getMessage()}
-        println("message: ${message.await()}")
-        println("Program has finished")
-    }
-
-    suspend fun getMessage() : String{
-        delay(500L)  // имитация продолжительной работы
-        return "Hello"
-    }
-    private suspend fun saveSetAndGetID(set: AdSet): Long? = coroutineScope{
-        val id = async {   appUseCase.saveSet(set, searching.value) }
-        return@coroutineScope id.await()
-    }
-*/
     fun onDeleteSet(){
         sets.remove(selectedSet.value)
         viewModelScope.launch {
@@ -186,13 +158,31 @@ class AppViewModel(
         edited_set = null
     }
 
+
     // для удаления объявлений из списков (когда объявление еще не выбрано)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getAdsCountInSet(id: Long): MutableStateFlow<Int>{
+        //var count: Int? = null
+        var count = MutableStateFlow<Int>(0)
+
+        viewModelScope.launch {
+            appUseCase.getAdvertCount(id).collect{
+                count.value = it
+            }
+        }
+        return count//appUseCase.getAdvertCount(id)
+    }
+
     fun onRemoveAd(advert: Advert){
         adverts = selectedSet.value!!.adverts!!.toMutableStateList()// as SnapshotStateList<Advert>
 
         try {
             adverts.removeAt(findAdinAdverts(advert.id!!))
             favs.removeAt(findAdinFavs(advert.id!!))
+
+            viewModelScope.launch {
+                appUseCase.deleteFavourites(advert.id!!)
+            }
         }catch (e:Exception){ Log.d("RemoveFromFavs","Element not found")}
 
         selectedSet.value!!.adverts = adverts
@@ -210,6 +200,10 @@ class AppViewModel(
         try {
             adverts.removeAt(findAdinAdverts(selectedAd.value!!.id!!))
             favs.removeAt(findAdinFavs(selectedAd.value!!.id!!))
+            viewModelScope.launch {
+                appUseCase.deleteFavourites(selectedAd.value!!.id!!)
+            //    favList.remove(selectedAd.value!!.hash)
+            }
         }catch (e:Exception){ Log.d("RemoveFromFavs","Element not found")}
 
         selectedSet.value!!.adverts = adverts
@@ -237,19 +231,41 @@ class AppViewModel(
         return res
     }
     fun onFavouritesAdd(advert: Advert){
-        if(favs.contains(advert)) return
+        if(favs.contains(advert)) {
+
+        return
+        }
         favs.add(advert)
+
+        if (advert.isFavourite){
+            viewModelScope.launch {
+                appUseCase.deleteFavourites(advert.id!!)
+            }
+        }else{
+            viewModelScope.launch {
+                appUseCase.addFavourites(advert.id!!)
+                //  favList[advert.hash!!] = advert
+            }
+        }
+
+
         selectedAd.value = null
         screen_name.value = selectedSet.value!!.name.toString()
     }
     fun onDeleteFavourites(advert: Advert){
         if(favs.contains(advert)) favs.remove(advert)
+
+
+        viewModelScope.launch {
+            appUseCase.deleteFavourites(advert.id!!)
+           // favList.remove(advert.hash!!)
+        }
     }
 
     // SEARCH
     // при клике на новую подборку создается SearchParameters
     // при установлении какого-либо параметра его значение добавляется к searchParameters
-    var searching = mutableStateOf<SearchParameters?>(null )
+    var searching = mutableStateOf<RealEstateSearchParameters?>(null )
     var category = mutableStateOf<String?>("")
     var dealType = mutableStateOf<Boolean>(false)
    // var dealType = mutableStateOf<String>("")
@@ -258,7 +274,7 @@ class AppViewModel(
     var travel = mutableStateOf<String?>("")
     var wc = mutableStateOf<Boolean?>(false)
     fun createSearching(){
-        searching.value = SearchParameters()
+        searching.value = RealEstateSearchParameters()
     }
     fun cancelSearching(){
         loading.value = false

@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.flow.MutableStateFlow
-import ru.amalkoott.advtapp.data.remote.SearchParameters
+import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
@@ -50,7 +50,7 @@ fun AddSet(
     selectedAd: MutableState<Advert?>,
     addFavourites: (Advert)-> Unit,
     ads: MutableStateFlow<List<Advert>>?,
-    search: MutableState<SearchParameters?>,
+    search: MutableState<RealEstateSearchParameters?>,
     filterFunctions: Map<String,(String?)->Unit>,
     createSearching:()->Unit,
     category: MutableState<String?>,
@@ -108,7 +108,7 @@ fun ImageFromUrl(url: String) {
 }
 
 @Composable
-fun PrintFilters(search: MutableState<SearchParameters?>,
+fun PrintFilters(search: MutableState<RealEstateSearchParameters?>,
                  realEstateFunctions: Map<String,(String?)->Unit>,
                  createSearching:()->Unit,
                  ctgry: MutableState<String?>,

@@ -1,8 +1,6 @@
 package ru.amalkoott.advtapp.data.remote
 
-import androidx.compose.runtime.MutableState
-
-data class SearchParameters (
+data class RealEstateSearchParameters (
     var city:String? = null,
     var category: String? = null,
     //var dealType: Boolean? = null,

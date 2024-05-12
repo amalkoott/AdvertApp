@@ -18,8 +18,10 @@ class Advert (
     val url: String? = "undefined_URL",
     val imagesURL: String? = "empty_imageURL",
     val additionalParam: String?,//AdditionalParameters? = null,
-    var adSetId: Long? // ID связанного AdSet
+    var adSetId: Long?, // ID связанного AdSpet
 
+    var isFavourite: Boolean = false,
+    var hash: String? = null
     //val footage: Float, // метраж
     //val room: Int,
     //val floor: Int,
@@ -34,7 +36,7 @@ class Advert (
     @PrimaryKey(autoGenerate = true)
     var id: Long? = null
 */
-    var isFavourites: Boolean = false
+    // var isFavourites: Boolean = false
     // массив ссылок
     val URLs: Array<String>
         get() {

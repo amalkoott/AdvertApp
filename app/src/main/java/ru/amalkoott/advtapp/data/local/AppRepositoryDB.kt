@@ -9,6 +9,7 @@ import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.AdSetWithAdverts
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRepository
+import ru.amalkoott.advtapp.domain.BlackList
 import ru.amalkoott.advtapp.domain.SetCategory
 import java.util.Dictionary
 
@@ -21,8 +22,7 @@ class AppRepositoryDB(
     }
     override fun loadAllSetsFlow(): Flow<List<AdSet>> = appDao.allFlow()
     override fun loadAllAdsFlow(): Flow<List<Advert>> = appDao.allAdsFlow()
-
-
+    override fun loadFavourites(): Flow<List<Advert>> = appDao.allFavourites()
     override fun loadAllAdsBySetFlow(id: Long): Flow<List<Advert>> = appDao.allAdsBySetFlow(id)
     override suspend fun clearDatabase()= withContext(Dispatchers.IO){
         appDao.deleteAllSets()
@@ -48,14 +48,22 @@ class AppRepositoryDB(
 
         appDao.updateSet(note)
 
-    }
-    override suspend fun updateSet(note: AdSet) = withContext(Dispatchers.IO){
-        appDao.updateSet(note)
+        // добавление черного списка для подборки
+       // val list = BlackList(setId = id.await())
+       // appDao.createBlackList(list)
+
     }
 
     override suspend fun removeSet(set: AdSet) {
         appDao.deleteSetById(set.id!!)
+    //    appDao.deleteBlackListBySetId(set.id!!)
     }
+
+
+    override suspend fun updateSet(note: AdSet) = withContext(Dispatchers.IO){
+        appDao.updateSet(note)
+    }
+
 
     /*
         override fun byRemoteID(remoteId: Long): AdSet?{
@@ -81,4 +89,27 @@ class AppRepositoryDB(
     override suspend fun removeAd(ad: Advert) {
         appDao.deleteAdById(ad.id!!)
     }
+    override suspend fun setAdAsFavourite(id: Long) {
+        appDao.setFavourite(id)
+    }
+    override suspend fun setAdAsNonFavourite(id: Long) {
+        appDao.removeFavourite(id)
+    }
+
+    override suspend fun addToBlackList(ad: BlackList) {
+        appDao.addToBlackList(ad)
+    }
+
+    override fun getAdvertsCount(id: Long): Flow<Int> {//= withContext(Dispatchers.IO) {
+        return appDao.getAdvertsCount(id)
+    }
+
+    override suspend fun getBlackList(id: Long): List<BlackList> = withContext(Dispatchers.IO) {
+        return@withContext appDao.getBlackList(id)
+    }
+
+    override suspend fun deleteAdvertsBySet(id: Long) {
+        appDao.deleteAdvertsBySet(id)
+    }
+
 }

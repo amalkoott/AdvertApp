@@ -2,7 +2,15 @@ package ru.amalkoott.advtapp.ui.advert.screen
 
 // отрисовка подборок
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -28,6 +36,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -68,16 +77,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getString
+import androidx.core.content.ContextCompat.getSystemService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.internal.notify
+import okhttp3.internal.notifyAll
+import ru.amalkoott.advtapp.R
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.advert.compose.DropMenu
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 //@TODO splash screen https://www.google.com/search?q=splash+screen+compose+android&oq=splash+screen+comp&gs_lcrp=EgZjaHJvbWUqDAgCEAAYFBiHAhiABDIHCAAQABiABDIGCAEQRRg5MgwIAhAAGBQYhwIYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMggIBRAAGBYYHjIKCAYQABgPGBYYHjIKCAcQABgPGBYYHjIICAgQABgWGB4yCAgJEAAYFhge0gEIOTQxOWowajeoAgCwAgA&sourceid=chrome&ie=UTF-8#fpstate=ive&vld=cid:57e4cdbe,vid:VTRz-8DPowM,st:0
 
@@ -304,6 +322,8 @@ fun PrintSet(sets: List<AdSet>,
              selectSet: (AdSet)-> Unit,
              adsCount: (Long)-> MutableStateFlow<Int>
 ){
+    val context = LocalContext.current
+    var notify by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
@@ -384,47 +404,151 @@ fun PrintSet(sets: List<AdSet>,
             }
 
         }
+        items(1){
+            Button(onClick = { sendNotification(applicationContext = context, title = "TestTitle", message = "TestMessage") }) {
+                //if(notify) sendNotification(applicationContext = context, title = "TestTitle", message = "TestMessage")
+                //Log.d("notify",notify.toString())
+            }
+        }
+    }
+}
+
+// TODO TEST
+@SuppressLint("MissingPermission")
+//@Composable
+fun sendNotification(applicationContext: Context, title: String, message: String) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel("CHANNEL_ID", "My Notification Channel", NotificationManager.IMPORTANCE_DEFAULT)
+        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    val builder = NotificationCompat.Builder(applicationContext, "CHANNEL_ID")
+        .setSmallIcon(R.drawable.ic_launcher_background)
+        .setContentTitle(title)
+        .setContentText(message)
+        .setAutoCancel(true)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+    val notificationManager = NotificationManagerCompat.from(applicationContext)
+    if (ActivityCompat.checkSelfPermission(
+            applicationContext,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        // TODO: Consider calling
+        //    ActivityCompat#requestPermissions
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for ActivityCompat#requestPermissions for more details.
+
+       // TODO потом ретюрнить если разрешение не выдано return
+    }
+
+    with(NotificationManagerCompat.from(applicationContext)) {
+        notify(1, builder.build()) // посылаем уведомление
+    }
+
+
+
+/*
+    // Create an explicit intent for an Activity in your app.
+    val intent = Intent(applicationContext, Advert::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    }
+    val pendingIntent: PendingIntent =
+        PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+    createNotificationChannel(applicationContext)
+    val builder = NotificationCompat.Builder(applicationContext, "CHANNEL_ID")
+        .setSmallIcon(androidx.core.R.drawable.ic_call_answer)
+        .setContentTitle("My notification")
+        .setContentText("Hello World!")
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        // Set the intent that fires when the user taps the notification.
+        .setContentIntent(pendingIntent)
+        .setAutoCancel(true)
+
+    with(NotificationManagerCompat.from(applicationContext)) {
+        if (ActivityCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            // ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            // public fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+            //                                        grantResults: IntArray)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+            return@with
+        }
+        // notificationId is a unique int for each notification that you must define.
+        notify(1, builder.build())
+    }
+    */
+}
+private fun createNotificationChannel(context: Context) {
+    // Create the NotificationChannel, but only on API 26+ because
+    // the NotificationChannel class is not in the Support Library.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        //val name = getString(R.string.channel_name)
+        //val descriptionText = getString(R.string.channel_description)
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel("CHANNEL_ID"," name", importance).apply {
+            description = "descriptionText"
+        }
+        // Register the channel with the system.
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrawSheet(scope: CoroutineScope,
-              drawerState: DrawerState,
-              favouritesClick: () -> Unit,
-              settingsClick: () -> Unit){
+fun DrawSheet(
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+    favouritesClick: () -> Unit,
+    settingsClick: () -> Unit
+) {
     ModalDrawerSheet {
         Text("Advert App", modifier = Modifier.padding(16.dp))
         Divider()
         NavigationDrawerItem(
             label = {
-                Row(verticalAlignment = Alignment.CenterVertically){
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Favourites",)
-                    Text(text = "Избранное", modifier = Modifier.padding(start = 8.dp))}
-            }
-            ,
+                    Text(text = "Избранное", modifier = Modifier.padding(start = 8.dp))
+                }
+            },
             selected = false,
             onClick = {
                 scope.launch {
                     drawerState.apply { if (isOpen) close() else open() }
                 }
                 favouritesClick()
-             //  vm.onFavouritesClick()
+                //  vm.onFavouritesClick()
             })
         NavigationDrawerItem(
             label = {
-                Row(verticalAlignment = Alignment.CenterVertically){
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Settings, contentDescription = "Settings",)
-                    Text(text = "Настройки", modifier = Modifier.padding(start = 8.dp))}
-            }
-            ,
+                    Text(text = "Настройки", modifier = Modifier.padding(start = 8.dp))
+                }
+            },
             selected = false,
             onClick = {
                 scope.launch {
                     drawerState.apply { if (isOpen) close() else open() }
                 }
                 settingsClick()
-            //    vm.onSettingsClick()
+                //    vm.onSettingsClick()
             }
         )
 
@@ -435,35 +559,38 @@ fun DrawSheet(scope: CoroutineScope,
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DrawTopBar(screen_name: MutableState<String>,
-               selected: MutableState<AdSet?>,
-               selectedAd: MutableState<Advert?>,
-               removeSelectedAd: () -> Unit,
-               onDeleteSet: () -> Unit,
-               onUpdateSet: () -> Unit,
-               favourites: MutableState<Boolean>,
-               settings: MutableState<Boolean>,
-               onBackClick: () -> Unit,
-               scope: CoroutineScope,
-               drawerState: DrawerState,
-               ){
+fun DrawTopBar(
+    screen_name: MutableState<String>,
+    selected: MutableState<AdSet?>,
+    selectedAd: MutableState<Advert?>,
+    removeSelectedAd: () -> Unit,
+    onDeleteSet: () -> Unit,
+    onUpdateSet: () -> Unit,
+    favourites: MutableState<Boolean>,
+    settings: MutableState<Boolean>,
+    onBackClick: () -> Unit,
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+) {
     TopAppBar(
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.onPrimary,
         ),
         title = {
-            Text(text = screen_name.value,
-                color = MaterialTheme.colorScheme.onPrimary)
+            Text(
+                text = screen_name.value,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
 
         },
 
         actions = {
-            if (selected.value != null){
-                if (selectedAd.value != null){
+            if (selected.value != null) {
+                if (selectedAd.value != null) {
                     DropMenu(removeSelectedAd)
-                }else{
-                    if (selected.value!!.name != ""){
+                } else {
+                    if (selected.value!!.name != "") {
                         DropMenu(onDeleteSet, onUpdateSet)
                     }
                 }
@@ -471,14 +598,13 @@ fun DrawTopBar(screen_name: MutableState<String>,
         },
 
         navigationIcon = {
-            if( favourites.value || settings.value || selectedAd.value != null || selected.value != null){
+            if (favourites.value || settings.value || selectedAd.value != null || selected.value != null) {
                 IconButton(onClick = {
                     //vm.onBackClick()
                     onBackClick()
-                    if(favourites.value){
-                    }else if (settings.value){
-                    }
-                    else{
+                    if (favourites.value) {
+                    } else if (settings.value) {
+                    } else {
                     }
                 }) {
                     Icon(
@@ -486,18 +612,18 @@ fun DrawTopBar(screen_name: MutableState<String>,
                         contentDescription = "Localized description"
                     )
                 }
-            }else{/*
-                            ExtendedFloatingActionButton(
-                                text = { Text("Show drawer") },
-                                icon = { Icon(Icons.Filled.Add, contentDescription = "") },
-                                onClick = {
-                                    scope.launch {
-                                        drawerState.apply {
-                                            if (isClosed) open() else close()
-                                        }
+            } else {/*
+                        ExtendedFloatingActionButton(
+                            text = { Text("Show drawer") },
+                            icon = { Icon(Icons.Filled.Add, contentDescription = "") },
+                            onClick = {
+                                scope.launch {
+                                    drawerState.apply {
+                                        if (isClosed) open() else close()
                                     }
                                 }
-                            )*/
+                            }
+                        )*/
                 IconButton(
                     content = {
                         Icon(Icons.Filled.Menu, contentDescription = "")
@@ -517,6 +643,7 @@ fun DrawTopBar(screen_name: MutableState<String>,
 }
 
 
+/*
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "InvalidColorHexValue")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -697,6 +824,6 @@ fun GreetingPreview() {
 
     }
 }
-
+*/
 
 

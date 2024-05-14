@@ -49,10 +49,15 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    lint {
+        // ...
+        checkAllWarnings = true
+        ignoreWarnings = true
+    }
 }
 
 dependencies {
-
+    //implementation("androidx.core:core:2.2.0")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
@@ -69,6 +74,9 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // notification
+    implementation("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
 
     // for image slider
     //implementation("io.coil-kt:coil-compose:2.3.0")
@@ -115,6 +123,8 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:$retrofit_version")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
+    // WorkManager dependency
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
     /*
         // Splash API
         implementation ("androidx.core:core-splashscreen:1.0.1")

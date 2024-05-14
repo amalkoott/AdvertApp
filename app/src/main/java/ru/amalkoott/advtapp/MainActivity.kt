@@ -1,5 +1,6 @@
 package ru.amalkoott.advtapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,12 +25,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.room.Room
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import retrofit2.Retrofit
@@ -39,14 +48,38 @@ import ru.amalkoott.advtapp.data.local.AppRepositoryDB
 import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
 import ru.amalkoott.advtapp.domain.AppUseCase
+import ru.amalkoott.advtapp.domain.worker.TestUpdateWorker
+import ru.amalkoott.advtapp.domain.worker.UpdateWorker
 import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
+import java.util.concurrent.TimeUnit
 
+@SuppressLint("InvalidPeriodicWorkRequestInterval")
 class MainActivity : ComponentActivity() {
    // val loggingInterceptor = HttpLoggingInterceptor()
     //loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
+    //@SuppressLint("InvalidPeriodicWorkRequestInterval")
+    val request = OneTimeWorkRequest.Builder(TestUpdateWorker::class.java)
+        .build()
+
+    /*
+    val constraints = Constraints.Builder()
+        .setRequiresStorageNotLow(false)
+        .setRequiresBatteryNotLow(false)
+        .setRequiredNetworkType(NetworkType.UNMETERED)
+        .build()
+*/
+    //@SuppressLint("InvalidPeriodicWorkRequestInterval")
+    //val request = PeriodicWorkRequestBuilder<UpdateWorker>(15, TimeUnit.SECONDS)
+        //.setInitialDelay(15,TimeUnit.SECONDS)
+      // .addTag("UPDATE_WORKER_TEST")
+      //  .setConstraints(constraints)
+   //     .build()
+
+    //val workManager = WorkManager.getInstance(this).enqueueUniquePeriodicWork("my_worker_tag", ExistingPeriodicWorkPolicy.KEEP,request )
+val workManager = WorkManager.getInstance(this).enqueueUniqueWork("TEST_UPDATE_WORK",ExistingWorkPolicy.REPLACE, request)
     var httpClient = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val request: Request = chain.request().newBuilder()
@@ -58,6 +91,8 @@ class MainActivity : ComponentActivity() {
             chain.proceed(request)
         }
         .build()
+
+
 
 
     var retrofit = Retrofit.Builder()
@@ -84,6 +119,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     //private val appViewModel = AppViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

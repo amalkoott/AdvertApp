@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -33,6 +34,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        //sourceCompatibility = JavaVersion.VERSION_1_8
+        //targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
         //jvmTarget = "1.8"
@@ -54,6 +57,10 @@ android {
         checkAllWarnings = true
         ignoreWarnings = true
     }
+    // Allow references to generated code
+    kapt {
+        correctErrorTypes = true
+    }
 }
 
 dependencies {
@@ -67,6 +74,12 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("com.android.volley:volley:1.2.1")
+    /*
+    implementation("com.android.tools.compose:compose-preview-renderer:0.0.1-alpha01"){
+        exclude(module = "compose-preview-renderer-0.0.1-alpha01")
+    }
+
+     */
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -125,6 +138,13 @@ dependencies {
 
     // WorkManager dependency
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    implementation("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
+
+        //implementation("androidx.hilt:hilt-work:1.0.0")
+    // When using Kotlin.
+    //kapt("androidx.hilt:hilt-compiler:1.0.0")
     /*
         // Splash API
         implementation ("androidx.core:core-splashscreen:1.0.1")

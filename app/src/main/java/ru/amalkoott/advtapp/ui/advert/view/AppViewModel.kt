@@ -1,5 +1,6 @@
 package ru.amalkoott.advtapp.ui.advert.view
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -8,6 +9,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -16,12 +18,14 @@ import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppUseCase
 import java.time.LocalDate
+import javax.inject.Inject
 
 // viewModel для общих нужд:
 // - настройки пользователя
 // - список избранного
 //
-class AppViewModel(
+@HiltViewModel
+class AppViewModel @Inject constructor (
     private val appUseCase: AppUseCase
 ): ViewModel() {
 
@@ -118,8 +122,12 @@ class AppViewModel(
     fun onUpdateSet(){
         // для selected
         viewModelScope.launch {
-            appUseCase.updateSet(selectedSet.value!!)
+            appUseCase.updateSet(selectedSet.value!!,context)
         }
+    }
+    lateinit var context: Context
+    fun setContextValue(value: Context){
+        context = value
     }
     fun onEditComplete(){
         //@TODO сначала передать searching на сервер,а затем обнулить его
@@ -129,7 +137,7 @@ class AppViewModel(
 
         // сохранение отредактированной подборки ** было launch
         viewModelScope.launch {
-            if (appUseCase.saveSet(set,searching.value) != null) successfulSearch.value = true
+            if (appUseCase.saveSet(set,searching.value,context) != null) successfulSearch.value = true
             else successfulSearch.value = false
 
                     // cancelSearching()
@@ -190,7 +198,7 @@ class AppViewModel(
             appUseCase.removeAd(advert)
         }
         viewModelScope.launch {
-            appUseCase.saveSet(selectedSet.value!!,searching.value)
+            appUseCase.saveSet(selectedSet.value!!,searching.value,context)
         }
         selectedAd.value = null
     }
@@ -212,7 +220,7 @@ class AppViewModel(
             appUseCase.removeAd(selectedAd.value!!)
         }
         viewModelScope.launch {
-            appUseCase.saveSet(selectedSet.value!!,searching.value)
+            appUseCase.saveSet(selectedSet.value!!,searching.value,context)
         }
         selectedAd.value = null
     }

@@ -9,8 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRemoteRepository
+import javax.inject.Inject
 
-class ServerRequestsRepository(val serverApi: ServerAPI):AppRemoteRepository {
+class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):AppRemoteRepository {
 
     // получаем список объявлений (подборку) по параметрам
     override suspend fun get(parameters: RealEstateSearchParameters): List<Advert> = withContext(Dispatchers.IO){

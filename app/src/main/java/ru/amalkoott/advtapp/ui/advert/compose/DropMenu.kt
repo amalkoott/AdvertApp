@@ -1,5 +1,6 @@
 package ru.amalkoott.advtapp.ui.advert.compose
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -19,7 +20,7 @@ import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.domain.AdSet
 
 @Composable
-fun DropMenu(onDeleteSet: ()-> Unit, onUpdateSet: ()-> Unit){
+fun DropMenu(onDeleteSet: ()-> Unit, onUpdateSet: ()-> Unit, setContext: (Context)-> Unit){
     val coroutineScope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -43,6 +44,7 @@ fun DropMenu(onDeleteSet: ()-> Unit, onUpdateSet: ()-> Unit){
                 coroutineScope.launch {
                     // Здесь можно выполнить асинхронную операцию, например, вызов удаления
                     Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
+                    setContext(context)
                     onDeleteSet()
                 }
             }
@@ -54,6 +56,7 @@ fun DropMenu(onDeleteSet: ()-> Unit, onUpdateSet: ()-> Unit){
                     // Здесь можно выполнить другую асинхронную операцию, например, обновление данных
                     // TODO Обновление подборки
                     Toast.makeText(context, "Update", Toast.LENGTH_SHORT).show()
+                    setContext(context)
                     onUpdateSet()
                 }
             }

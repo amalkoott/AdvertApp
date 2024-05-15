@@ -39,6 +39,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import retrofit2.Retrofit
@@ -55,14 +56,13 @@ import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 import java.util.concurrent.TimeUnit
 
-@SuppressLint("InvalidPeriodicWorkRequestInterval")
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
    // val loggingInterceptor = HttpLoggingInterceptor()
     //loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
     //@SuppressLint("InvalidPeriodicWorkRequestInterval")
-    val request = OneTimeWorkRequest.Builder(TestUpdateWorker::class.java)
-        .build()
+//    val request = OneTimeWorkRequest.Builder(TestUpdateWorker::class.java).build()
 
     /*
     val constraints = Constraints.Builder()
@@ -79,7 +79,8 @@ class MainActivity : ComponentActivity() {
    //     .build()
 
     //val workManager = WorkManager.getInstance(this).enqueueUniquePeriodicWork("my_worker_tag", ExistingPeriodicWorkPolicy.KEEP,request )
-val workManager = WorkManager.getInstance(this).enqueueUniqueWork("TEST_UPDATE_WORK",ExistingWorkPolicy.REPLACE, request)
+    //val workManager = WorkManager.getInstance(this).enqueueUniqueWork("TEST_UPDATE_WORK",ExistingWorkPolicy.REPLACE, request)
+/*
     var httpClient = OkHttpClient.Builder()
         .addInterceptor { chain ->
             val request: Request = chain.request().newBuilder()
@@ -91,9 +92,6 @@ val workManager = WorkManager.getInstance(this).enqueueUniqueWork("TEST_UPDATE_W
             chain.proceed(request)
         }
         .build()
-
-
-
 
     var retrofit = Retrofit.Builder()
             //.baseUrl("http://192.168.56.1:8080")
@@ -119,8 +117,9 @@ val workManager = WorkManager.getInstance(this).enqueueUniqueWork("TEST_UPDATE_W
             }
         }
     }
-
+*/
     //private val appViewModel = AppViewModel()
+    private val appViewModel: AppViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

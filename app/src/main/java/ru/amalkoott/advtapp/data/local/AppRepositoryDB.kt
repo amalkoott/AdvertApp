@@ -12,9 +12,10 @@ import ru.amalkoott.advtapp.domain.AppRepository
 import ru.amalkoott.advtapp.domain.BlackList
 import ru.amalkoott.advtapp.domain.SetCategory
 import java.util.Dictionary
+import javax.inject.Inject
 
 // здесь методы, которые обращаются к Dao, эти методы могут быть вызваны откуда угодно для работы с БДшкой
-class AppRepositoryDB(
+class AppRepositoryDB @Inject constructor(
     private val appDao: AppDao
 ): AppRepository {
     override suspend fun loadAllSets(): List<AdSet> = withContext(Dispatchers.IO){

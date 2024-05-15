@@ -2,17 +2,9 @@ package ru.amalkoott.advtapp.ui.advert.screen
 
 // отрисовка подборок
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +26,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -42,8 +33,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -68,34 +57,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getString
-import androidx.core.content.ContextCompat.getSystemService
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.internal.notify
-import okhttp3.internal.notifyAll
-import ru.amalkoott.advtapp.R
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.domain.notification.sendNotification
 import ru.amalkoott.advtapp.ui.advert.compose.DropMenu
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
-import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
-import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 
 //@TODO splash screen https://www.google.com/search?q=splash+screen+compose+android&oq=splash+screen+comp&gs_lcrp=EgZjaHJvbWUqDAgCEAAYFBiHAhiABDIHCAAQABiABDIGCAEQRRg5MgwIAhAAGBQYhwIYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMggIBRAAGBYYHjIKCAYQABgPGBYYHjIKCAcQABgPGBYYHjIICAgQABgWGB4yCAgJEAAYFhge0gEIOTQxOWowajeoAgCwAgA&sourceid=chrome&ie=UTF-8#fpstate=ive&vld=cid:57e4cdbe,vid:VTRz-8DPowM,st:0
 
@@ -247,6 +222,10 @@ fun AdSetScreen(vm: AppViewModel) {
     val successfulSearch by remember { mutableStateOf(vm.successfulSearch) }
     val onCancelSearch:() -> Unit = { vm.cancelSearching()}
 
+    val context = LocalContext.current
+    val setContext: (Context)-> Unit = {
+        vm.setContextValue(it)
+    }
     val screen_name by remember { mutableStateOf(vm.screen_name) }
 
     var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -262,7 +241,7 @@ fun AdSetScreen(vm: AppViewModel) {
         }else{
             Scaffold(
                 topBar = {
-                    DrawTopBar(screen_name,selected,selectedAd,removeSelectedAd,onDeleteSet, onUpdateSet,favourites,settings, onBackClick ,scope, drawerState)
+                    DrawTopBar(screen_name,selected,selectedAd,removeSelectedAd,onDeleteSet, onUpdateSet,favourites,settings, onBackClick ,scope, drawerState, setContext)
                 },
                 floatingActionButton = {
                     if(!favourites.value && !settings.value && selectedAd.value == null){
@@ -270,7 +249,9 @@ fun AdSetScreen(vm: AppViewModel) {
                             onClick = {
                                 if(selected.value != null ){
                                     // сохраняем
+                                    vm.setContextValue(context)
                                     vm.onEditComplete()
+
                                 }else{
                                     // Добавляем
                                     vm.onAddSetClicked()
@@ -410,104 +391,10 @@ fun PrintSet(sets: List<AdSet>,
                 //Log.d("notify",notify.toString())
             }
         }
+
     }
 }
 
-// TODO TEST
-@SuppressLint("MissingPermission")
-//@Composable
-fun sendNotification(applicationContext: Context, title: String, message: String) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channel = NotificationChannel("CHANNEL_ID", "My Notification Channel", NotificationManager.IMPORTANCE_DEFAULT)
-        val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-    }
-
-    val builder = NotificationCompat.Builder(applicationContext, "CHANNEL_ID")
-        .setSmallIcon(R.drawable.ic_launcher_background)
-        .setContentTitle(title)
-        .setContentText(message)
-        .setAutoCancel(true)
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-    val notificationManager = NotificationManagerCompat.from(applicationContext)
-    if (ActivityCompat.checkSelfPermission(
-            applicationContext,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
-
-       // TODO потом ретюрнить если разрешение не выдано return
-    }
-
-    with(NotificationManagerCompat.from(applicationContext)) {
-        notify(1, builder.build()) // посылаем уведомление
-    }
-
-
-
-/*
-    // Create an explicit intent for an Activity in your app.
-    val intent = Intent(applicationContext, Advert::class.java).apply {
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    }
-    val pendingIntent: PendingIntent =
-        PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-
-    createNotificationChannel(applicationContext)
-    val builder = NotificationCompat.Builder(applicationContext, "CHANNEL_ID")
-        .setSmallIcon(androidx.core.R.drawable.ic_call_answer)
-        .setContentTitle("My notification")
-        .setContentText("Hello World!")
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        // Set the intent that fires when the user taps the notification.
-        .setContentIntent(pendingIntent)
-        .setAutoCancel(true)
-
-    with(NotificationManagerCompat.from(applicationContext)) {
-        if (ActivityCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            // ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            // public fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
-            //                                        grantResults: IntArray)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-
-            return@with
-        }
-        // notificationId is a unique int for each notification that you must define.
-        notify(1, builder.build())
-    }
-    */
-}
-private fun createNotificationChannel(context: Context) {
-    // Create the NotificationChannel, but only on API 26+ because
-    // the NotificationChannel class is not in the Support Library.
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        //val name = getString(R.string.channel_name)
-        //val descriptionText = getString(R.string.channel_description)
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel("CHANNEL_ID"," name", importance).apply {
-            description = "descriptionText"
-        }
-        // Register the channel with the system.
-        val notificationManager: NotificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -571,6 +458,7 @@ fun DrawTopBar(
     onBackClick: () -> Unit,
     scope: CoroutineScope,
     drawerState: DrawerState,
+    setContext: (Context)-> Unit
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.mediumTopAppBarColors(
@@ -591,7 +479,7 @@ fun DrawTopBar(
                     DropMenu(removeSelectedAd)
                 } else {
                     if (selected.value!!.name != "") {
-                        DropMenu(onDeleteSet, onUpdateSet)
+                        DropMenu(onDeleteSet, onUpdateSet, setContext)
                     }
                 }
             }

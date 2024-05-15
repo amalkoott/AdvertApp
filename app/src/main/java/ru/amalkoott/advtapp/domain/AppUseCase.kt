@@ -1,19 +1,24 @@
 package ru.amalkoott.advtapp.domain
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
+import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import kotlinx.coroutines.flow.Flow
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
+import ru.amalkoott.advtapp.domain.worker.StartWorker
+import javax.inject.Inject
 
 
 /*@TODO надо сделать:
 */
-class AppUseCase(
+class AppUseCase @Inject constructor(
     private val appRepo: AppRepository,
-    private val appApi: ServerRequestsRepository
+    private val appApi: ServerRequestsRepository,
+    //private val workManager: StartWorker
 ) {
     suspend fun fillWithInitialSets(initialSets: List<AdSet>){
         // должен очистить содержимое базы
@@ -65,7 +70,10 @@ class AppUseCase(
     }
 // todo удаление подборки - удаление black list с ее id
     @SuppressLint("SuspiciousIndentation")
-    suspend fun updateSet(adSet: AdSet){
+    suspend fun updateSet(adSet: AdSet,context: Context){
+   // startOneTimeWorker(context, "(TEST)GET_ADVERTS_FOR_SET", adSet)
+  //  workManager.startOneTimeWorker(context, "(TEST)GET_ADVERTS_FOR_SET", adSet)
+
         val parameters = RealEstateSearchParameters()
         // todo собираем parameters через set.caption (можно в json конвертить строку)
         val gson = Gson()
@@ -120,7 +128,10 @@ class AppUseCase(
 
          */
     }
-    suspend fun saveSet(set: AdSet,search: RealEstateSearchParameters?):Long?{
+    private fun test(){
+        Log.d("WORKER_WITH_USE_CASE","This method has been started from worker...")
+    }
+    suspend fun saveSet(set: AdSet,search: RealEstateSearchParameters?,context: Context):Long?{
         if (set.id == null){
             val adverts = sendSearching(search)
             // сначала поиск на сервере
@@ -133,6 +144,8 @@ class AppUseCase(
             set.caption = toCaption(search)
 
             appRepo.addSet(set)
+
+       //     workManager.startOneTimeWorker(context, "(TEST)GET_ADVERTS_FOR_SET", set)
 
         }else
         {

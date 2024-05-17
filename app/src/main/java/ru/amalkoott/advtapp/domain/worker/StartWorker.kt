@@ -23,30 +23,41 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONArray
+import ru.amalkoott.advtapp.data.local.AppRepositoryDB
+import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
+import ru.amalkoott.advtapp.domain.AppRepository
+import ru.amalkoott.advtapp.domain.AppUseCase
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @SuppressLint("RestrictedApi")
-class StartWorker @Inject constructor(private val workManager: WorkManager) {
+class StartWorker @Inject constructor(
+    private val context: Context,
+
+  //  private val workManager: WorkManager,
+//    private val appRepo: AppRepository
+) {
+    /*
 
     @SuppressLint("RestrictedApi")
-    fun startOneTimeWorker(context: Context, tag: String, set: AdSet){
+    fun createSet(context: Context, set: AdSet, search: RealEstateSearchParameters): Operation.State{
         val gson = Gson()
+        val id: String = if(set.id == null) "null" else set.id.toString()
         val data = Data.Builder()
             //.put("set",set)
-            .putLong("id", set.id!!)
+            .putString("id", id)
             .putString("adverts", gson.toJsonTree(set.adverts).toString())
             .putInt("update_interval", set.update_interval!!)
-            .putString("caption", set.caption!!)
+            .putString("name", set.name)
             .putString("last_update", set.last_update.toString())
+            .putString("search",gson.toJsonTree(search).toString())
             .build()
 
-        val request = OneTimeWorkRequest.Builder(TestUpdateWorker::class.java)
+        val request = OneTimeWorkRequest.Builder(CreateWorker::class.java)
             .setInputData(data)
             .build()
-
 
         /*
         val constraints = Constraints.Builder()
@@ -62,29 +73,80 @@ class StartWorker @Inject constructor(private val workManager: WorkManager) {
         //  .setConstraints(constraints)
         //     .build()
 
-        val workManager = WorkManager.getInstance(context).enqueueUniqueWork(tag,
-            ExistingWorkPolicy.REPLACE, request)
-        Log.d(tag,"$tag is running for one time work...")
+        val tag = "TEST_INSERT"
+        val result = workManager.enqueueUniqueWork(tag,
+            ExistingWorkPolicy.REPLACE, request).result.get()
+        when(result){
+            Operation.SUCCESS -> Log.d(tag,"$tag is SUCCESSFUL")
+            else -> Log.d(tag,"$tag is strange")
+        }
+        return result
     }
-    fun startPeriodicWorker(context: Context, repeatInterval: Long, tag: String){
-
-        /*
-    val constraints = Constraints.Builder()
-        .setRequiresStorageNotLow(false)
-        .setRequiresBatteryNotLow(false)
-        .setRequiredNetworkType(NetworkType.UNMETERED)
-        .build()
 */
-        //@SuppressLint("InvalidPeriodicWorkRequestInterval")
-        val request = PeriodicWorkRequestBuilder<UpdateWorker>(repeatInterval, TimeUnit.MINUTES)
-            //.setInitialDelay(15,TimeUnit.SECONDS)
-            // .addTag("UPDATE_WORKER_TEST")
-            //  .setConstraints(constraints)
-            .build()
+    private val workManager = WorkManager.getInstance(context)
+    fun updateSet(context: Context, set: AdSet, search: RealEstateSearchParameters, isNewSet: Boolean){
+        lateinit var request: WorkRequest
+        val updateInterval: Long = set.update_interval!!.toLong()
+        val data = getData(set,search)
 
-        val workManager = WorkManager.getInstance(context).enqueueUniquePeriodicWork(tag, ExistingPeriodicWorkPolicy.KEEP,request )
-        Log.d(tag,"$tag is running successful for periodic work ($repeatInterval)...")
+        val isShortInterval = set.update_interval!! < 15
+
+        when(Pair(isNewSet,isShortInterval)){
+            Pair(false,false) -> {
+                // обновление старой подборки (нормальный интервал)
+                request = PeriodicWorkRequestBuilder<UpdateWorker>(updateInterval, TimeUnit.MINUTES)
+                    .addTag("PeriodicUpdate")
+                    .addTag("Set_${set.id}")
+                    .setInputData(data)
+                    .build()
+            }
+            Pair(false,true) -> {
+                // обновление старой подборки (короткий интервал)
+                request = OneTimeWorkRequest.Builder(UpdateWorker::class.java)
+                    .addTag("OneTimeUpdate")
+                    .addTag("Set_${set.id}")
+                    .setInputData(data)
+                    .build()
+            }
+            Pair(true,false) -> {
+                // обновления для новой подборки (нормальный интервал)
+                request = PeriodicWorkRequestBuilder<UpdateWorker>(updateInterval, TimeUnit.MINUTES)
+                    .setInitialDelay(updateInterval,TimeUnit.MINUTES)
+                    .addTag("PeriodicUpdate")
+                    .addTag("Set_${set.id}")
+                    .setInputData(data)
+                    .build()
+            }
+            Pair(true,true) -> {
+                // обновления для новой подборки (короткий интервал)
+                request = OneTimeWorkRequest.Builder(UpdateWorker::class.java)
+                    .setInitialDelay(updateInterval,TimeUnit.MINUTES)
+                    .addTag("OneTimeUpdate")
+                    .addTag("Set_${set.id}")
+                    .setInputData(data)
+                    .build()
+            }
+        }
+
+        if(!isShortInterval) workManager.enqueueUniquePeriodicWork("UPDATE_SET_${set.id}", ExistingPeriodicWorkPolicy.KEEP,request as PeriodicWorkRequest)
+        else workManager.enqueueUniqueWork("UPDATE_SET_${set.id}", ExistingWorkPolicy.REPLACE, request as OneTimeWorkRequest)
+
+        Log.d("SET_${set.id}","${set.name} is running successful for periodic work in ($updateInterval) minutes...")
     }
-
+    private fun getData(set: AdSet, search: RealEstateSearchParameters): Data{
+        // TODO собирать inputData из set и search
+        val gson = Gson()
+        val id: String = if(set.id == null) "null" else set.id.toString()
+        return Data.Builder()
+            //.put("set",set)
+            .putString("id", id)
+            .putString("name",set.name)
+            .putInt("advertsCount", set.adverts!!.size) // не передаем объявления, т.к. их все равно обновят
+            .putInt("update_interval", set.update_interval!!)
+            //.putString("caption", set.caption)
+            .putString("last_update", set.last_update.toString())
+            .putString("search",gson.toJsonTree(search).toString())
+            .build()
+    }
 }
 

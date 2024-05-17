@@ -49,7 +49,6 @@ import ru.amalkoott.advtapp.data.local.AppRepositoryDB
 import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
 import ru.amalkoott.advtapp.domain.AppUseCase
-import ru.amalkoott.advtapp.domain.worker.TestUpdateWorker
 import ru.amalkoott.advtapp.domain.worker.UpdateWorker
 import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
@@ -58,67 +57,6 @@ import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-   // val loggingInterceptor = HttpLoggingInterceptor()
-    //loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-
-    //@SuppressLint("InvalidPeriodicWorkRequestInterval")
-//    val request = OneTimeWorkRequest.Builder(TestUpdateWorker::class.java).build()
-
-    /*
-    val constraints = Constraints.Builder()
-        .setRequiresStorageNotLow(false)
-        .setRequiresBatteryNotLow(false)
-        .setRequiredNetworkType(NetworkType.UNMETERED)
-        .build()
-*/
-    //@SuppressLint("InvalidPeriodicWorkRequestInterval")
-    //val request = PeriodicWorkRequestBuilder<UpdateWorker>(15, TimeUnit.SECONDS)
-        //.setInitialDelay(15,TimeUnit.SECONDS)
-      // .addTag("UPDATE_WORKER_TEST")
-      //  .setConstraints(constraints)
-   //     .build()
-
-    //val workManager = WorkManager.getInstance(this).enqueueUniquePeriodicWork("my_worker_tag", ExistingPeriodicWorkPolicy.KEEP,request )
-    //val workManager = WorkManager.getInstance(this).enqueueUniqueWork("TEST_UPDATE_WORK",ExistingWorkPolicy.REPLACE, request)
-/*
-    var httpClient = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val request: Request = chain.request().newBuilder()
-                .addHeader(
-                    "Authorization",
-                    "Bearer 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"
-                )
-                .build()
-            chain.proceed(request)
-        }
-        .build()
-
-    var retrofit = Retrofit.Builder()
-            //.baseUrl("http://192.168.56.1:8080")
-        .baseUrl("http://10.0.2.2:8080")
-        .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-    var api = ServerRequestsRepository(retrofit.create(ServerAPI::class.java))
-    private val database: AppDatabase by lazy{
-        Room.databaseBuilder(
-            this,
-            AppDatabase::class.java,"app_database"
-        ).fallbackToDestructiveMigration()
-            .build()
-    }
-    private val notesRepo by lazy { AppRepositoryDB(database.notesDao()) }
-    private  val notesUseCase by lazy { AppUseCase(notesRepo,api) }
-    private val appViewModel: AppViewModel by viewModels{
-        viewModelFactory {
-            initializer {
-                AppViewModel(notesUseCase)
-            }
-        }
-    }
-*/
-    //private val appViewModel = AppViewModel()
     private val appViewModel: AppViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

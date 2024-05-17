@@ -1,5 +1,6 @@
 package ru.amalkoott.advtapp.data.local
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -18,4 +19,5 @@ import ru.amalkoott.advtapp.domain.typeconverter.DateConverter
 @TypeConverters(AdvertsListConverter::class, DateConverter::class)
 abstract class AppDatabase : RoomDatabase(){
     abstract fun notesDao(): AppDao
+
 }

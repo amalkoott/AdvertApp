@@ -1,7 +1,9 @@
 package ru.amalkoott.advtapp.domain
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import java.util.Dictionary
 
 interface AppRepository {
@@ -12,7 +14,7 @@ interface AppRepository {
     fun loadFavourites(): Flow<List<Advert>>
     suspend fun clearDatabase()
     suspend fun fillDatabase(sets: List<AdSet>)
-    suspend fun addSet(note: AdSet)
+    suspend fun addSet(note: AdSet): Long?
     suspend fun updateSet(note: AdSet)
     suspend fun removeSet(set: AdSet)
 /*

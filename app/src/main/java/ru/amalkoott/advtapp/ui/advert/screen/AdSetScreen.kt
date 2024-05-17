@@ -63,9 +63,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import ru.amalkoott.advtapp.MainActivity
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.notification.sendNotification
@@ -79,6 +81,8 @@ import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdSetScreen(vm: AppViewModel) {
+    //val sets by vm.adSet.collectAsState()
+
     val sets by vm.adSet.collectAsState()
     val favs by vm.favList.collectAsState()
     /*

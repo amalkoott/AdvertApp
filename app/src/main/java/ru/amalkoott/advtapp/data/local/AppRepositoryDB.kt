@@ -1,9 +1,13 @@
 package ru.amalkoott.advtapp.data.local
 
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.AdSetWithAdverts
@@ -38,7 +42,7 @@ class AppRepositoryDB @Inject constructor(
         }
     }
 
-    override suspend fun addSet(note: AdSet): Unit = withContext(Dispatchers.IO){
+    override suspend fun addSet(note: AdSet): Long = withContext(Dispatchers.IO){
         val id = async { appDao.insertSet(note) }
         //println(id.await())
         for (ad in note.adverts!!){
@@ -52,7 +56,7 @@ class AppRepositoryDB @Inject constructor(
         // добавление черного списка для подборки
        // val list = BlackList(setId = id.await())
        // appDao.createBlackList(list)
-
+        return@withContext id.await()
     }
 
     override suspend fun removeSet(set: AdSet) {
@@ -62,7 +66,7 @@ class AppRepositoryDB @Inject constructor(
 
 
     override suspend fun updateSet(note: AdSet) = withContext(Dispatchers.IO){
-        appDao.updateSet(note)
+            appDao.updateSet(note)
     }
 
 

@@ -13,6 +13,9 @@ import javax.inject.Inject
 
 class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):AppRemoteRepository {
 
+    suspend fun testProvide(){
+        Log.d("MASHALA","!!!!!!!!!!!!!!!!!!!!!!!!!!${this.toString()}")
+    }
     // получаем список объявлений (подборку) по параметрам
     override suspend fun get(parameters: RealEstateSearchParameters): List<Advert> = withContext(Dispatchers.IO){
        // val result: JsonArray?
@@ -67,6 +70,53 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
 
          */
     }
+
+    override suspend fun get(json: JsonElement): List<Advert> = withContext(Dispatchers.IO){
+        // val result: JsonArray?
+        // todo отправляем на сервак параметры (принимается вродеп норм)
+        val result = mutableListOf<Advert>()
+        val resultList: JsonArray
+        // делаем get запрос - получаем Json-строку
+        // конвертим json-строку в подборку
+        try {
+            //val gson = Gson()
+            //val json = gson.toJsonTree(parameters)
+
+            val response = serverApi.get(json as JsonObject)
+
+            if(!response.isSuccessful){
+                Log.w("AppRepositoryApi","Can't get issues $response")
+                return@withContext emptyList()
+            }
+            resultList = response.body()!!.asJsonArray
+            /*
+            for (item in resultList){
+                result.add(toAdvert(item))
+            }
+            */
+            //result = response.body()!!.asJsonArray
+            // val size = result.size()
+        }catch (e: Exception){
+            Log.w("ServerRequestRepository","Can't get issues", e)
+            if(e.message == "timeout"){
+                Log.w("ServerRequestRepository","TIMEOUT")
+                return@withContext emptyList()
+            }
+            if(e.message?.contains("failed to connect") == true){
+                Log.w("ServerRequestRepository","FAILED TO CONNECT")
+                return@withContext emptyList()
+            }
+            Log.w("ServerRequestRepository","UNDEFINED ERROR")
+
+            return@withContext emptyList()
+        }
+        val set = resultList.map {
+            toAdvert(it)
+        } ?: emptyList()
+        return@withContext set
+
+    }
+
     private fun toAdvert(request: JsonElement): Advert {
 //      Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
         val jsonAdvert = request.asJsonObject

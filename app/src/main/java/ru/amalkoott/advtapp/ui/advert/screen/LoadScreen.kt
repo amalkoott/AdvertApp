@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -38,14 +39,14 @@ fun LoadScreen(value: Boolean, isSuccessful: MutableState<Boolean?>, cancelSearc
                 Text("Назад")
             }
         }else{
-            Column {
                 CircularProgressIndicator(
                     modifier = Modifier.width(64.dp),
                     color = MaterialTheme.colorScheme.secondary,
+                    strokeWidth = 8.dp
                     //trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
                 Text(text = "Ищем объявления...")
-            }
+
         }
     }
     //if (!loading) return

@@ -1,6 +1,7 @@
 package ru.amalkoott.advtapp.di
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import androidx.work.WorkManager
 import dagger.Module
@@ -16,6 +17,8 @@ import ru.amalkoott.advtapp.data.local.AppDao
 import ru.amalkoott.advtapp.data.local.AppDatabase
 import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
+import ru.amalkoott.advtapp.domain.AppRepository
+import ru.amalkoott.advtapp.domain.AppUseCase
 import ru.amalkoott.advtapp.domain.worker.StartWorker
 import javax.inject.Singleton
 
@@ -56,30 +59,25 @@ object AppModule {
     @Singleton
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase{
-        return Room.databaseBuilder(
+        val db = Room.databaseBuilder(
             context,
             AppDatabase::class.java,"app_database"
         ).fallbackToDestructiveMigration()
             .build()
+        Log.d("PROVIDE_DAO_ID_DATABASE_TEST",db.toString())
+        return db
     }
 
     @Singleton
     @Provides
     fun provideAppDao(db: AppDatabase): AppDao{
+        Log.d("PROVIDE_DAO_ID_DATABASE_TEST",db.toString())
         return db.notesDao()
     }
-/*
+
     @Singleton
     @Provides
     fun provideStartWorker(@ApplicationContext context: Context):StartWorker{
-        return StartWorker(WorkManager.getInstance(context))
+        return StartWorker(context)
     }
-    */
-/*
-    @Singleton
-    @Provides
-    fun provideWorkerManager(@ApplicationContext context: Context): WorkManager{
-        return WorkManager.getInstance(context)
-    }
-    */
 }

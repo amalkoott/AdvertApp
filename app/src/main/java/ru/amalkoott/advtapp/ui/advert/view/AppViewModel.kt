@@ -7,17 +7,24 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppUseCase
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 // viewModel для общих нужд:
@@ -73,6 +80,7 @@ class AppViewModel @Inject constructor (
     */
     val adsMap: MutableMap<Long?,MutableStateFlow<List<Advert>>> = mutableMapOf()
     val search: MutableMap<String,String> = mutableMapOf()
+    var stateFlowSets = MutableStateFlow<List<AdSet>>(emptyList())
     init{
         //@TODO не забыть при смене схемы БД поменять тип adsetID (внешний ключ у Advert) на Long?
 
@@ -82,13 +90,18 @@ class AppViewModel @Inject constructor (
 
             //appUseCase.loadRemoteNotes()
         }
+        //liveDataSets = appUseCase.setsFlow()
+
         viewModelScope.launch{
-            appUseCase.setsFlow()
-                .collect{
-                        note ->
-                    adSet.value = note
-                }
+            Log.d("CONTEXT","${currentCoroutineContext()}")
+                appUseCase.setsFlow()
+                    .collect{
+                            note ->
+                        adSet.value = note
+                        stateFlowSets.value = note
+                    }
         }
+
         viewModelScope.launch{
             appUseCase.favouritesFlow().collect{
                 // todo обработка дубликатов (возможно лучше просто не выдавать в этом DAO объявления с одинаковыми параметрами)
@@ -137,11 +150,14 @@ class AppViewModel @Inject constructor (
 
         // сохранение отредактированной подборки ** было launch
         viewModelScope.launch {
-            if (appUseCase.saveSet(set,searching.value,context) != null) successfulSearch.value = true
-            else successfulSearch.value = false
+
+            successfulSearch.value = appUseCase.saveSet(set,searching.value,context) != null
 
                     // cancelSearching()
             if (successfulSearch.value == true) loading.value = false
+            Log.d("VM searching", "riched...")
+
+
         }
 
         // Обновлять объявления???
@@ -486,6 +502,10 @@ class AppViewModel @Inject constructor (
     }
     // CLICKS
      fun onAddSetClicked(){
+        // TODO убрать потом
+        viewModelScope.launch {
+            appUseCase.test()
+        }
         screen_name.value = "Новая подборка"
         selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null, category = null, last_update = null)
         sets.add(selectedSet.value!!)

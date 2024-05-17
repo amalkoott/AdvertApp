@@ -18,12 +18,17 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import retrofit2.Retrofit
@@ -34,28 +39,35 @@ import ru.amalkoott.advtapp.data.local.AppRepositoryDB
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
+import ru.amalkoott.advtapp.di.AppModule
+import ru.amalkoott.advtapp.di.BindModule
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRepository
+import ru.amalkoott.advtapp.domain.BlackList
 import ru.amalkoott.advtapp.domain.notification.getNotification
 import ru.amalkoott.advtapp.domain.notification.sendNotification
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
+import java.lang.Math.abs
+import java.lang.Thread.sleep
+import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 private const val TAG = "*** UpdateWorker ***"
-
+/*
 class TestUpdateWorker (context: Context, workerParameters: WorkerParameters) : Worker(context,workerParameters){
 
+    val appDao = AppModule.provideAppDao(AppModule.provideDatabase(context))
+    val api = AppModule.provideServerApi(AppModule.provideInternetConnection(AppModule.provideHttpClient()))
     @OptIn(DelicateCoroutinesApi::class)
     override fun doWork(): Result {
         Log.d(TAG, "doWork: start")
         try {
-            //TimeUnit.SECONDS.sleep(20)
-            //val set = inputData.getString("caption")
             val map = inputData.keyValueMap
             GlobalScope.launch {
-                //val test = appRepo.loadAllSets()
+                Log.d("DatabaseID",AppModule.provideDatabase(applicationContext).toString())
+                api.testProvide()
             }
             Log.d(TAG+"DATA", "data has been got")
 
@@ -105,123 +117,164 @@ class TestUpdateWorker (context: Context, workerParameters: WorkerParameters) : 
         return getNotification(applicationContext,"","")
 
     }
-    //private val appApi: ServerRequestsRepository = MainActivity::class.java.getDeclaredField("api") as ServerRequestsRepository
-    //private val appRepo: AppRepository = MainActivity::class.java.getDeclaredField("notesRepo") as AppRepository
-/*
-    var httpClient = OkHttpClient.Builder()
-        .addInterceptor { chain ->
-            val request: Request = chain.request().newBuilder()
-                .addHeader(
-                    "Authorization",
-                    "Bearer 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"
-                )
-                .build()
-            chain.proceed(request)
-        }
-        .build()
+}
+// Обновление данных:
+// 1) запрос на сервер
+// 2) получение результата
+// 3) результат не пустой -> обновление в БД
+// 4) результат пустой -> ничего не делаем
+class CreateWorker(context: Context, workerParameters: WorkerParameters) : CoroutineWorker(context, workerParameters){
 
-    var retrofit = Retrofit.Builder()
-        //.baseUrl("http://192.168.56.1:8080")
-        .baseUrl("http://10.0.2.2:8080")
-        .client(httpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    override suspend fun doWork(): Result {
+            try {
+                // если тут проблем нет -> спокойно переходим к взаимодействию с api и repo
+                // для запроса на сервер
+                val api = AppModule.provideServerApi(AppModule.provideInternetConnection(AppModule.provideHttpClient()))
+                // для работы с БД
+                val repo = AppRepositoryDB(AppModule.provideAppDao(AppModule.provideDatabase(applicationContext)))
 
-    var api = ServerRequestsRepository(retrofit.create(ServerAPI::class.java))
-    private val database: AppDatabase by lazy{
-        Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,"app_database"
-        ).fallbackToDestructiveMigration()
-            .build()
+                // INSERT
+                // перевод параметров и поиск на сервере
+                val search = getSearchFromInputData()
+                val adverts = api.get(search)
+
+                if (adverts.isEmpty()) return Result.failure()
+
+                val adSet = AdSet()
+                // поправляем подборку
+                val last_update = LocalDate.parse(inputData.getString("last_update"))
+
+                adSet.name = inputData.getString("name")
+                //adSet.category = inputData.getString("category")
+                adSet.caption = search.toString()//toCaption(search)
+                adSet.adverts = adverts
+                adSet.update_interval = inputData.getInt("update_interval",15)
+                adSet.last_update = last_update
+
+                // добавляем новую подборку в БД
+                repo.addSet(adSet)
+
+                Log.d("UpdateWorker","Update is successful, tag - $tags")
+
+                return if(tags.firstOrNull() == "OneTimeUpdate") Result.retry()
+                else Result.success()
+
+            } catch (e: InterruptedException) {
+                e.printStackTrace()
+                return Result.failure()
+            }
     }
-    private val notesRepo by lazy { AppRepositoryDB(database.notesDao()) }
 
-    private suspend fun sendSearching(search: RealEstateSearchParameters?): List<Advert>?{
-
-        if (search == null) return null
-        val response = api.get(search)
-        //val response = appApi.get(SearchParameters("Снять"))
-        return if (response.isNotEmpty()){
-            // response to set и потом сохранять
-            //val set = AdSet(name = "",adverts = response, update_interval = 10, caption = null, category = null, last_update = null)
-            response
-        }else{
-            null
-        }
-        //return response
-    }
-    private suspend fun update(adSet: AdSet){
-        //val appRepo: AppRepository
-        val parameters = RealEstateSearchParameters()
-        // todo собираем parameters через set.caption (можно в json конвертить строку)
+    private fun getSearchFromInputData(): JsonElement{
         val gson = Gson()
-        /*
-          val temp = gson.toJsonTree(adSet.caption)
-      val json = temp.asJsonObject
-      */
-        val jelem: JsonElement = gson.fromJson<JsonElement>(adSet.caption, JsonElement::class.java)
-        val json = jelem.asJsonObject
-
+        val json = gson.fromJson(inputData.getString("search"), JsonElement::class.java)
+        return json
+    }
+}
+*/
+class UpdateWorker(context: Context, workerParameters: WorkerParameters) : CoroutineWorker(context, workerParameters) {
+    private var title = "TITLE_NOTIFICATION"
+    private var message = "MESSAGE_NOTIFICATION"
+    override suspend fun doWork(): Result {
+        Log.d(TAG, "update: start")
         try {
-            parameters.category = json["category"]?.toString()
-            parameters.city = json["city"]?.toString()
-            parameters.dealType = json["dealType"]?.toString()
-            parameters.livingType = json["livingType"]?.toString()
-            parameters.priceType = json["priceType"]?.toString()
+            // api - for remote, repo - local database
+            val id = inputData.getString("id")
+            val repo = AppRepositoryDB(AppModule.provideAppDao(AppModule.provideDatabase(applicationContext)))
 
-            val adverts = sendSearching(parameters)!!.toMutableList()
-            if (adverts.isEmpty()) return
+            val setId = id!!.toLong()
 
-            val blackList = notesRepo.getBlackList(adSet.id!!)
+            val adverts = loadRemoteData()
+            if (adverts.isNullOrEmpty()) return Result.retry()
+
+            val blackList = repo.getBlackList(setId)
+            adverts.removeBlackAdverts(blackList)
+
+            repo.deleteAdvertsBySet(setId)
+            /*
             if (blackList.isNotEmpty()){
                 blackList.forEach{
-                        blackList -> adverts.toList().forEach {
+                        blackList -> adverts!!.toList().forEach {
                         advert -> if (blackList.hash == advert.hash) {
-                    // удаляем из adverts
-                    adverts.remove(advert)
+                    adverts!!.remove(advert)
                     return@forEach
                 } } } }
-            // удаляем все объявления - оптимальный способ, т.к. объявления на локалке могут устареть
-            notesRepo.deleteAdvertsBySet(adSet.id!!)
+            repo.deleteAdvertsBySet(setId)
+            */
 
-            // вставляем новые объявления в бд
+            // insert new adverts
             adverts.forEach {
-                it.adSetId = adSet.id
-                notesRepo.addAdv(it)
+                it.adSetId = setId
+                repo.addAdv(it)
             }
 
-        }catch (e:Exception){
-            Log.w("RemoteUpdateSetError",e.message!!)
-        }
-    }
-*/
-}
-class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Worker(context, workerParameters) {
+            val set = getSetFromInputData()
+            set.adverts = adverts
+            repo.updateSet(set)
 
-    override fun doWork(): Result {
-        Log.d(TAG, "doWork: start")
-        try {
-            TimeUnit.SECONDS.sleep(20)
+            title = "Найдены новые объявления!"//getTitle(kotlin.math.abs(adverts.size - inputData.getInt("advertsCount", 0)))
+            message = "Подборка ${set.name} обновилась! Нажмите, чтобы посмотреть..."
+
+            Log.d("UpdateWorker","Update is successful, tag - $tags")
+            if(tags.contains("OneTimeUpdate")){
+                Log.d("TIMER","delay on ${set.update_interval}")
+                delay(6000*set.update_interval!!.toLong())
+                Log.d("TIMER","Sleeping...")
+                return Result.retry()
+            } else return Result.success()
         } catch (e: InterruptedException) {
             e.printStackTrace()
+            Log.d(TAG, "UpdateWorker: error")
+            return Result.failure()
         }
+    }
+    private fun getTitle(count: Int): String{
+        val lastDigit = count.toString().last().toString().toInt()
+        val word = if (count in 5..20) "объявлений"
+        else if (lastDigit == 0 || lastDigit >= 5) "объявлений"
+        else if (lastDigit == 1) "объявление"
+        else if (lastDigit in 2..4) "объявления"
+        else throw IllegalArgumentException("incorrect input")
 
-        Log.d(TAG, "doWork: end")
+        return "Найдено $count новых $word!"
+    }
+    private fun MutableList<Advert>?.removeBlackAdverts(blackList: List<BlackList>) {
+        //val blackList = repo.getBlackList(setId)
+        if (blackList.isNotEmpty()){
+            blackList.forEach{
+                    blackList -> this!!.toList().forEach {
+                    advert -> if (blackList.hash == advert.hash) {
+                this.remove(advert)
+                return@forEach
+            } } } }
+       // repo.deleteAdvertsBySet(setId)
+    }
+    private suspend fun loadRemoteData(): MutableList<Advert>?{
+        val api = AppModule.provideServerApi(AppModule.provideInternetConnection(AppModule.provideHttpClient()))
+        val adverts = api.get(getSearchFromInputData()).toMutableList()
+        return if (adverts.isEmpty()) null else adverts
+    }
+    private fun getSearchFromInputData(): JsonElement{
+        val gson = Gson()
+        val json = gson.fromJson(inputData.getString("search"), JsonElement::class.java)
+        return json
+    }
+    private fun getSetFromInputData(): AdSet{
+        // todo собираем set (full идентичный) из input data
+        val set = AdSet()
 
-        return Result.success()
-        /*
-        try {
-            //Ваш код
-        } catch (ex: Exception) {
-            return Result.failure(); //или Result.retry()
-        }
-        return Result.success()
+        val last_update = LocalDate.parse(inputData.getString("last_update"))
 
-         */
+        set.id = inputData.getString("id")!!.toLong()
+        //set.caption = inputData.getString("caption")!!
+        set.last_update = last_update
+        set.update_interval = inputData.getInt("update_interval",15)
+        set.name = inputData.getString("name")
+
+        return set
     }
 
-    override fun getForegroundInfo(): ForegroundInfo {
+    override suspend fun getForegroundInfo(): ForegroundInfo {
         //return super.getForegroundInfo()
         return ForegroundInfo(
             0, createNotification()
@@ -229,55 +282,7 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Worke
     }
 
     private fun createNotification(): Notification{
+        return getNotification(applicationContext,title,message)
 
-        return getNotification(applicationContext,"","")
-
-    }
-
-/*
-    private suspend fun loadNewCollection(): Collection<Data> {
-        // TODO ... Загрузка данных из сети или другой источник
-    }
-*/
-    private suspend fun saveCollection(collection: Collection<Data>) {
-        // ... Сохранение данных в локальную память
     }
 }
-/*
-class AdvertAppWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
-    override suspend fun doWork(): Result {
-        makeStatusNotification(
-            applicationContext.resources.getString(R.string.blurring_image),
-            applicationContext
-        )
-
-        return try {
-            val picture = BitmapFactory.decodeResource(
-                applicationContext.resources,
-                R.drawable.android_cupcake
-            )
-
-            val output = blurBitmap(picture, 1)
-
-            // Write bitmap to a temp file
-            val outputUri = writeBitmapToFile(applicationContext, output)
-
-            makeStatusNotification(
-                "Output is $outputUri",
-                applicationContext
-            )
-
-            Result.success()
-        } catch (throwable: Throwable) {
-            Log.e(
-                TAG,
-                applicationContext.resources.getString(R.string.error_applying_blur),
-                throwable
-            )
-            Result.failure()
-        }
-
-    }
-
-}
-*/

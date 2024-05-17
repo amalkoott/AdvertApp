@@ -3,12 +3,17 @@ package ru.amalkoott.advtapp.domain
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.work.Operation
 import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
+import ru.amalkoott.advtapp.di.AppModule
+import ru.amalkoott.advtapp.domain.notification.getNotification
 import ru.amalkoott.advtapp.domain.worker.StartWorker
 import javax.inject.Inject
 
@@ -18,28 +23,18 @@ import javax.inject.Inject
 class AppUseCase @Inject constructor(
     private val appRepo: AppRepository,
     private val appApi: ServerRequestsRepository,
-    //private val workManager: StartWorker
+    private val workManager: StartWorker
 ) {
+
     suspend fun fillWithInitialSets(initialSets: List<AdSet>){
         // должен очистить содержимое базы
         appRepo.clearDatabase()
         // затем добавить в базу переданный список заметок
         appRepo.fillDatabase(initialSets)
     }
-    /*
-    suspend fun loadRemoteNotes(){
-        // получаем список всех заметок с сервера
-        val listNotes: List<AdSet> = notesRemoteRepo.list()
-
-        listNotes.forEach {
-            updateLocalDB(it)
-        }
-    }
-
-     */
-    fun setsFlow(): Flow<List<AdSet>> {
-        var flow : Flow<List<AdSet>>
-        // метод подписки на данные (что бы это ни значило)
+    fun setsFlow(): Flow<List<AdSet>> {//Flow<List<AdSet>> {
+        Log.d("TEST",appApi.toString())
+        //var flow : Flow<List<AdSet>>
         return appRepo.loadAllSetsFlow()
     }
     fun favouritesFlow(): Flow<List<Advert>>{
@@ -47,12 +42,10 @@ class AppUseCase @Inject constructor(
     }
     fun advertsFlow(): Flow<List<Advert>> {
         var flow : Flow<List<Advert>>
-        // метод подписки на данные (что бы это ни значило)
         return appRepo.loadAllAdsFlow()
     }
     fun advertsBySetFlow(id: Long): Flow<List<Advert>> {
         var flow : Flow<List<Advert>>
-        // метод подписки на данные (что бы это ни значило)
         return appRepo.loadAllAdsBySetFlow(id)
     }
     suspend fun sendSearching(search: RealEstateSearchParameters?): List<Advert>?{
@@ -68,30 +61,30 @@ class AppUseCase @Inject constructor(
         }
         //return response
     }
+
 // todo удаление подборки - удаление black list с ее id
     @SuppressLint("SuspiciousIndentation")
-    suspend fun updateSet(adSet: AdSet,context: Context){
-   // startOneTimeWorker(context, "(TEST)GET_ADVERTS_FOR_SET", adSet)
-  //  workManager.startOneTimeWorker(context, "(TEST)GET_ADVERTS_FOR_SET", adSet)
+    fun updateSet(adSet: AdSet,context: Context){
+    workManager.updateSet(context, adSet, adSet.getSearchParameters(), false)
 
-        val parameters = RealEstateSearchParameters()
-        // todo собираем parameters через set.caption (можно в json конвертить строку)
+    // TODO перебросить в Adset
+
+  /*      val parameters = RealEstateSearchParameters()
         val gson = Gson()
-      /*
-        val temp = gson.toJsonTree(adSet.caption)
-    val json = temp.asJsonObject
-    */
-    val jelem: JsonElement = gson.fromJson<JsonElement>(adSet.caption, JsonElement::class.java)
-    val json = jelem.asJsonObject
-
+        val jelem: JsonElement = gson.fromJson<JsonElement>(adSet.caption, JsonElement::class.java)
+        val json = jelem.asJsonObject
+*/
+    /*
         try {
+            /*
             parameters.category = json["category"]?.toString()
             parameters.city = json["city"]?.toString()
             parameters.dealType = json["dealType"]?.toString()
             parameters.livingType = json["livingType"]?.toString()
             parameters.priceType = json["priceType"]?.toString()
-
-            val adverts = sendSearching(parameters)!!.toMutableList()
+*/
+            //val parameters = adSet.getSearchParameters()
+            val adverts = sendSearching(adSet.getSearchParameters())!!.toMutableList()
             if (adverts.isEmpty()) return
 
             val blackList = appRepo.getBlackList(adSet.id!!)
@@ -115,23 +108,16 @@ class AppUseCase @Inject constructor(
         }catch (e:Exception){
             Log.w("RemoteUpdateSetError",e.message!!)
         }
-    }
-    private fun isEqualAdvert(first: BlackList, second: Advert): Boolean{
-        // isFavourite и id смысла сравнивать нет
-        return first.hash == second.hash
-        /*
-        return (first.name == second.name) &&
-                (first.description == second.description) &&
-                (first.price == second.price) &&
-                (first.location == second.location) &&
-                (first.address == second.address)
 
-         */
+     */
     }
-    private fun test(){
-        Log.d("WORKER_WITH_USE_CASE","This method has been started from worker...")
+    suspend fun test(){
+        val sets = appRepo.loadAllSets()
+
+        Log.d("SETS_COUNT_IN_APP","${sets.count()}")
     }
-    suspend fun saveSet(set: AdSet,search: RealEstateSearchParameters?,context: Context):Long?{
+    @SuppressLint("RestrictedApi")
+    suspend fun saveSet(set: AdSet, search: RealEstateSearchParameters?, context: Context):Long?{
         if (set.id == null){
             val adverts = sendSearching(search)
             // сначала поиск на сервере
@@ -143,11 +129,9 @@ class AppUseCase @Inject constructor(
 
             set.caption = toCaption(search)
 
-            appRepo.addSet(set)
-
-       //     workManager.startOneTimeWorker(context, "(TEST)GET_ADVERTS_FOR_SET", set)
-
-        }else
+            set.id = appRepo.addSet(set)
+            workManager.updateSet(context,set,search!!,true)
+        } else
         {
             // обновление без сервака
            appRepo.updateSet(set)

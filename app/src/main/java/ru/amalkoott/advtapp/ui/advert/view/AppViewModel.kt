@@ -7,24 +7,18 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppUseCase
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 // viewModel для общих нужд:
@@ -135,7 +129,7 @@ class AppViewModel @Inject constructor (
     fun onUpdateSet(){
         // для selected
         viewModelScope.launch {
-            appUseCase.updateSet(selectedSet.value!!,context)
+            appUseCase.updateSetByRemote(selectedSet.value!!,context)
         }
     }
     lateinit var context: Context

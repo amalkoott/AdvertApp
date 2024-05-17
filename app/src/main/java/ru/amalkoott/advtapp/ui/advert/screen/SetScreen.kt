@@ -134,6 +134,7 @@ fun PrintFilters(search: MutableState<RealEstateSearchParameters?>,
                 modifier = Modifier.padding(start = 24.dp))
         }
         item(1){
+            // todo отладить фильтры
             Column(modifier = Modifier
                 .padding(
                     top = 16.dp,

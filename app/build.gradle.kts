@@ -138,13 +138,14 @@ dependencies {
 
     // WorkManager dependency
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("androidx.hilt:hilt-work:1.0.0")
 
+    // dagger и hilt
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-android-compiler:2.50")
 
-        //implementation("androidx.hilt:hilt-work:1.0.0")
     // When using Kotlin.
-    //kapt("androidx.hilt:hilt-compiler:1.0.0")
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
     /*
         // Splash API
         implementation ("androidx.core:core-splashscreen:1.0.1")

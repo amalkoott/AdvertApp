@@ -54,7 +54,7 @@ import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-private const val TAG = "*** UpdateWorker ***"
+private const val TAG = "CommonUpdateWorker"
 /*
 class TestUpdateWorker (context: Context, workerParameters: WorkerParameters) : Worker(context,workerParameters){
 
@@ -172,12 +172,30 @@ class CreateWorker(context: Context, workerParameters: WorkerParameters) : Corou
     }
 }
 */
+class TestWorker(context: Context,workerParameters: WorkerParameters): CoroutineWorker(context,workerParameters){
+    override suspend fun doWork(): Result {
+        delay(30000)
+        Log.d("TEST_WORK","TestWorker is start...")
+        Log.d("TEST_WORK","TestWorker is end...")
+        sendNotification(applicationContext,"Это что - Заголовок???","Ура смотри, все работаит уже целых $runAttemptCount раз!!!")
+        return Result.retry()
+    }
+}
 class UpdateWorker(context: Context, workerParameters: WorkerParameters) : CoroutineWorker(context, workerParameters) {
     private var title = "TITLE_NOTIFICATION"
     private var message = "MESSAGE_NOTIFICATION"
     override suspend fun doWork(): Result {
         Log.d(TAG, "update: start")
         try {
+            if(tags.contains("OneTimeUpdate")){
+                // for periodic work realisation with OneTimeWorker
+                delay(inputData.getInt("update_interval",5)*6000L)
+            }else{
+                // for PeriodicWorker
+                Log.d("WorkerRepeatCount","$tags $runAttemptCount")
+                if (runAttemptCount > 5) return Result.failure() // todo добавить внутренний push что пока не найдено, будет обновление
+            }
+
             // api - for remote, repo - local database
             val id = inputData.getString("id")
             val repo = AppRepositoryDB(AppModule.provideAppDao(AppModule.provideDatabase(applicationContext)))
@@ -187,20 +205,13 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Corou
             val adverts = loadRemoteData()
             if (adverts.isNullOrEmpty()) return Result.retry()
 
+            // проверить дубликаты TODO понять надо ли оно вообще
+            if (isHavingDuplicateById(adverts,repo)) return Result.failure()
+
             val blackList = repo.getBlackList(setId)
             adverts.removeBlackAdverts(blackList)
 
             repo.deleteAdvertsBySet(setId)
-            /*
-            if (blackList.isNotEmpty()){
-                blackList.forEach{
-                        blackList -> adverts!!.toList().forEach {
-                        advert -> if (blackList.hash == advert.hash) {
-                    adverts!!.remove(advert)
-                    return@forEach
-                } } } }
-            repo.deleteAdvertsBySet(setId)
-            */
 
             // insert new adverts
             adverts.forEach {
@@ -212,21 +223,30 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Corou
             set.adverts = adverts
             repo.updateSet(set)
 
-            title = "Найдены новые объявления!"//getTitle(kotlin.math.abs(adverts.size - inputData.getInt("advertsCount", 0)))
-            message = "Подборка ${set.name} обновилась! Нажмите, чтобы посмотреть..."
+            successfulSearchNotify()
 
-            Log.d("UpdateWorker","Update is successful, tag - $tags")
             if(tags.contains("OneTimeUpdate")){
-                Log.d("TIMER","delay on ${set.update_interval}")
-                delay(6000*set.update_interval!!.toLong())
-                Log.d("TIMER","Sleeping...")
                 return Result.retry()
             } else return Result.success()
         } catch (e: InterruptedException) {
             e.printStackTrace()
-            Log.d(TAG, "UpdateWorker: error")
+            failedSearchNotify()
             return Result.failure()
         }
+    }
+    private fun successfulSearchNotify(){
+        title = "Найдены новые объявления!"//getTitle(kotlin.math.abs(adverts.size - inputData.getInt("advertsCount", 0)))
+        message = "Подборка ${inputData.getString("name")} обновилась! Нажмите, чтобы посмотреть..."
+        sendNotification(applicationContext,title,message)
+
+        Log.d("UpdateWorker","Update is successful, tag - $tags")
+    }
+    private fun failedSearchNotify(){
+        Log.d(TAG, "UpdateWorker: error")
+
+        title = "Что-то мешает поиску..."//getTitle(kotlin.math.abs(adverts.size - inputData.getInt("advertsCount", 0)))
+        message = "Сейчас объявления не могут быть найдены. Нажмите для получения информации..." // todo во внутренние пуши подробную инфу
+        sendNotification(applicationContext,title,message)
     }
     private fun getTitle(count: Int): String{
         val lastDigit = count.toString().last().toString().toInt()
@@ -254,6 +274,20 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Corou
         val adverts = api.get(getSearchFromInputData()).toMutableList()
         return if (adverts.isEmpty()) null else adverts
     }
+    private suspend fun isHavingDuplicateById(adverts: List<Advert>, repo: AppRepositoryDB): Boolean{
+        var result = false
+        repo.loadAllAdsBySetFlow(inputData.getString("id")!!.toLong()).collect{
+            it.forEach{ oldAdvert ->
+                adverts.forEach { newAdvert ->
+                    if (oldAdvert.hash == newAdvert.hash) {
+                        result = true
+                        return@collect
+                    }
+                }
+            }
+        }
+        return result
+    }
     private fun getSearchFromInputData(): JsonElement{
         val gson = Gson()
         val json = gson.fromJson(inputData.getString("search"), JsonElement::class.java)
@@ -263,14 +297,13 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Corou
         // todo собираем set (full идентичный) из input data
         val set = AdSet()
 
-        val last_update = LocalDate.parse(inputData.getString("last_update"))
+        val last_update = LocalDate.now()//.parse(inputData.getString("last_update"))
 
         set.id = inputData.getString("id")!!.toLong()
         //set.caption = inputData.getString("caption")!!
         set.last_update = last_update
         set.update_interval = inputData.getInt("update_interval",15)
         set.name = inputData.getString("name")
-
         return set
     }
 

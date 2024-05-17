@@ -66,7 +66,9 @@ class AppRepositoryDB @Inject constructor(
 
 
     override suspend fun updateSet(note: AdSet) = withContext(Dispatchers.IO){
-            appDao.updateSet(note)
+           val res = appDao.updateSet(note)
+        Log.d("UpdateSet","Successful update for ${note.id}")
+        return@withContext res
     }
 
 

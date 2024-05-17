@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.room.Room
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -49,6 +50,8 @@ import ru.amalkoott.advtapp.data.local.AppRepositoryDB
 import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
 import ru.amalkoott.advtapp.domain.AppUseCase
+import ru.amalkoott.advtapp.domain.Constants
+import ru.amalkoott.advtapp.domain.worker.TestWorker
 import ru.amalkoott.advtapp.domain.worker.UpdateWorker
 import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
@@ -58,7 +61,30 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val appViewModel: AppViewModel by viewModels()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        WorkManager.getInstance(this).cancelAllWork()
+        WorkManager.getInstance(this).pruneWork()
+        val constraints = Constraints.Builder()
+            .setRequiresDeviceIdle(false)
+            .build()
+        /*
+        val request = PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES)
+            .addTag(Constants.PERIODIC_TAG)
+            .addTag("PERIODIC")
+            .build()
+        */
+        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .addTag(Constants.ONE_TIME_TAG)
+            .setConstraints(constraints)
+//            .setBackoffCriteria(BackoffPolicy.,1,TimeUnit.MINUTES)
+            .build()
+        WorkManager.getInstance(this).enqueueUniqueWork("PERIODIC_TEST_WORK", ExistingWorkPolicy.REPLACE, request)
+
+
+
         super.onCreate(savedInstanceState)
         setContent {
             AdvtAppTheme {

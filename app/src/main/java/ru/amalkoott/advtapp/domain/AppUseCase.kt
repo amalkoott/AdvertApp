@@ -3,17 +3,10 @@ package ru.amalkoott.advtapp.domain
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.work.Operation
-import androidx.work.WorkManager
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
-import ru.amalkoott.advtapp.di.AppModule
-import ru.amalkoott.advtapp.domain.notification.getNotification
 import ru.amalkoott.advtapp.domain.worker.StartWorker
 import javax.inject.Inject
 
@@ -29,6 +22,7 @@ class AppUseCase @Inject constructor(
     suspend fun fillWithInitialSets(initialSets: List<AdSet>){
         // должен очистить содержимое базы
         appRepo.clearDatabase()
+        workManager.clearAllWork()
         // затем добавить в базу переданный список заметок
         appRepo.fillDatabase(initialSets)
     }
@@ -62,9 +56,11 @@ class AppUseCase @Inject constructor(
         //return response
     }
 
-// todo удаление подборки - удаление black list с ее id
+    // update by button click
     @SuppressLint("SuspiciousIndentation")
-    fun updateSet(adSet: AdSet,context: Context){
+    fun updateSetByRemote(adSet: AdSet, context: Context){
+    // удаляем старую задачу и создаем новую
+    workManager.removeUpdatingSet(adSet)
     workManager.updateSet(context, adSet, adSet.getSearchParameters(), false)
 
     // TODO перебросить в Adset
@@ -135,6 +131,7 @@ class AppUseCase @Inject constructor(
         {
             // обновление без сервака
            appRepo.updateSet(set)
+            updateSetByRemote(set,context)
         }
         return set.id
     }
@@ -158,6 +155,7 @@ class AppUseCase @Inject constructor(
     }
     suspend fun removeSet(set: AdSet){
         appRepo.removeSet(set)
+        workManager.removeUpdatingSet(set)
     }
     suspend fun saveAd(ad: Advert){
 

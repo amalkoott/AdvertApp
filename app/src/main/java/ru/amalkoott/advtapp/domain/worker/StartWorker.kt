@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.work.BackoffPolicy
 import androidx.work.Configuration
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -28,6 +29,7 @@ import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.AppRepository
 import ru.amalkoott.advtapp.domain.AppUseCase
+import ru.amalkoott.advtapp.domain.Constants
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -39,6 +41,8 @@ class StartWorker @Inject constructor(
   //  private val workManager: WorkManager,
 //    private val appRepo: AppRepository
 ) {
+
+
     /*
 
     @SuppressLint("RestrictedApi")
@@ -83,7 +87,7 @@ class StartWorker @Inject constructor(
         return result
     }
 */
-    private val workManager = WorkManager.getInstance(context)
+    //private val workManager = WorkManager.getInstance(context)
     fun updateSet(context: Context, set: AdSet, search: RealEstateSearchParameters, isNewSet: Boolean){
         lateinit var request: WorkRequest
         val updateInterval: Long = set.update_interval!!.toLong()
@@ -95,16 +99,18 @@ class StartWorker @Inject constructor(
             Pair(false,false) -> {
                 // обновление старой подборки (нормальный интервал)
                 request = PeriodicWorkRequestBuilder<UpdateWorker>(updateInterval, TimeUnit.MINUTES)
-                    .addTag("PeriodicUpdate")
-                    .addTag("Set_${set.id}")
+                    .addTag(Constants.PERIODIC_TAG)
+                    .addTag("${Constants.SET_TAG}${set.id}")
+                    .setBackoffCriteria(BackoffPolicy.LINEAR,10,TimeUnit.SECONDS)
                     .setInputData(data)
                     .build()
             }
             Pair(false,true) -> {
                 // обновление старой подборки (короткий интервал)
                 request = OneTimeWorkRequest.Builder(UpdateWorker::class.java)
-                    .addTag("OneTimeUpdate")
-                    .addTag("Set_${set.id}")
+                    .addTag(Constants.ONE_TIME_TAG)
+                    .addTag("${Constants.SET_TAG}${set.id}")
+                    .setBackoffCriteria(BackoffPolicy.LINEAR,updateInterval,TimeUnit.MINUTES)
                     .setInputData(data)
                     .build()
             }
@@ -112,26 +118,33 @@ class StartWorker @Inject constructor(
                 // обновления для новой подборки (нормальный интервал)
                 request = PeriodicWorkRequestBuilder<UpdateWorker>(updateInterval, TimeUnit.MINUTES)
                     .setInitialDelay(updateInterval,TimeUnit.MINUTES)
-                    .addTag("PeriodicUpdate")
-                    .addTag("Set_${set.id}")
+                    .addTag(Constants.PERIODIC_TAG)
+                    .addTag("${Constants.SET_TAG}${set.id}")
+                    .setBackoffCriteria(BackoffPolicy.LINEAR,10,TimeUnit.SECONDS)
                     .setInputData(data)
                     .build()
             }
             Pair(true,true) -> {
                 // обновления для новой подборки (короткий интервал)
-                request = OneTimeWorkRequest.Builder(UpdateWorker::class.java)
+                request = OneTimeWorkRequest.Builder(TestWorker::class.java)
                     .setInitialDelay(updateInterval,TimeUnit.MINUTES)
-                    .addTag("OneTimeUpdate")
-                    .addTag("Set_${set.id}")
+                    .addTag(Constants.ONE_TIME_TAG)
+                    .addTag("${Constants.SET_TAG}${set.id}")
+                    .setBackoffCriteria(BackoffPolicy.LINEAR,updateInterval,TimeUnit.MINUTES)
                     .setInputData(data)
                     .build()
             }
         }
 
-        if(!isShortInterval) workManager.enqueueUniquePeriodicWork("UPDATE_SET_${set.id}", ExistingPeriodicWorkPolicy.KEEP,request as PeriodicWorkRequest)
-        else workManager.enqueueUniqueWork("UPDATE_SET_${set.id}", ExistingWorkPolicy.REPLACE, request as OneTimeWorkRequest)
+        if(!isShortInterval){
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork("${Constants.WORK_TAG}${set.id}", ExistingPeriodicWorkPolicy.KEEP,request as PeriodicWorkRequest)
+            Log.d("${Constants.SET_TAG}${set.id}","${set.name} is running successful for periodic work with one time realisation in ($updateInterval) minutes...")
+        }
+        else{
+            WorkManager.getInstance(context).enqueueUniqueWork("${Constants.WORK_TAG}${set.id}", ExistingWorkPolicy.REPLACE, request as OneTimeWorkRequest)
+            Log.d("${Constants.SET_TAG}${set.id}","${set.name} is running successful for periodic work in ($updateInterval) minutes...")
+        }
 
-        Log.d("SET_${set.id}","${set.name} is running successful for periodic work in ($updateInterval) minutes...")
     }
     private fun getData(set: AdSet, search: RealEstateSearchParameters): Data{
         // TODO собирать inputData из set и search
@@ -147,6 +160,14 @@ class StartWorker @Inject constructor(
             .putString("last_update", set.last_update.toString())
             .putString("search",gson.toJsonTree(search).toString())
             .build()
+    }
+
+    fun removeUpdatingSet(set: AdSet){
+        WorkManager.getInstance(context).cancelUniqueWork("${Constants.WORK_TAG}${set.id}")
+    }
+    fun clearAllWork(){
+        WorkManager.getInstance(context).cancelAllWork()
+        WorkManager.getInstance(context).pruneWork()
     }
 }
 

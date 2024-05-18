@@ -32,7 +32,7 @@ fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue
         modifier = Modifier.padding(vertical = 8.dp)) {
         Text(text = name, modifier = Modifier.padding(4.dp))
         RowWrap {
-            val livingTypes = map.keys.toList()
+            val livingTypes = map.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach { type->
                 FilterChip(
                     modifier = Modifier.padding(4.dp),
@@ -64,7 +64,7 @@ fun NullableFilter(name: String, map: MutableState<MutableMap<String,Boolean>>, 
         modifier = Modifier.padding(vertical = 8.dp)) {
         Text(text = name, modifier = Modifier.padding(4.dp))
         RowWrap {
-            val livingTypes = map.value.keys.toList()
+            val livingTypes = map.value.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach { type->
                 FilterChip(
                     modifier = Modifier.padding(4.dp),
@@ -85,54 +85,7 @@ fun NullableFilter(name: String, map: MutableState<MutableMap<String,Boolean>>, 
                 )
             }
         }
-        /*
-        LazyHorizontalGrid(rows = GridCells.Fixed(2), Modifier.height(300.dp)) {
-            val livingTypes = map.keys.toList()
-            items(items = livingTypes) { type ->
-                FilterChip(
-                    modifier = Modifier.padding(4.dp),
-                    onClick = {
-                        for (key in map.keys) {
-                            if (key != type) map[key] = false
-                        }
-                        map[type] = !map[type]!!
-                        if (map[type]!!) setValue(type)
-                    },
-                    label = {},
-                    selected = map[type]!!,
-                    leadingIcon = { Text(text = type) }
-                )
-            }
-        }
-
-         */
     }
-}
-
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NullableFilter(map: SnapshotStateMap<String,Boolean>, setValue: (String?)-> Unit,){
-    RowWrap {
-        val livingTypes = map.keys.toList()
-        livingTypes.forEach { type->
-            FilterChip(
-                modifier = Modifier.padding(0.dp),
-                onClick = {
-                    for (key in map.keys){ if(key != type) map[key] = false }
-                    map[type] = !map[type]!!
-                    if (map[type]!!) { setValue(type); return@FilterChip }
-                    else{ setValue(null)}
-                },
-                label = { Text(text = type)},
-                selected = map[type]!!,
-                leadingIcon = { }
-            )
-            //if (map[type]!!)setValue(type)
-        }
-    }
-
 }
 
 @Preview

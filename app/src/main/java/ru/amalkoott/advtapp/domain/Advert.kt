@@ -1,7 +1,16 @@
 package ru.amalkoott.advtapp.domain
 
+import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ru.amalkoott.advtapp.App
+import java.io.FileOutputStream
+import java.net.URL
 
 // класс объявления - хранит инфу по конкретному объявлению
 // карточка объявления - будет отдельный класс с зависимостью от Advrt
@@ -27,7 +36,7 @@ class Advert (
     //val floor: Int,
     //val home_caption: String,
 
-    //@TODO var pictures: Array<String>
+    //@TODO добавить номера телефна
 )
 //text = "Продается уютная квартира в районе с развитой инфраструктурой. Евро-двушка.- 34,7 м.кв+лоджия. Просторная кухня 14 м.кв. Широкая застекленная лоджия.В квартире очень тепло. Прекрасны йремонт от застройщика. Светлые обои, качественный ламинат. В санузле кафельная плитка .Рядом с домом школа с бассейном, магазины и вся необходимая инфраструктура. Один собственник, обременений нет. Буду рада показать этот отличный вариант. Ключи у агента.",
 
@@ -59,4 +68,46 @@ class Advert (
             )
              */
         }
+
+    suspend fun saveImages() {
+        //val context = App.instance.applicationContext
+
+        val scope = CoroutineScope(Dispatchers.IO)
+        /*
+        scope.launch {
+            val url = URL(images[0])
+            val imageData = url.readBytes()
+
+            val file = FileOutputStream("filename")
+        }
+        */
+/*
+        Glide.with(context)
+            .asBitmap()
+            .load(url)
+            .into(object : CustomTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    // твой код
+                }
+
+                override fun onLoadFailed(errorDrawable: Drawable?) {}
+
+                override fun onLoadCleared(placeholder: Drawable?) {}
+            })
+
+        // Launch a new coroutine in the scope
+        images.forEach {
+                scope.launch {
+                    Log.d("URLForImage",it)
+                    val filename: String = "test_img"
+                    val url = URL(it)
+                    val imageData = url.readBytes()
+
+                    val file = FileOutputStream(filename)
+                    file.write(imageData)
+                    file.close()
+                }
+        }
+        */
+    }
 }

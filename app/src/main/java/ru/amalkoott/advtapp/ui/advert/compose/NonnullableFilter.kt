@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.SelectableChipBorder
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -38,7 +37,7 @@ fun NonnullableFilter(name:String, map: SnapshotStateMap<String, Boolean>, setVa
         Text(text = name,
             modifier = Modifier.padding(4.dp))
         RowWrap {
-            val livingTypes = map.keys.toList()
+            val livingTypes = map.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach { type ->
                 FilterChip(
                     modifier = Modifier.padding(4.dp),
@@ -68,7 +67,7 @@ fun NonnullableFilter(map: SnapshotStateMap<String, Boolean>, setValue: (String)
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween) {
         RowWrap {
-            val livingTypes = map.keys.toList()
+            val livingTypes = map.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach {type ->
                 FilterChip(
                     modifier = Modifier.padding(4.dp),
@@ -82,8 +81,6 @@ fun NonnullableFilter(map: SnapshotStateMap<String, Boolean>, setValue: (String)
                     label = {Text(text = type)},
                     selected = map[type]!!,
                     leadingIcon = {
-                        /*Text(text = type)
-                         */
                     }
                 )
             }

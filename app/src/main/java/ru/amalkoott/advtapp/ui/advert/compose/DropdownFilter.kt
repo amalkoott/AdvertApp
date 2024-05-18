@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -20,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -56,7 +58,7 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
             ) {
                 TextField(
                     value = selectedText,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.surface
                     ),
@@ -76,15 +78,12 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
                             onClick = {
                                 selectedText = item
                                 expanded = false
-                             //   setCategory(item)
-                                //Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
                             }
                         )
                     }
                 }
             }
         }
-        //Toast.makeText(context, "item", Toast.LENGTH_SHORT).show()
         scope.launch {
             if (!expanded) setCategory(selectedText)
         }

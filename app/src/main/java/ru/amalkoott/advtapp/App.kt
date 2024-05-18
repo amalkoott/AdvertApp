@@ -15,4 +15,9 @@ class App : Application(), Configuration.Provider {
         get() = Configuration.Builder()
             .setMinimumLoggingLevel(android.util.Log.INFO)
             .build()
+    companion object {
+        lateinit var instance: App
+            private set
+    }
+
 }

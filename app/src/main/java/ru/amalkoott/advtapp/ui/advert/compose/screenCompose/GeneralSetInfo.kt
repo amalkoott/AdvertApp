@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -80,7 +81,7 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
                 text = "Введите название",
                 color = MaterialTheme.colorScheme.onSurfaceVariant) },
 
-            colors = TextFieldDefaults.outlinedTextFieldColors(
+            colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.surface),
 
@@ -116,7 +117,7 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
                 text = "Введите значение",
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             },
-            colors = TextFieldDefaults.outlinedTextFieldColors(
+            colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.surface
             ),

@@ -29,7 +29,7 @@ data class RealEstateSearchParameters (
     var cell: String? = null,
     var apart: Boolean? = null,
     var roomType:Boolean? = null,
-    var room:UByte? = null,
+    var room:String? = null, // todo поменять на string
     var toiletType:Boolean? = null,
     var wallMaterial:String? = null,
     var balconyType:Boolean? = null,
@@ -44,6 +44,57 @@ data class RealEstateSearchParameters (
 ){
     fun getJson(){
 
+    }
+    fun setRoomValue(value: String){
+        room = room.setValue(value)
+        //if(value[0] == '-') repair = repair?.replace(value.drop(1),"") else repair += "$value "
+        // todo удалять null
+    }
+    fun setFinishValue(value: String){
+        finish = finish.setValue(value)
+        //if(value[0] == '-') repair = repair?.replace(value.drop(1),"") else repair += "$value "
+    }
+    fun setRepairValue(value: String){
+    repair = repair.setValue(value)
+    //if(value[0] == '-') repair = repair?.replace(value.drop(1),"") else repair += "$value "
+    }
+    fun setWallValue(value: String){
+       wallMaterial = wallMaterial.setValue(value)
+        if(value[0] == '-') wallMaterial = wallMaterial?.replace(value.drop(1),"") else wallMaterial += "$value "
+    }
+    fun setParkingValue(value: String){
+    parking = parking.setValue(value)
+    //if(value[0] == '-') parking = parking?.replace(value.drop(1),"") else parking += "$value "
+    }
+    fun setViewValue(value: String){
+    view = view.setValue(value)
+    // if(value[0] == '-') view = view?.replace(value.drop(1),"") else view += "$value "
+    }
+    fun setAmenitiesValue(value: String){
+    amenities = amenities.setValue(value)
+    //if(value[0] == '-') amenities = amenities?.replace(value.drop(1),"") else amenities += "$value "
+    }
+    fun setCommunicationValue(value: String){
+    communication = communication.setValue(value)
+    //if(value[0] == '-') communication = communication?.replace(value.drop(1),"") else communication += "$value "
+    }
+    fun setRentFeatureValue(value: String){
+        rentFeature = rentFeature.setValue(value)
+        //if(value[0] == '-') rentFeature = rentFeature?.replace(value.drop(1),"") else rentFeature += "$value "
+    }
+    fun setFloorTypeValue(value: String){
+        if (value == "Только последний") floorType = value
+        else floorType = floorType.setValue(value)
+        //if(value[0] == '-') rentFeature = rentFeature?.replace(value.drop(1),"") else rentFeature += "$value "
+    }
+    /*
+    fun setRoomCunt(value: String){
+        room = room.setValue(value)
+        //if(value[0] == '-') rentFeature = rentFeature?.replace(value.drop(1),"") else rentFeature += "$value "
+    }
+    */
+    private fun String?.setValue(word: String): String? {
+        return if (word[0] == '-') this!!.replace(word.drop(1), "") else "$this$word "
     }
 fun isNotEmpty():Boolean{
     if ((city == null)||(category == null)||(dealType == null)||(livingType == null) ||(rentType == null)||

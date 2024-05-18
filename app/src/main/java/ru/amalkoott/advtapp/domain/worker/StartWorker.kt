@@ -147,7 +147,6 @@ class StartWorker @Inject constructor(
 
     }
     private fun getData(set: AdSet, search: RealEstateSearchParameters): Data{
-        // TODO собирать inputData из set и search
         val gson = Gson()
         val id: String = if(set.id == null) "null" else set.id.toString()
         return Data.Builder()

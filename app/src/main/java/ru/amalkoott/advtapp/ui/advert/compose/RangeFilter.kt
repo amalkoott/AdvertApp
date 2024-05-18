@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -20,9 +21,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,6 +38,8 @@ fun RangeFilter(
     val scope = rememberCoroutineScope()
     var minValue by remember { mutableStateOf(0) }
     var maxValue by remember { mutableStateOf(0) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.Start,
@@ -63,9 +68,12 @@ fun RangeFilter(
                 },
                 //label = { Text("Min Price") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
+                keyboardActions = KeyboardActions(onDone = {
+                    keyboardController?.hide()
+                    if(minValue > maxValue) minValue = maxValue
+                   }),
                 modifier = Modifier.padding(horizontal = 16.dp).weight(1f),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.surface
                 ),
@@ -89,9 +97,11 @@ fun RangeFilter(
                 },
                 //label = { Text("Max Price") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
+                keyboardActions = KeyboardActions(onDone = {
+                    if (maxValue < minValue) maxValue = minValue
+                    keyboardController?.hide()}),
                 modifier = Modifier.padding(horizontal = 16.dp).weight(1f),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.surface
                 ),
@@ -109,6 +119,7 @@ fun PreviewRangeFilter(){
     val name: String = "name"
     var minValue by remember { mutableStateOf(0) }
     var maxValue by remember { mutableStateOf(0) }
+
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.Start
@@ -123,6 +134,7 @@ fun PreviewRangeFilter(){
                     color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 value = minValue.toString(),
                 onValueChange = {
+                    if(minValue > maxValue) minValue = maxValue
                     try {
                         minValue = Integer.parseInt(it)
                     }catch (e:NumberFormatException){
@@ -135,7 +147,7 @@ fun PreviewRangeFilter(){
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .weight(1f),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.surface
                 ),
@@ -148,6 +160,7 @@ fun PreviewRangeFilter(){
                     color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 value = maxValue.toString(),
                 onValueChange = {
+                    if(maxValue < minValue) maxValue = minValue
                     try {
                         maxValue = Integer.parseInt(it)
                     }catch (e:NumberFormatException){
@@ -160,7 +173,7 @@ fun PreviewRangeFilter(){
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .weight(1f),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.surface
                 ),

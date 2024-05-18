@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.advert.screen.ImageFromUrl
 
@@ -50,6 +52,7 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
             removeAd: (Advert)-> Unit,
             addFavourites: (Advert)-> Unit,
             ){
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val adverts by ads!!.collectAsState()
     LazyVerticalGrid(
@@ -67,6 +70,7 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
             modifier = Modifier.padding(start = 24.dp, top = 24.dp, bottom = 8.dp))
     }
         items(adverts){advert ->
+            scope.launch{ advert.saveImages()}
             Card(
                 colors = CardDefaults.cardColors(
                     //containerColor = MaterialTheme.colorScheme.surfaceTint,
@@ -99,6 +103,7 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                             .fillMaxSize(),
                         //  colors = CardDefaults.cardColors(containerColor = Color.LightGray)
                     ) {
+                        // todo если изображения нет на устройстве - с тырнета, иначе с локальной памяти
                         ImageFromUrl(url = advert.images[0])
                         Text(
                             text = (adverts.indexOf(advert) + 1).toString(),

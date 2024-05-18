@@ -34,7 +34,7 @@ fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setVa
         Text(text = name,
             modifier = Modifier.padding(4.dp))
         RowWrap(horizontalSpacer = 16.dp){
-            val livingTypes = map.keys.toList()
+            val livingTypes = map.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach { type->
                 FilterChip(
                     modifier = Modifier.padding(0.dp),
@@ -42,7 +42,8 @@ fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setVa
                         scope.launch{
                             map[type] = !map[type]!!
                             if (map[type]!!) { setValue(type); return@launch }
-                            else{ setValue(null)}
+//                            else{ setValue(null)}
+                            else {setValue("-$type")}
                         }
                               },
                     label = { Text(text = type)},
@@ -65,7 +66,7 @@ fun NullableAllFilter(name: String, map: MutableState<MutableMap<String, Boolean
         Text(text = name,
             modifier = Modifier.padding(4.dp))
         RowWrap(horizontalSpacer = 16.dp){
-            val livingTypes = map.value.keys.toList()
+            val livingTypes = map.value.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach { type->
                 FilterChip(
                     modifier = Modifier.padding(0.dp),
@@ -74,7 +75,8 @@ fun NullableAllFilter(name: String, map: MutableState<MutableMap<String, Boolean
                             map.value[type] = !map.value[type]!!
                             if (map.value[type]!!) { setValue(type); return@launch
                             }
-                            else{ setValue(null)}
+                            //else{ setValue(null)}
+                            else {setValue("-$type")}
                         }
                     },
                     label = { Text(text = type)},
@@ -115,21 +117,5 @@ fun PreviewNullableAllFilter(){
                 )
             }
         }
-        /*
-        LazyHorizontalGrid(rows = GridCells.Fixed(2), Modifier.height((32 * map.size).dp)){
-            val livingTypes = map.keys.toList()
-            items(items = livingTypes){type ->
-                FilterChip(
-                    modifier = Modifier.padding(4.dp),
-                    onClick = {
-                        map[type] = !map[type]!!},
-                    label = { Text(text = type)},
-                    selected = map[type]!!,
-                    leadingIcon = { }
-                )
-            }
-        }
-
-         */
     }
 }

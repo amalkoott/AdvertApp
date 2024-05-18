@@ -28,8 +28,6 @@ fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> U
             modifier = Modifier.padding(end = 4.dp),
             onClick = {
                 type = !type
-                //setValue(firstValue)
-              //  setValue(type.toString())
                       },
             label = {
                 Text(

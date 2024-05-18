@@ -15,6 +15,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import ru.amalkoott.advtapp.ui.advert.compose.BinaryFilter
+import ru.amalkoott.advtapp.ui.advert.compose.DatePickerFilter
+import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
 import ru.amalkoott.advtapp.ui.advert.compose.NonnullableFilter
 import ru.amalkoott.advtapp.ui.advert.compose.NullableAllFilter
 import ru.amalkoott.advtapp.ui.advert.compose.NullableFilter
@@ -60,55 +62,81 @@ fun GeneralRealEstateFilters(
     parameters: Map<String, SnapshotStateMap<String, Boolean>>,
    // isShowMore: MutableState<Boolean>
 ){
+    val isShowMore = remember { mutableStateOf(false) }
+    var toiletSet = parameters["toilet"]!!
+    var roomSet = parameters["room"]!!
     // тип: вторичка, новостройка, комната, дом-дача, таунхаус, коттедж, участок (нельзя null)
     NonnullableFilter("Тип недвижимости",parameters["livingType"]!!,funs["living"]!!)// setLivingType)
 
     // метраж - TextField от до, только целые числа
     RangeFilter(name = "Площадь", setMinValue = /*setMinArea*/funs["minArea"]!!, setMaxValue = funs["maxArea"]!!)//setMaxArea)
 
-    val isShowMore = remember { mutableStateOf(false) }
-
     when(flatType.value){
-        "Вторичка" -> FlatFilters(
-            funs["minFloor"]!!,
-            funs["maxFloor"]!!,
-            funs["floor"]!!,
-            funs["repair"]!!,
-            funs["apart"]!!,
-            funs["parking"]!!,
-            funs["lift"]!!,
-            parameters["apartment"]!!,
-            parameters["repair"]!!,
-            parameters["parking"]!!,
-            parameters["lift"]!!,
-            parameters["floor"]!!,
-            isShowMore
-        )
-        "Комната" -> FlatFilters(
-            funs["minFloor"]!!,
-            funs["maxFloor"]!!,
-            funs["floor"]!!,
-            funs["repair"]!!,
-            funs["apart"]!!,
-            funs["parking"]!!,
-            funs["lift"]!!,
-            parameters["apartment"]!!,
-            parameters["repair"]!!,
-            parameters["parking"]!!,
-            parameters["lift"]!!,
-            parameters["floor"]!!,
-            isShowMore
-        )
-        "Новостройка" -> LayoutFilters(
-            funs["finish"]!!,
-            parameters["finish"]!!,
-            isShowMore)
-        "Дом, дача" -> CountryFilters(
-            funs["repair"]!!,
-            funs["communication"]!!,
-            parameters["repair"]!!,
-            parameters["communications"]!!,
-            isShowMore)
+        "Вторичка" -> {
+            // количество комнат
+            DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в квартире", setCategory = funs["room"]!!)
+
+            FlatFilters(
+                funs["minFloor"]!!,
+                funs["maxFloor"]!!,
+                funs["floor"]!!,
+                funs["repair"]!!,
+                funs["apart"]!!,
+                funs["parking"]!!,
+                funs["lift"]!!,
+                parameters["apartment"]!!,
+                parameters["repair"]!!,
+                parameters["parking"]!!,
+                parameters["lift"]!!,
+                parameters["floor"]!!,
+                isShowMore
+            )
+        }
+        "Комната" -> {
+            // количество комнат
+            DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в квартире", setCategory = funs["room"]!!)
+
+            FlatFilters(
+                funs["minFloor"]!!,
+                funs["maxFloor"]!!,
+                funs["floor"]!!,
+                funs["repair"]!!,
+                funs["apart"]!!,
+                funs["parking"]!!,
+                funs["lift"]!!,
+                parameters["apartment"]!!,
+                parameters["repair"]!!,
+                parameters["parking"]!!,
+                parameters["lift"]!!,
+                parameters["floor"]!!,
+                isShowMore
+            )
+        }
+        "Новостройка" -> {
+            // количество комнат
+            //NullableAllFilter(name = "Комнат в квартире", map = roomSet/*parameters["room"]!!*/, setValue = funs["room"]!!)
+            DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в квартире", setCategory = funs["room"]!!)
+
+            LayoutFilters(
+                funs["finish"]!!,
+                parameters["finish"]!!,
+                isShowMore)
+        }
+        "Дом, дача" -> {
+            toiletSet = parameters["countryToilet"]!!
+            roomSet = parameters["countryRoom"]!!
+            // количество комнат
+            //NullableAllFilter(name = "Комнат в доме", map = roomSet/*parameters["room"]!!*/, setValue = funs["room"]!!)
+
+            DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в доме", setCategory = funs["room"]!!)
+
+            CountryFilters(
+                funs["repair"]!!,
+                funs["communication"]!!,
+                parameters["repair"]!!,
+                parameters["communications"]!!,
+                isShowMore)
+        }
     }
 
     if (dealType.value){
@@ -153,7 +181,7 @@ fun GeneralRealEstateFilters(
 
         NonnullableFilter(map = parameters["travelTime"]!!, setValue =funs["travelTime"]!!) // setTravelTime)//
 
-        NullableFilter("Санузел", map = parameters["toilet"]!!, setValue = funs["toilet"]!!) //setToilet)//
+        NullableFilter("Санузел", map = toiletSet/*parameters["toilet"]!!*/, setValue = funs["toilet"]!!) //setToilet)//
     }
     ShowMoreButton(isShowMore)
 }
@@ -246,6 +274,12 @@ fun RentFilters(
     // - загород
     // тип съема (посуточно, долго) deal type
     BinaryFilter(firstValue = "Посуточно", secondValue = "Долго", setRentType)// funs["rent"]!!)
+
+    if(true){
+
+        // посуточно
+        DatePickerFilter()
+    }
 
     //val isShowMore = remember { mutableStateOf(false) }
 

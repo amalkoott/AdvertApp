@@ -65,11 +65,7 @@ fun AddSet(
     val updateInterval = remember { mutableStateOf(selected.value?.update_interval) }
     var isAdListEmpty = true
     /*
-    scope.launch {
-        withContext(Dispatchers.IO){
-            isAdListEmpty = selected.value!!.adverts!!.isEmpty()
-        }
-    }
+    todo beauty drop down https://stackoverflow.com/questions/67111020/exposed-drop-down-menu-for-jetpack-compose
     */
     Column(modifier = Modifier
         .background(Color.White)

@@ -5,6 +5,7 @@ package ru.amalkoott.advtapp.ui.advert.screen
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +26,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -70,8 +73,11 @@ import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.MainActivity
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.domain.Constants
+import ru.amalkoott.advtapp.domain.getFromUrl
 import ru.amalkoott.advtapp.domain.notification.sendNotification
 import ru.amalkoott.advtapp.ui.advert.compose.DropMenu
+import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.DropUpMenu
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 
 //@TODO splash screen https://www.google.com/search?q=splash+screen+compose+android&oq=splash+screen+comp&gs_lcrp=EgZjaHJvbWUqDAgCEAAYFBiHAhiABDIHCAAQABiABDIGCAEQRRg5MgwIAhAAGBQYhwIYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMggIBRAAGBYYHjIKCAYQABgPGBYYHjIKCAcQABgPGBYYHjIICAgQABgWGB4yCAgJEAAYFhge0gEIOTQxOWowajeoAgCwAgA&sourceid=chrome&ie=UTF-8#fpstate=ive&vld=cid:57e4cdbe,vid:VTRz-8DPowM,st:0
@@ -121,6 +127,7 @@ fun AdSetScreen(vm: AppViewModel) {
     val setApart:(String?)-> Unit = {type -> vm.setApart(type)}
     val setRoomType:(String?)-> Unit = {type -> vm.setRoomType(type)}
     val setRoom:(String?)-> Unit = {type -> vm.setRoom(type)}
+    val setCRoom:(String?) -> Unit = {type -> vm.setCRoom(type)}
     val setToilet:(String?)-> Unit = {type -> vm.setToiletType(type)}
     val setWall:(String?)-> Unit = {type -> vm.setWallMaterial(type)}
     val setBalcony:(String?)-> Unit = {type -> vm.setBalconyType(type)}
@@ -160,6 +167,7 @@ fun AdSetScreen(vm: AppViewModel) {
         "travelType" to setTravelType,
         "room" to setRoom,
         "roomType" to setRoomType,
+        "countryRoom" to setCRoom,
         "cell" to setCell,
         "apart" to setApart,
         "toilet" to setToilet,
@@ -271,8 +279,12 @@ fun AdSetScreen(vm: AppViewModel) {
                                 else Icon(Icons.Filled.Add, contentDescription = "Добавить") }
                         )
                     }
+                },
+                bottomBar = {
+                    if(selectedAd.value!= null){
+                        DropUpMenu(Constants.SITES.getFromUrl(selectedAd.value!!.URLs))
+                    }
                 }
-
             ) {
                 if (selected.value == null) {
                     if (favourites.value) {
@@ -362,7 +374,12 @@ fun PrintSet(sets: List<AdSet>,
                         //Text(text = "5", fontSize = 20.sp)
                         SuggestionChip(
                             modifier = Modifier.padding(end = 8.dp),
-                            border = SuggestionChipDefaults.suggestionChipBorder(MaterialTheme.colorScheme.secondaryContainer),
+                            border = BorderStroke(
+                                color = MaterialTheme.colorScheme.secondaryContainer, // Укажите желаемый цвет
+                                width = 1.dp // Укажите толщину рамки
+                            ),
+                            //colors = SuggestionChipDefaults.elevatedSuggestionChipColors(MaterialTheme.colorScheme.secondaryContainer),
+                            //border = SuggestionChipDefaults.suggestionChipBorder(MaterialTheme.colorScheme.secondaryContainer),// todo
                             onClick = { Log.d(set.update_interval.toString(), "hello world") },
                             label = {
                                 Text(set.update_interval.toString() + " час.", color = MaterialTheme.colorScheme.secondaryContainer, fontWeight = FontWeight.SemiBold)},//MaterialTheme.colorScheme.surfaceVariant) },
@@ -424,6 +441,36 @@ fun DrawSheet(
                     drawerState.apply { if (isOpen) close() else open() }
                 }
                 favouritesClick()
+                //  vm.onFavouritesClick()
+            })
+        NavigationDrawerItem(
+            label = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Notifications, contentDescription = "Push",)
+                    Text(text = "Уведомления", modifier = Modifier.padding(start = 8.dp))
+                }
+            },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.apply { if (isOpen) close() else open() }
+                }
+                // favouritesClick()
+                //  vm.onFavouritesClick()
+            })
+        NavigationDrawerItem(
+            label = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Info, contentDescription = "How it work",)
+                    Text(text = "Как это работает?", modifier = Modifier.padding(start = 8.dp))
+                }
+            },
+            selected = false,
+            onClick = {
+                scope.launch {
+                    drawerState.apply { if (isOpen) close() else open() }
+                }
+                // favouritesClick()
                 //  vm.onFavouritesClick()
             })
         NavigationDrawerItem(

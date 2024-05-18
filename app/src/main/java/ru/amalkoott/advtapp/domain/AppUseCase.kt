@@ -10,9 +10,6 @@ import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
 import ru.amalkoott.advtapp.domain.worker.StartWorker
 import javax.inject.Inject
 
-
-/*@TODO надо сделать:
-*/
 class AppUseCase @Inject constructor(
     private val appRepo: AppRepository,
     private val appApi: ServerRequestsRepository,
@@ -62,50 +59,6 @@ class AppUseCase @Inject constructor(
     // удаляем старую задачу и создаем новую
     workManager.removeUpdatingSet(adSet)
     workManager.updateSet(context, adSet, adSet.getSearchParameters(), false)
-
-    // TODO перебросить в Adset
-
-  /*      val parameters = RealEstateSearchParameters()
-        val gson = Gson()
-        val jelem: JsonElement = gson.fromJson<JsonElement>(adSet.caption, JsonElement::class.java)
-        val json = jelem.asJsonObject
-*/
-    /*
-        try {
-            /*
-            parameters.category = json["category"]?.toString()
-            parameters.city = json["city"]?.toString()
-            parameters.dealType = json["dealType"]?.toString()
-            parameters.livingType = json["livingType"]?.toString()
-            parameters.priceType = json["priceType"]?.toString()
-*/
-            //val parameters = adSet.getSearchParameters()
-            val adverts = sendSearching(adSet.getSearchParameters())!!.toMutableList()
-            if (adverts.isEmpty()) return
-
-            val blackList = appRepo.getBlackList(adSet.id!!)
-            if (blackList.isNotEmpty()){
-                blackList.forEach{
-                    blackList -> adverts.toList().forEach {
-                        advert -> if (blackList.hash == advert.hash) {
-                            // удаляем из adverts
-                            adverts.remove(advert)
-                            return@forEach
-            } } } }
-            // удаляем все объявления - оптимальный способ, т.к. объявления на локалке могут устареть
-            appRepo.deleteAdvertsBySet(adSet.id!!)
-
-            // вставляем новые объявления в бд
-            adverts.forEach {
-                it.adSetId = adSet.id
-                appRepo.addAdv(it)
-            }
-
-        }catch (e:Exception){
-            Log.w("RemoteUpdateSetError",e.message!!)
-        }
-
-     */
     }
     suspend fun test(){
         val sets = appRepo.loadAllSets()
@@ -118,9 +71,6 @@ class AppUseCase @Inject constructor(
             val adverts = sendSearching(search)
             // сначала поиск на сервере
             if (adverts.isNullOrEmpty()) return null
-            //val test = appApi.checkServer()
-            //val response = appApi.get(SearchParameters("Снять"))
-            // @TODO собирать set.caption из параметров поиска
             set.adverts = adverts
 
             set.caption = toCaption(search)

@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -76,8 +77,6 @@ class AppViewModel @Inject constructor (
     val search: MutableMap<String,String> = mutableMapOf()
     var stateFlowSets = MutableStateFlow<List<AdSet>>(emptyList())
     init{
-        //@TODO не забыть при смене схемы БД поменять тип adsetID (внешний ключ у Advert) на Long?
-
         viewModelScope.launch {
           //  appUseCase.fillWithInitialSets(emptyList())
           //  appUseCase.fillWithInitialSets(sets)
@@ -98,7 +97,7 @@ class AppViewModel @Inject constructor (
 
         viewModelScope.launch{
             appUseCase.favouritesFlow().collect{
-                // todo обработка дубликатов (возможно лучше просто не выдавать в этом DAO объявления с одинаковыми параметрами)
+                // todo обработка дубликатов в favourites (возможно лучше просто не выдавать в этом DAO объявления с одинаковыми параметрами) ЛИБО указание в favoutires - к какой подборке принадлежит объявление ЛИБО программно собирать favourites (more optimaly)
                 favList.value = it
             }
         }
@@ -120,7 +119,6 @@ class AppViewModel @Inject constructor (
     var favList = MutableStateFlow<List<Advert>>(emptyList())
     var edited_set: AdSet? = null
 
-    //@TODO здесь было просто мутбл стэйт
     var adverts = mutableStateListOf<Advert>()
     var temp_ads = MutableStateFlow<List<Advert>>(emptyList())
 
@@ -137,7 +135,6 @@ class AppViewModel @Inject constructor (
         context = value
     }
     fun onEditComplete(){
-        //@TODO сначала передать searching на сервер,а затем обнулить его
         val set = selectedSet.value
         if (set == null || set.name!!.isBlank()) return
         if (searching.value == null) return
@@ -163,7 +160,7 @@ class AppViewModel @Inject constructor (
 
         loading.value = true
 
-        //TODO при сохранении изменений cancelSearching() должен быть только когда известен результат поиска
+        //TODO допилить штуку, что при неудачном поиске смена экрана идет на фильтры с указанными раньше параметрами (чтобы челы заново все не вводили)
     }
     fun onDeleteSet(){
         sets.remove(selectedSet.value)
@@ -295,6 +292,10 @@ class AppViewModel @Inject constructor (
         searching.value = RealEstateSearchParameters()
     }
     fun cancelSearching(){
+        Log.d("SEARCHING_VALUE",searching.value.toString())
+
+        parameters.restart()
+
         loading.value = false
         successfulSearch.value = null
 
@@ -323,6 +324,7 @@ class AppViewModel @Inject constructor (
         if (type != null) {
             flatType.value = type
         }
+        // parameters.restartWithLivingType(type) // todo делать только на клик в самом фильтре
         //Log.d("LIVING_TYPE",searching.value!!.livingType.toString())
     }
     fun setDealType(type: String?){ // not null bool
@@ -344,7 +346,11 @@ class AppViewModel @Inject constructor (
         searching.value!!.rentType = type
     }
     fun setFloorType(type: String?){ // null three
-        searching.value!!.floorType = type
+        if (type == "Только последний") {
+            parameters["realEstate"]!!["floor"]!!.keys.forEach{ parameters["realEstate"]!!["floor"]!![it] = false }
+            parameters["realEstate"]!!["floor"]!![type] = true
+        } //else parameters["realEstate"]!!["floor"]!![type!!] = false
+        searching.value!!.setFloorTypeValue(type!!) // todo чуть чуть поправить
     }
     fun setMinPrice(value: String?){ // null float
         searching.value!!.minPrice = value?.toFloatOrNull()
@@ -383,10 +389,12 @@ class AppViewModel @Inject constructor (
         searching.value!!.maxFloors = value?.toIntOrNull()
     }
     fun setRepair(value: String?){ // null many
-        searching.value!!.repair = value
+        //searching.value!!.repair = value
+        searching.value!!.setRepairValue(value!!)
     }
     fun setFinish(value: String?){ // null many
-        searching.value!!.finish = value
+        searching.value!!.setFinishValue(value!!)
+        //searching.value!!.finish = value
     }
     fun setTravelTime(value: String?){ // not null one
         searching.value!!.travelTime = value?.toByte()
@@ -439,7 +447,12 @@ class AppViewModel @Inject constructor (
 
     }
     fun setRoom(value: String?){ // int
-        searching.value!!.room = value?.toUByte()
+        //searching.value!!.setRoomCount(value)
+        searching.value!!.setRoomValue(value!!)
+        //if(result == null) searching.value!!.room = null else searching.value!!.room = result.toUByte()
+    }
+    fun setCRoom(value: String?){ // int
+        searching.value!!.setRoomValue(value!!)
     }
     fun setToiletType(value: String?){ //null bool
         searching.value!!.toiletType = value.toBoolean()
@@ -463,25 +476,30 @@ class AppViewModel @Inject constructor (
         Log.d("VMToilet","toilet is $value")
     }
     fun setWallMaterial(value: String?){ // null many
-        searching.value!!.wallMaterial = value
+        searching.value!!.setWallValue(value!!)
+//        searching.value!!.wallMaterial = value
     }
     fun setBalconyType(value: String?){ // null many
         searching.value!!.balconyType = value.toBoolean()
     }
     fun setParking(value: String?){ // null many
-        searching.value!!.parking = value
+    searching.value!!.setParkingValue(value!!)
+    //searching.value!!.parking = value
     }
     fun setLiftType(value: String?){ // null many
         searching.value!!.liftType = value.toBoolean()
     }
     fun setAmenities(value: String?){ // null many
-        searching.value!!.amenities = value
+        searching.value!!.setAmenitiesValue(value!!)
+    //searching.value!!.amenities = value
     }
     fun setView(value: String?){ // null many
-        searching.value!!.view = value
+        searching.value!!.setViewValue(value!!)
+    //        searching.value!!.view = value
     }
     fun setCommunication(value: String?){ // null many
-        searching.value!!.communication = value
+    searching.value!!.setCommunicationValue(value!!)
+    //searching.value!!.communication = value
     }
     fun setInclude(value: String?){ // null words
         searching.value!!.include = value
@@ -490,16 +508,13 @@ class AppViewModel @Inject constructor (
         searching.value!!.exclude = value
     }
     fun setRentFeatures(value: String?){ // null many
-        searching.value!!.rentFeature = value
+    searching.value!!.setRentFeatureValue(value!!)
+    //searching.value!!.rentFeature = value
     }
     fun set(){
     }
     // CLICKS
      fun onAddSetClicked(){
-        // TODO убрать потом
-        viewModelScope.launch {
-            appUseCase.test()
-        }
         screen_name.value = "Новая подборка"
         selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null, category = null, last_update = null)
         sets.add(selectedSet.value!!)
@@ -597,7 +612,28 @@ class AppViewModel @Inject constructor (
         return mutableStateListOf<Advert>()
     }
 
-    val parameters = mapOf(
+    private fun  Map<String, Map<String, SnapshotStateMap<String, Boolean>>>.restart(){
+        this.values.forEach{ it ->
+            it.values.forEach{params ->
+                params.keys.forEach{
+                    params[it] = false
+                    if(it == "Вторичка") params[it] = true
+                }
+            }
+        }
+    }
+    private fun  Map<String, Map<String, SnapshotStateMap<String, Boolean>>>.restartWithLivingType(type: String?){
+        this.values.forEach{ it ->
+            it.values.forEach{params ->
+                params.keys.forEach{
+                    params[it] = false
+                }
+            }
+        }
+        this["realEstate"]!!["livingType"]!![type!!] = true
+    }
+    // todo обнулять параметры на false после отмены searching
+    var parameters = mapOf(
         "realEstate" to mapOf(
             "apartment" to mutableStateMapOf(
                 "Не апартаменты" to false,
@@ -606,6 +642,26 @@ class AppViewModel @Inject constructor (
             "lift" to mutableStateMapOf(
                 "Пассажирский" to false,
                 "Грузовой" to false
+            ),
+            "countryRoom" to mutableStateMapOf(
+                "1" to false,
+                "2" to false,
+                "3" to false,
+                "4" to false,
+                "5" to false,
+                "6" to false,
+                "7" to false,
+                "8" to false,
+                "9" to false,
+              //  "Больше 9" to false,
+              //  "Свободная планировка" to false, // todo добавить даты
+            ), // todo разобраться с комнатами и лифт тоже через set
+            "room" to mutableStateMapOf(
+               // "Студия" to false,
+                "1" to false,
+                "2" to false,
+                "3" to false,
+                "4+" to false,
             ),
             "repair" to mutableStateMapOf(
                 "Косметический" to false,
@@ -652,6 +708,10 @@ class AppViewModel @Inject constructor (
             "toilet" to mutableStateMapOf(
                 "Смежный" to false,
                 "Раздельный" to false
+            ),
+            "countryToilet" to mutableStateMapOf(
+                "На улице" to false,
+                "В доме" to false
             ),
             "travelTime" to mutableStateMapOf(
                 "5" to false,

@@ -53,8 +53,6 @@ fun DropMenu(onDeleteSet: ()-> Unit, onUpdateSet: ()-> Unit, setContext: (Contex
             text = { Text("Обновить") },
             onClick = {
                 coroutineScope.launch {
-                    // Здесь можно выполнить другую асинхронную операцию, например, обновление данных
-                    // TODO Обновление подборки
                     Toast.makeText(context, "Update", Toast.LENGTH_SHORT).show()
                     setContext(context)
                     onUpdateSet()
@@ -94,17 +92,5 @@ fun DropMenu(onDeleteAd: ()-> Unit){
                 }
             }
         )
-        /*
-        DropdownMenuItem(
-            text = { Text("Обновить") },
-            onClick = {
-                coroutineScope.launch {
-                    // Здесь можно выполнить другую асинхронную операцию, например, обновление данных
-                    // TODO Обновление подборки
-                    Toast.makeText(context, "Update", Toast.LENGTH_SHORT).show()
-                }
-            }
-        )
-        */
     }
 }

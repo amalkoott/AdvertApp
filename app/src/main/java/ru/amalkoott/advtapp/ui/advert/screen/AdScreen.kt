@@ -181,32 +181,6 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
             }
 
 
-    /*
-    Card() {
-        Card(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            AutoSlidingCarousel(
-                //itemsCount = images.size,
-                itemsCount = selectedAd.value!!.images.size,
-                itemContent = { index ->
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(selectedAd.value!!.images[index])
-                            .build(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.height(200.dp)
-                    )
-                }
-            )
-        }
-        Text(text = selectedAd.value!!.name)
-        Text(text = selectedAd.value!!.price.toString())
-        Text(text = selectedAd.value!!.ad_caption)
-    }
-    */
 }
 
 @Composable
@@ -290,7 +264,7 @@ fun AutoSlidingCarousel(
     }
 }
 
-
+/*
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
@@ -424,7 +398,7 @@ fun AdPreview() {
                     verticalAlignment = Alignment.CenterVertically){
                     SuggestionChip(
                         colors = SuggestionChipDefaults.suggestionChipColors(MaterialTheme.colorScheme.tertiaryContainer),
-                        border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
+                       // border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
                         onClick = { Log.d("footage","24")  },
                         label = { Text(
                             text = "24\nкв.м",
@@ -436,7 +410,7 @@ fun AdPreview() {
                     )
                     SuggestionChip(
                         colors = SuggestionChipDefaults.suggestionChipColors(MaterialTheme.colorScheme.tertiaryContainer),
-                        border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
+                       // border = SuggestionChipDefaults.suggestionChipBorder(Color.Transparent),
                         onClick = { Log.d("footage","24")  },
                         label = { Text(
                             text = "1\n" +
@@ -529,3 +503,4 @@ fun AdPreview() {
         }
     }
 }
+*/

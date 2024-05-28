@@ -12,7 +12,7 @@ import retrofit2.http.Query
 
 interface ServerAPI {
     // получение новой подборки
-    @GET("/test")
+    @GET("/search")
     suspend fun get(@Query("parameters") parameters: JsonObject): Response<JsonArray?>
 
     @GET("/check")

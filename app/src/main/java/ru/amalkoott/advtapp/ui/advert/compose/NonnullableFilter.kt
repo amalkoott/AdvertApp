@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -33,9 +34,9 @@ fun NonnullableFilter(name:String, map: SnapshotStateMap<String, Boolean>, setVa
     val scope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(vertical = 8.dp)) {
+        modifier = Modifier.padding(vertical = 16.dp)) {
         Text(text = name,
-            modifier = Modifier.padding(4.dp))
+            modifier = Modifier.padding(4.dp), color =  MaterialTheme.colorScheme.onSurfaceVariant)
         RowWrap {
             val livingTypes = map.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach { type ->
@@ -87,6 +88,35 @@ fun NonnullableFilter(map: SnapshotStateMap<String, Boolean>, setValue: (String)
         }
     }
 }
+
+@Composable
+fun NonnullableFilter(map: SnapshotStateMap<String, Boolean>, setValue: (String)-> Unit,modifier: Modifier){
+    val scope = rememberCoroutineScope()
+    Column(horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = modifier) {
+        RowWrap {
+            val livingTypes = map.toSortedMap(naturalOrder()).keys.toList()
+            livingTypes.forEach {type ->
+                FilterChip(
+                    modifier = Modifier.padding(2.dp),
+                    onClick = {
+                        scope.launch{
+                            for (key in map.keys){ map[key] = false }
+                            map[type] = !map[type]!!
+                            if (map[type]!!) setValue(type)//selected = type
+                        }
+                    },
+                    label = {Text(text = type)},
+                    selected = map[type]!!,
+                    leadingIcon = {
+                    }
+                )
+            }
+        }
+    }
+}
+
 
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)

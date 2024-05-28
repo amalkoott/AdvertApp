@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRemoteRepository
+import java.time.LocalDate
 import javax.inject.Inject
 
 class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):AppRemoteRepository {
@@ -18,8 +19,7 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
     }
     // получаем список объявлений (подборку) по параметрам
     override suspend fun get(parameters: RealEstateSearchParameters): List<Advert> = withContext(Dispatchers.IO){
-       // val result: JsonArray?
-        // todo отправляем на сервак параметры (принимается вродеп норм)
+        // отправляем на сервак параметры
         val result = mutableListOf<Advert>()
         val resultList: JsonArray
         // делаем get запрос - получаем Json-строку
@@ -35,13 +35,6 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
                 return@withContext emptyList()
             }
             resultList = response.body()!!.asJsonArray
-            /*
-            for (item in resultList){
-                result.add(toAdvert(item))
-            }
-            */
-            //result = response.body()!!.asJsonArray
-           // val size = result.size()
         }catch (e: Exception){
             Log.w("ServerRequestRepository","Can't get issues", e)
             if(e.message == "timeout"){
@@ -60,15 +53,6 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
             toAdvert(it)
         } ?: emptyList()
         return@withContext set
-
-       // return@withContext emptyList()
-        /*
-        val sets = issues?.map{
-            toAdvert(it.toString())
-        } ?: emptyList()
-        sets
-
-         */
     }
 
     override suspend fun get(json: JsonElement): List<Advert> = withContext(Dispatchers.IO){
@@ -124,28 +108,24 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         var title: String? = null
         var desc: String? = null
         var price: String? = null
+        var priceInfo: String? = null
         var address: String? = null
+        var lat: Double? = null
+        var lon: Double? = null
+        var published: String? = null
+        var updated: String? = null
         var loc: String? = null
         var url: String? = null
         var images: String? = null
-
         try {
-            hash = jsonAdvert["hash"].asString
+            hash = jsonAdvert["hash"].asString.replace("\"","")
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
             Log.d("ServerRequestException", e.toString())
         }
         try {
-            title = jsonAdvert["title"].asString
-        }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
-        }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
-        }
-
-        try {
-            desc = jsonAdvert["description"].asString
+            title = jsonAdvert["title"].asString.replace("\"","")
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
@@ -153,7 +133,7 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 
         try {
-            price = jsonAdvert["price"].asString
+            desc = jsonAdvert["caption"].asString.replace("\"","")
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
@@ -161,7 +141,7 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 
         try {
-            address = jsonAdvert["address"].asString
+            price = jsonAdvert["price"].asString.replace("\"","")
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
@@ -169,7 +149,7 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 
         try {
-            loc = jsonAdvert["location"].toString()
+            priceInfo = jsonAdvert["priceInfo"].asString.replace("\"","")
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
@@ -177,7 +157,9 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 
         try {
-
+            val coord = jsonAdvert["coordinates"].asString.split(" ")
+            lat = coord[0].toDoubleOrNull()
+            lon = coord[1].toDoubleOrNull()
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
@@ -185,7 +167,7 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 
         try {
-
+            address = jsonAdvert["location"].asString.replace("\"","")
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
@@ -193,7 +175,7 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 
         try {
-            url = jsonAdvert["url"].asString
+            loc = jsonAdvert["travel"].toString().replace("\"","")
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
@@ -201,7 +183,31 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 
         try {
-            images = jsonAdvert["images"].asString
+            published = jsonAdvert["publishedDate"].toString().replace("\"","")
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            updated = jsonAdvert["updatedDate"].toString().replace("\"","")
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            url = jsonAdvert["url"].asString.replace("\"","")
+        }catch (e: NullPointerException){
+            Log.d("ConvertingToAdvert","")
+        }catch (e:Exception){
+            Log.d("ServerRequestException", e.toString())
+        }
+
+        try {
+            images = jsonAdvert["img"].asString.replace("\"","")
         }catch (e: NullPointerException){
             Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
@@ -217,7 +223,6 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 */
 
-
         //return Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
         return Advert(
             hash = hash,
@@ -229,7 +234,14 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
             address = address,
             url = url,
             imagesURL = images,
-            additionalParam = null, adSetId = 0
+            additionalParam = null,
+            adSetId = 0,
+
+            lat = lat,
+            lon = lon,
+            updated = updated,
+            published = published,
+            priceInfo = priceInfo
         )
     }
     override suspend fun checkServer(): JsonObject? = withContext(Dispatchers.IO){
@@ -250,26 +262,6 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         return@withContext  result
     }
 
-    /*
-    override suspend fun update(set: AdSet): Boolean = withContext(Dispatchers.IO) {
-        var receive = toReceiveSet(set)
-        try{
-            // пробуем апдейтнуть имеющуюся заметку
-            var result = serverApi.update(issue.number!!,issue)
-
-            if(!result.isSuccessful){
-                Log.w("NotesRepositoryApi","Can't add issues $result")
-                return@withContext false
-            }
-
-        }catch (e: Exception){
-            // описываем почему не получилось
-            Log.w("NotesGitHubRepository","Can't get issues", e)
-            return@withContext false
-        }
-        return@withContext true // return в try catch
-    }
-    */
 
     /*
     private fun toReceiveSet(set: AdSet): ServerSet {
@@ -278,88 +270,3 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
 
      */
 }
-/*
-
-package ru.protei.malkovaar.data.remote
-
-import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import ru.protei.malkovaar.domain.Note
-import ru.protei.malkovaar.domain.NotesRemoteRepository
-import javax.inject.Inject
-
-class NotesGitHubRepository @Inject constructor(
-    private val notesApi: NotesGitHubApi
-): NotesRemoteRepository {
-    override suspend fun list(): List<Note> = withContext(Dispatchers.IO){
-        var issues: List<GitHubIssue>?
-        try {
-            val result = notesApi.getList()
-
-            if(!result.isSuccessful){
-                Log.w("NotesRepositoryApi","Can't get issues $result")
-                return@withContext emptyList()
-            }
-            issues = result.body()
-        } catch (e: Exception){
-            Log.w("NotesGitHubRepository","Can't get issues", e)
-            return@withContext emptyList()
-        }
-        val notes = issues?.map{
-            toNote(it)
-        } ?: emptyList()
-        notes
-    }
-
-    override suspend fun add(note: Note): Long?  = withContext(Dispatchers.IO){
-        var newIssue: GitHubIssue = toGitHubIssue(note)
-        try{
-            // пробуем добавить на сервер новый issue
-            var result = notesApi.add(newIssue)
-
-            if(!result.isSuccessful){
-                Log.w("NotesRepositoryApi","Can't add issues $result")
-                return@withContext null
-            }
-            newIssue = result.body()!!
-
-        }catch (e: Exception){
-            // описываем почему не получилось
-            Log.w("NotesGitHubRepository","Can't get issues", e)
-            return@withContext null
-        }
-        return@withContext newIssue.number // заменить на remoteId новой заметки
-    }
-
-    override suspend fun update(note: Note): Boolean = withContext(Dispatchers.IO) {
-        var issue = toGitHubIssue(note)
-        try{
-            // пробуем апдейтнуть имеющуюся заметку
-            var result = notesApi.update(issue.number!!,issue)
-
-            if(!result.isSuccessful){
-                Log.w("NotesRepositoryApi","Can't add issues $result")
-                return@withContext false
-            }
-
-        }catch (e: Exception){
-            // описываем почему не получилось
-            Log.w("NotesGitHubRepository","Can't get issues", e)
-            return@withContext false
-        }
-        return@withContext true // return в try catch
-    }
-
-    override suspend fun delete(note: Note): Boolean {
-        TODO("Not yet implemented")
-    }
-    private fun toNote(issue: GitHubIssue): Note {
-        return Note(issue.title, issue.body, issue.number)
-    }
-    private fun toGitHubIssue(note: Note): GitHubIssue {
-        return GitHubIssue(note.remoteId, note.title, note.text)
-    }
-}
-
- */

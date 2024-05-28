@@ -19,6 +19,7 @@ import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
 import ru.amalkoott.advtapp.domain.AppRepository
 import ru.amalkoott.advtapp.domain.AppUseCase
+import ru.amalkoott.advtapp.domain.preferenceTools.AppPreferences
 import ru.amalkoott.advtapp.domain.worker.StartWorker
 import javax.inject.Singleton
 
@@ -79,5 +80,11 @@ object AppModule {
     @Provides
     fun provideStartWorker(@ApplicationContext context: Context):StartWorker{
         return StartWorker(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAppPreferences(@ApplicationContext context: Context):AppPreferences{
+        return AppPreferences(context)
     }
 }

@@ -1,5 +1,6 @@
 package ru.amalkoott.advtapp.ui.advert.compose
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,27 +23,30 @@ import androidx.compose.ui.unit.dp
 fun TextFilter(value:String, name:String, placeholder:String, setValue:(String)->Unit){
     var textValue by remember { mutableStateOf(value) }
     if (value != "") setValue(value)
-    TextField(
-        value = textValue,
-        onValueChange = {
-            textValue = it
-            setValue(it) },
-        label = { Text(name,
-            color = MaterialTheme.colorScheme.onSurfaceVariant) },
-        placeholder = { Text(
-            text = placeholder,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.surface
-        ),
-        textStyle = MaterialTheme.typography.bodyLarge
-            .copy(color = MaterialTheme.colorScheme.onSurface),
-        modifier = Modifier
-            .padding(vertical = 8.dp)
-            .fillMaxWidth()
-    )
+    Column(modifier = Modifier
+        .padding(vertical = 16.dp)
+        .fillMaxWidth()) {
+        Text(text = name, color =  MaterialTheme.colorScheme.onSurfaceVariant)
+        TextField(
+            value = textValue,
+            onValueChange = {
+                textValue = it
+                setValue(it) },
+            //label = { Text(name, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+            placeholder = { Text(
+                text = placeholder,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.surface
+            ),
+            textStyle = MaterialTheme.typography.bodyLarge
+                .copy(color = MaterialTheme.colorScheme.onSurface),
+
+        )
+    }
+
 }
 
 @Preview
@@ -53,29 +57,33 @@ fun PreviewTextFilter(){
     val name:String = "Город"
     val placeholder:String = "Введите название города"
     var textValue by remember { mutableStateOf(value) }
-    TextField(
-        value = textValue,
-        onValueChange = {
-            textValue = it},
-        label = { Text(name,
-            color = MaterialTheme.colorScheme.onSurfaceVariant) },
-        placeholder = { Text(
-            text = placeholder,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.surface
-        ),
-        textStyle = MaterialTheme.typography.bodyLarge
-            .copy(color = MaterialTheme.colorScheme.onSurface),
-        modifier = Modifier
-            .padding(
-                16.dp
-            //start = 16.dp,
-                // end = 16.dp,
-                //bottom = 24.dp,
-            )
-            .fillMaxWidth()
-    )
+    Column {
+        Text(text = name)
+        TextField(
+            value = textValue,
+            onValueChange = {
+                textValue = it},
+            label = { Text(name,
+                color = MaterialTheme.colorScheme.onSurfaceVariant) },
+            placeholder = { Text(
+                text = placeholder,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.surface
+            ),
+            textStyle = MaterialTheme.typography.bodyLarge
+                .copy(color = MaterialTheme.colorScheme.onSurface),
+            modifier = Modifier
+                .padding(
+                    16.dp
+                    //start = 16.dp,
+                    // end = 16.dp,
+                    //bottom = 24.dp,
+                )
+                .fillMaxWidth()
+        )
+    }
+
 }

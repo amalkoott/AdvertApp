@@ -29,6 +29,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -53,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,6 +68,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import kotlinx.coroutines.delay
+import ru.amalkoott.advtapp.R
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 
@@ -74,111 +78,139 @@ import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
 @Composable
 fun PrintAdvert(selectedAd: MutableState<Advert?>){
     val scrollState = rememberScrollState(0)
-    val imgs = arrayOf(
-        "https://desktopmania.ru/pics/00/05/13/DesktopMania.ru-5132-300x240.jpg",
-        "https://c.wallhere.com/photos/10/26/1920x1200_px_animals_cats_Tanks-1914705.jpg!s",
-        "https://images.chesscomfiles.com/uploads/v1/user/77559592.9cb711dc.160x160o.e195dd620cda.jpeg",
-    )
-            Column(
-                Modifier
-                    .padding(bottom = 10.dp)
-                    .verticalScroll(state = scrollState),) {
-                AutoSlidingCarousel(
-                    //itemsCount = images.size,
-                    itemsCount = selectedAd.value!!.images.size,
-                    itemContent = { index ->
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(selectedAd.value!!.images[index])
-                                .build(),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.height(250.dp)
-                        )
-                    }
-                )
-                Text(text = (selectedAd.value!!.price!!).toString() + " Р",
-                    Modifier.padding(horizontal = 25.dp, vertical = 20.dp),
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1)
-
-                Column(Modifier.padding(horizontal = 25.dp, vertical = 10.dp),) {
-                    Row(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)) {
-                        Icon(
-                            Icons.Filled.LocationOn,
-                            contentDescription = "Localized description",
-                        )
-
-                        // местоположение (адрес)
-                        Text(modifier = Modifier.padding(start = 5.dp),
-                            text = selectedAd.value!!.address.toString(),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Normal,)
-
-
-                        // до метро\центра
-                        if (selectedAd.value!!.location != null){
-                            Text(modifier = Modifier.padding(start = 5.dp),
-                                text = selectedAd.value!!.location.toString(),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Normal,)
-                        }
-
-                    }
-
-                    Text(
-                        modifier = Modifier.padding(top = 20.dp, bottom = 5.dp),
-                        text = "Описание",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.SemiBold,)
-
-                    Text(
-                        modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
-                        text = selectedAd.value!!.description.toString(),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Normal,)
-
-                    Text(
-                        modifier = Modifier.padding(top = 20.dp, bottom = 5.dp),
-                        text = "О квартире",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.SemiBold,)
-
-                    Row() {
-                        Column() {
-                            Text(text = "параметр 1")
-                            Text(text = "параметр 2")
-                            Text(text = "параметр 3")
-                        }
-                        Column(){
-                            Text(text = "значение 1")
-                            Text(text = "значение 2")
-                            Text(text = "значение 3")
-                        }
-                    }
-
-                    Text(
-                        modifier = Modifier.padding(top = 20.dp, bottom = 5.dp),text = "О доме",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.SemiBold,)
-
-                    Row(Modifier
-                        .padding(bottom = 60.dp)) {
-                        Column() {
-                            Text(text = "параметр 1")
-                            Text(text = "параметр 2")
-                            Text(text = "параметр 3")
-                        }
-                        Column(){
-                            Text(text = "значение 1")
-                            Text(text = "значение 2")
-                            Text(text = "значение 3")
-                        }
-                    }
-                }
+    Column(
+        Modifier
+            .padding(bottom = 0.dp)
+            .verticalScroll(state = scrollState)
+            .background(color = MaterialTheme.colorScheme.background),) {
+        val images = selectedAd.value!!.images
+        if(images != null) {
+        AutoSlidingCarousel(
+            //itemsCount = images.size,
+            itemsCount = images.size,
+            itemContent = { index ->
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(images[index])
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.height(250.dp)
+                    )
 
             }
+        )
+        }
+        Column(Modifier.padding(horizontal = 32.dp, vertical = 0.dp),) {
+            Text(text = (selectedAd.value!!.price!!).toString()  + ' ' + '₽',
+                Modifier.padding(top = 32.dp),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,)
+
+            Row(modifier = Modifier.padding(top = 24.dp, bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Filled.LocationOn,
+                    contentDescription = "Localized description",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+
+                // местоположение (адрес)
+                Text(modifier = Modifier.padding(start = 5.dp),
+                    text = selectedAd.value!!.address.toString(),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colorScheme.onSurface)
+
+
+            }
+            Column(Modifier.padding(bottom = 16.dp)) {
+                if (selectedAd.value!!.location != null){
+                    val subways = selectedAd.value!!.location?.split("; ")
+                    subways?.forEach{
+                        if(it == "") return@forEach
+                        val words = it.split(' ')
+                        val travel = words[words.size - 1]
+                        Row() {
+                            Text(modifier = Modifier
+                                .padding(start = 0.dp),
+                                text = it.replace(travel,""),//selectedAd.value!!.location.toString().replace("\"",""),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                                    if(travel == "транспортом")
+                                        Icon(painter = painterResource(R.drawable.ic_bus), contentDescription = "Localized description",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,)
+                                    else
+                                        Icon(painter = painterResource(R.drawable.ic_walk), contentDescription = "Localized description",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,)
+
+
+                        }
+
+
+                    }
+                }
+            }
+            // до метро\центра
+            Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
+                Text(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    text = "Описание",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,)
+
+                Text(
+                    text = selectedAd.value!!.description.toString().replace("n","\n"),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,)
+            }
+            Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
+                Text(
+                    modifier = Modifier.padding( bottom = 8.dp),
+                    text = "О квартире",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,)
+
+                Row() {
+                    Column() {
+                        Text(text = "параметр 1")
+                        Text(text = "параметр 2")
+                        Text(text = "параметр 3")
+                    }
+                    Column(){
+                        Text(text = "значение 1")
+                        Text(text = "значение 2")
+                        Text(text = "значение 3")
+                    }
+                }
+            }
+
+            Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
+                Text(
+                    modifier = Modifier.padding( bottom = 8.dp),text = "О доме",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,)
+
+                Row(Modifier
+                    .padding(bottom = 60.dp)) {
+                    Column() {
+                        Text(text = "параметр 1")
+                        Text(text = "параметр 2")
+                        Text(text = "параметр 3")
+                    }
+                    Column(){
+                        Text(text = "значение 1")
+                        Text(text = "значение 2")
+                        Text(text = "значение 3")
+                    }
+                }
+            }
+        }
+
+    }
 
 
 }

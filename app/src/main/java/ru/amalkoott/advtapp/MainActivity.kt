@@ -1,6 +1,5 @@
 package ru.amalkoott.advtapp
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,40 +22,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.room.Room
-import androidx.work.BackoffPolicy
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.PeriodicWorkRequest
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.datastore.preferences.core.Preferences
 import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import ru.amalkoott.advtapp.data.local.AppDatabase
-import ru.amalkoott.advtapp.data.local.AppRepositoryDB
-import ru.amalkoott.advtapp.data.remote.ServerAPI
-import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
-import ru.amalkoott.advtapp.domain.AppUseCase
+import kotlinx.coroutines.flow.Flow
+import ru.amalkoott.advtapp.di.AppModule
 import ru.amalkoott.advtapp.domain.Constants
-import ru.amalkoott.advtapp.domain.worker.TestWorker
-import ru.amalkoott.advtapp.domain.worker.UpdateWorker
+import ru.amalkoott.advtapp.domain.preferenceTools.AppPreferences
 import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -65,35 +48,24 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        WorkManager.getInstance(this).cancelAllWork()
-        WorkManager.getInstance(this).pruneWork()
-        val constraints = Constraints.Builder()
-            .setRequiresDeviceIdle(false)
-            .build()
-        /*
-        val request = PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES)
-            .addTag(Constants.PERIODIC_TAG)
-            .addTag("PERIODIC")
-            .build()
-        */
-        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
-            .addTag(Constants.ONE_TIME_TAG)
-            .setConstraints(constraints)
-//            .setBackoffCriteria(BackoffPolicy.,1,TimeUnit.MINUTES)
-            .build()
-        WorkManager.getInstance(this).enqueueUniqueWork("PERIODIC_TEST_WORK", ExistingWorkPolicy.REPLACE, request)
-
-
 
         super.onCreate(savedInstanceState)
         setContent {
-            AdvtAppTheme {
+            val preferences = mapOf(
+                Constants.APP_THEME to AppModule.provideAppPreferences(LocalContext.current).getAccessToken.collectAsState(initial = true),
+                Constants.APP_NOTIFICATIONS to AppModule.provideAppPreferences(LocalContext.current).getNotificationToken.collectAsState(initial = true),
+                Constants.APP_DAILY_NOTIFICATIONS to AppModule.provideAppPreferences(LocalContext.current).getDailyNotificationToken.collectAsState(initial = true),
+                Constants.APP_PUSHES to AppModule.provideAppPreferences(LocalContext.current).getPushesToken.collectAsState(initial = true),
+            )
+            val token = AppModule.provideAppPreferences(LocalContext.current).getAccessToken.collectAsState(initial = true)
+            val theme by remember { mutableStateOf(preferences[Constants.APP_THEME])}
+            AdvtAppTheme(darkTheme = !theme!!.value) {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AdSetScreen(appViewModel)
+                    AdSetScreen(appViewModel,token)
                 }
             }
         }

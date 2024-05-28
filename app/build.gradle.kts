@@ -74,12 +74,14 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("com.android.volley:volley:1.2.1")
+    implementation("androidx.datastore:datastore-preferences-core-jvm:1.1.1")
     /*
     implementation("com.android.tools.compose:compose-preview-renderer:0.0.1-alpha01"){
         exclude(module = "compose-preview-renderer-0.0.1-alpha01")
     }
 
      */
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -152,6 +154,12 @@ dependencies {
 
     // When using Kotlin.
     kapt("androidx.hilt:hilt-compiler:1.0.0")
+
+    // For Preferences DataStore
+    implementation ("androidx.datastore:datastore-preferences:1.0.0")
+
+
+    //implementation("androidx.datastore:datastore:2.3.1")
     /*
         // Splash API
         implementation ("androidx.core:core-splashscreen:1.0.1")

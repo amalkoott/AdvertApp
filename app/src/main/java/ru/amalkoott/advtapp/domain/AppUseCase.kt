@@ -52,7 +52,6 @@ class AppUseCase @Inject constructor(
         }
         //return response
     }
-
     // update by button click
     @SuppressLint("SuspiciousIndentation")
     fun updateSetByRemote(adSet: AdSet, context: Context){
@@ -80,7 +79,7 @@ class AppUseCase @Inject constructor(
         } else
         {
             // обновление без сервака
-           appRepo.updateSet(set)
+            appRepo.updateSet(set)
             updateSetByRemote(set,context)
         }
         return set.id

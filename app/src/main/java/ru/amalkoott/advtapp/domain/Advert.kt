@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.App
 import java.io.FileOutputStream
 import java.net.URL
+import java.time.LocalDate
 
 // класс объявления - хранит инфу по конкретному объявлению
 // карточка объявления - будет отдельный класс с зависимостью от Advrt
@@ -22,19 +23,23 @@ class Advert (
     val name: String? = "undefined_name",
     val description: String? = "empty_description",
     val price: String? = null,
+    val priceInfo: String? = null,
     val location: String? = "indefined_location",
     val address: String? = "undefined_address",
+    val lat: Double? = null,
+    val lon: Double? = null,
     val url: String? = "undefined_URL",
     val imagesURL: String? = "empty_imageURL",
+
+    val published: String? = null,
+    val updated: String? = null,
+
     val additionalParam: String?,//AdditionalParameters? = null,
     var adSetId: Long?, // ID связанного AdSpet
 
+    //todo var isGeoOn: Boolean = false,
     var isFavourite: Boolean = false,
     var hash: String? = null
-    //val footage: Float, // метраж
-    //val room: Int,
-    //val floor: Int,
-    //val home_caption: String,
 
     //@TODO добавить номера телефна
 )
@@ -47,18 +52,24 @@ class Advert (
 */
     // var isFavourites: Boolean = false
     // массив ссылок
-    val URLs: Array<String>
+    val URLs: Array<String>?
         get() {
-            return url!!.split(" ").toTypedArray()
+            if (url == null) {
+                return null
+            }else{
+                return url.split(" ").toTypedArray()
+            }
         }
     //constructor():this("undefined_name","non_caption",0f,0f,0,0,"undefined_location","undefined_home")
     //private val footage_price: Float = price / footage
 
 
     // массив картинок (URL)
-    val images: Array<String>
+    val images: Array<String>?
         get() {
-            return imagesURL!!.split(" ").toTypedArray()
+            val result = imagesURL
+            if (result != null) return imagesURL!!.split(" ").toTypedArray()
+            else return null
             /*
             return arrayOf(
                 "https://4-img.onrealt.ru/c326x235q80/files/12-2023/11/6e/79/astrakhan-snyat-kvartiru-na-dlitelnyj-srok-ulitca-treneva-23-191292784.jpg",

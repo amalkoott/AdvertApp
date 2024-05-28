@@ -1,6 +1,7 @@
 package ru.amalkoott.advtapp.ui.advert.compose
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -32,11 +34,7 @@ import kotlinx.coroutines.launch
 fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Unit) {
     val scope = rememberCoroutineScope()
     Column(modifier = Modifier
-        .padding(
-            start = 16.dp,
-            // end = 16.dp,
-            bottom = 24.dp,
-        )
+        .padding(top = 16.dp, bottom = 16.dp)
         .fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
     ) {
@@ -54,7 +52,8 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
                 expanded = expanded,
                 onExpandedChange = {
                     expanded = !expanded
-                }
+                },
+                Modifier.fillMaxWidth()
             ) {
                 TextField(
                     value = selectedText,
@@ -65,12 +64,13 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
                     onValueChange = { },
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier.menuAnchor()
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
 
                 ExposedDropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 ) {
                     items.forEach { item ->
                         DropdownMenuItem(
@@ -78,7 +78,7 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
                             onClick = {
                                 selectedText = item
                                 expanded = false
-                            }
+                            },
                         )
                     }
                 }

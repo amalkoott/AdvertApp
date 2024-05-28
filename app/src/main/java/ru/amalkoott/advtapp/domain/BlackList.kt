@@ -11,11 +11,6 @@ import androidx.room.Relation
 // при обновлении подборки мы сможем проверить объявление через сохраненный в BlackList idSet
 @Entity
 class BlackList(
-    /*
-    @PrimaryKey(autoGenerate = true)
-    var id: Long? = null,
-    var setId: Long? = null,
-     */
     @PrimaryKey(autoGenerate = false)
     var id: Long? = null,
     val name: String? = "undefined_name",
@@ -31,6 +26,7 @@ class BlackList(
     var isFavourite: Boolean = false,
     var hash: String? = null
 ) {
+
 }
 
 /*

@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -57,7 +58,10 @@ fun DropUpMenu(items: Map<String,String>){
                 containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = MaterialTheme.colorScheme.onTertiary,
                 disabledContainerColor = Color.Blue, // todo пофиксить цвета
-                disabledContentColor = Color.White
+                disabledContentColor = Color.White,
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 8.dp
             )
         ) {
             if(menuOpen) Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Close")
@@ -72,11 +76,14 @@ fun DropUpMenu(items: Map<String,String>){
 
             Column {
                 items.entries.forEach {
-                    Button(onClick = {
-                        val browserIntent =
-                            Intent(Intent.ACTION_VIEW, Uri.parse(it.value))
-                        context.startActivity(browserIntent)
-                                     }, btnModifier.padding(bottom = 6.dp)) {
+                    Button(
+                        onClick = {
+                        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(it.value))
+                        context.startActivity(browserIntent)},
+                        btnModifier.padding(bottom = 6.dp),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 8.dp
+                        )) {
                         Text(text = it.key)
                     }
                 }/*

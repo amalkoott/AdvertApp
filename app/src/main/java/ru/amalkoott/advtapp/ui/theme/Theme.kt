@@ -1,19 +1,7 @@
 package ru.amalkoott.advtapp.ui.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -40,8 +28,23 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Pink80
     * */
     primary = DarkPrimary,
+    onPrimary = DarkOnBackground,
     secondary = DarkSecondary,
-    tertiary = DarkTertiary
+    tertiary = DarkTertiary,
+    onTertiary = DarkOnTertiary,
+    primaryContainer = DarkPrimaryContainer,
+    secondaryContainer = DarkSecondaryContainer,
+    tertiaryContainer = DarkTertiaryContainer,
+    onPrimaryContainer = DarkOnPrimaryContainer,
+    onSecondaryContainer = DarkOnSecondaryContainer,
+    onSurface = DarkOnSurface,
+    onSurfaceVariant = DarkOnSurfaceVariant,
+    background = DarkBackGround,
+    surface = DarkSurface,
+    surfaceVariant = DarkSurfaceVariant,
+    surfaceTint = DarkSurfaceTint,
+    error = DarkError,
+    outline = DarkOutline
 
 )
     /*
@@ -65,17 +68,20 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = LightOn,
     secondary = LightSecondary,
     tertiary = LightTertiary,
+    onTertiary = LightOnTertiary,
     primaryContainer = LightPrimaryContainer,
     secondaryContainer = LightSecondaryContainer,
     tertiaryContainer = LightTertiaryContainer,
     onPrimaryContainer = LightOnPrimaryContainer,
     onSecondaryContainer = LightOnSecondaryContainer,
-    onTertiary = LightOnTertiaryContainer,
     onSurface = LightOnSurface,
     onSurfaceVariant = LightOnSurfaceVariant,
     background = LightBackGround,
     surface = LightSurface,
-    surfaceTint = LightSurface
+    surfaceVariant = LightSurfaceVariant,
+    surfaceTint = LightSurface,
+    error = LightError,
+    outline = LightOutline
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),

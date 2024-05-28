@@ -1,6 +1,7 @@
 package ru.amalkoott.advtapp.ui.advert.screen.filterScreen
 
 import android.graphics.drawable.Icon
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -14,6 +15,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import ru.amalkoott.advtapp.ui.advert.compose.BinaryFilter
 import ru.amalkoott.advtapp.ui.advert.compose.DatePickerFilter
 import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
@@ -177,9 +180,9 @@ fun GeneralRealEstateFilters(
 
         // расстояние до метро  (для спб и мск) - расстояние до центра (остальные города и загород) flat type
         // пешком-транспортом
-        NullableFilter("Расстояние до ${travel.value}", map = parameters["travelType"]!!, setValue = funs["travelType"]!!) //setTravelType)//
+        NullableFilter("Расстояние до ${travel.value}", map = parameters["travelType"]!!, setValue = funs["travelType"]!!, Modifier.padding(top = 16.dp)) //setTravelType)//
 
-        NonnullableFilter(map = parameters["travelTime"]!!, setValue =funs["travelTime"]!!) // setTravelTime)//
+        NonnullableFilter(map = parameters["travelTime"]!!, setValue =funs["travelTime"]!!, Modifier.padding(bottom = 12.dp)) // setTravelTime)//
 
         NullableFilter("Санузел", map = toiletSet/*parameters["toilet"]!!*/, setValue = funs["toilet"]!!) //setToilet)//
     }
@@ -205,12 +208,12 @@ fun FlatFilters(
 )
 {
     // этаж от-до  - TextField от до, только целые числа
-    RangeFilter(name = "Этаж", setMinValue = setMinFloor/*funs["minFloor"]!!*/, setMaxValue = setMaxFloor)//funs["maxFloor"]!!)
+    RangeFilter(name = "Этаж", setMinValue = setMinFloor/*funs["minFloor"]!!*/, setMaxValue = setMaxFloor, modifier = Modifier.padding(top = 16.dp))//funs["maxFloor"]!!)
 
     if (isShowMore.value){
         val floorTypePairs = remember { mutableStateOf(floors) }
         // не первый, не последний, только последний (можно null)
-        NullableAllFilter("",floorTypePairs,setFloor) //funs["floor"]!!)
+        NullableAllFilter(floorTypePairs,setFloor, Modifier.padding(top = 8.dp, bottom = 16.dp)) //funs["floor"]!!)
 
         val repairPairs = remember { mutableStateOf(repair) }
         NullableAllFilter("Ремонт", map = repairPairs, setValue = setRepair)//funs["repair"]!!)

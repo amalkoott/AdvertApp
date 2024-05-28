@@ -23,21 +23,6 @@ class AdSet(
     var category: SetCategory? = null,
     var last_update: LocalDate? = null
 ) {
-    /*
-    constructor() : this(
-        name = "name",
-        adverts = null,
-        update_interval = null,
-        caption = "empty",
-        category = null,
-        last_update = null) {
-
-    }*/
-    /*
-    @PrimaryKey(autoGenerate = true)
-    var id: Long? = null
-
-     */
     fun getSearchParameters(): RealEstateSearchParameters{
         val parameters = RealEstateSearchParameters()
         val gson = Gson()

@@ -2,23 +2,28 @@ package ru.amalkoott.advtapp.ui.advert.view
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
+import ru.amalkoott.advtapp.di.AppModule
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppUseCase
+import ru.amalkoott.advtapp.domain.Constants
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -30,6 +35,8 @@ import javax.inject.Inject
 class AppViewModel @Inject constructor (
     private val appUseCase: AppUseCase
 ): ViewModel() {
+
+
 
     val sets = mutableStateListOf<AdSet>()
 
@@ -86,12 +93,11 @@ class AppViewModel @Inject constructor (
         //liveDataSets = appUseCase.setsFlow()
 
         viewModelScope.launch{
-            Log.d("CONTEXT","${currentCoroutineContext()}")
                 appUseCase.setsFlow()
                     .collect{
-                            note ->
-                        adSet.value = note
-                        stateFlowSets.value = note
+                             set ->
+                        adSet.value = set
+                        stateFlowSets.value = set
                     }
         }
 
@@ -111,6 +117,8 @@ class AppViewModel @Inject constructor (
 
     var favourites = mutableStateOf(false)
     var settings = mutableStateOf(false)
+    var pushes = mutableStateOf(false)
+    var howItWork = mutableStateOf(false)
     var loading = mutableStateOf(false)
     var successfulSearch = mutableStateOf<Boolean?>(null)
 
@@ -137,7 +145,8 @@ class AppViewModel @Inject constructor (
     fun onEditComplete(){
         val set = selectedSet.value
         if (set == null || set.name!!.isBlank()) return
-        if (searching.value == null) return
+        // todo search = null: сохранение подборки ретюрнит
+        // if (searching.value == null) return
 
         // сохранение отредактированной подборки ** было launch
         viewModelScope.launch {
@@ -518,12 +527,15 @@ class AppViewModel @Inject constructor (
         screen_name.value = "Новая подборка"
         selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null, category = null, last_update = null)
         sets.add(selectedSet.value!!)
+        setScreenState("add")
         //searching = SearchParameters()
     }
+    var viewSets: List<AdSet>? = null
     suspend fun onSetSelected(set: AdSet?){
+        setScreenState("sets")
         selectedSet.value = set
         screen_name.value = selectedSet.value!!.name.toString()
-
+        viewSets = adSet.value
         if(!adsMap.contains(set!!.id)){
             adsMap?.put(set.id,MutableStateFlow<List<Advert>>(emptyList()))
             val temp = MutableStateFlow<List<Advert>>(emptyList())
@@ -545,6 +557,7 @@ class AppViewModel @Inject constructor (
         }
     }
 
+
      fun onSetChange(name: String, update_interval: Int){
         viewModelScope.launch {
             selectedSet.value!!.name = name
@@ -552,29 +565,119 @@ class AppViewModel @Inject constructor (
             selectedSet.value!!.last_update = LocalDate.now()
         }
     }
+
+    val blackList = mutableStateOf(false)
+    val screenState = mutableStateOf("main")
+    private val screens = mutableMapOf<String,Boolean>(
+        "settings" to false,
+        "favourites" to false,
+        "how" to false,
+        "pushes" to false,
+        "main" to false,
+        "sets" to false,
+        "add" to false,
+        "blackList" to false,
+        "advert" to false
+    )
+    private fun setScreenState(screen: String?){
+        screens.keys.forEach{
+            screens[it] = false
+        }
+        try {
+            screens[screen!!] = true
+            screenState.value = screen
+        }catch (e:Exception){
+            Log.d("ScreenState","screen value is $screen (main screen)")
+        }
+    }
     fun onFavouritesClick(){
         screen_name.value = "Избранное"
         favourites.value = !favourites.value
+        setScreenState("favourites")
     }
 
     fun onSettingsClick(){
         screen_name.value = "Настройки"
         settings.value = !settings.value
+        setScreenState("settings")
+    }
+    fun onPushesClick(){
+        screen_name.value = "История уведомлений"
+        pushes.value = !pushes.value
+        setScreenState("pushes")
+    }
+    fun onBlackListClick(){
+        screen_name.value = "Черный список"
+        blackList.value = !blackList.value
+        setScreenState("blackList")
+    }
+
+    fun onHowItWorkClick(){
+        screen_name.value = "Как это работает?"
+        settings.value = !howItWork.value
+        setScreenState("how")
     }
     fun onAdSelected(advert: Advert){
+        setScreenState("advert")
         selectedAd.value = advert
         screen_name.value = advert.name.toString()
     }
     fun onBackClick(){
+        if(favourites.value && selectedAd.value != null){
+            selectedAd.value = null
+            screen_name.value = "Избранное"
+            setScreenState("favourites")
+            return
+        }
+        if(blackList.value){
+            screen_name.value = "Настройки"
+            setScreenState("settings")
+            blackList.value = false
+            return
+        }
+        if(selectedSet.value!=null){
+            // выбрана подборка (новая или имеющаяся)
+            if(selectedAd.value != null){
+                selectedAd.value = null
+                screen_name.value = selectedSet.value!!.name!!
+                setScreenState("sets")
+                return
+            }else{
+                if(hasChanged()){ // todo чекнуть чтобы бд читалась только при изменениях
+                    Log.d("CancelUpdating","it has changes, it was canceled")
+                    viewModelScope.launch {
+                        appUseCase.setsFlow().collect{
+                            adSet.value = it
+                        }
+                    }
+                }
+            }
+
+            cancelSearching()
+            edited_set = null
+            selectedSet.value = null
+        }
+        favourites.value = false
+        setScreenState("main")
+
+        screen_name.value = "Подборки"
+    }
+    /*
+    // старый onBackClick
+    fun onBackClick(){
+        // setScreenState("main")
         if (selectedAd.value != null) {
             selectedAd.value = null
             if(selectedSet.value != null){
+                // назад из объявления в подборку
                 screen_name.value = selectedSet.value!!.name.toString()
             }else{
+                // назад либо в главное меню (откуда?), либо в список избранного (из объявления)
                 if (favourites.value) screen_name.value = "Избранное"
                 else screen_name.value = "Подборки"
             }
         }else{
+            // из создания новой подборки
             // 2 случая возврата:
             // начали создавать новую подборку и решили вернуться
             // при удалении объявлений, если мы нажимаем назад, то мы НЕ СОХРАНЯЕМ ИЗМЕНЕНИЯ!!!
@@ -598,6 +701,14 @@ class AppViewModel @Inject constructor (
             screen_name.value = "Подборки"
         }
     }
+*/
+    private fun hasChanged(): Boolean{
+       // return selectedSet.value?.name == "" ||
+         return edited_set?.name != selectedSet.value?.name||
+                edited_set?.adverts?.size != selectedSet.value?.adverts?.size||
+                edited_set?.update_interval != selectedSet.value?.update_interval
+    }
+    /*
 
     private fun likeBefore(): Boolean{
         if(selectedSet.value?.name == "" ||
@@ -608,6 +719,8 @@ class AppViewModel @Inject constructor (
             return false
         else return true
     }
+
+    */
     private fun getTestSet(): List<Advert>{
         return mutableStateListOf<Advert>()
     }

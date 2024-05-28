@@ -3,57 +3,60 @@ package ru.amalkoott.advtapp.ui.theme
 import androidx.compose.ui.graphics.Color
 
 ///
-val LightPrimary = Color(0xffffefb4)
-val LightSecondary = Color(0xff8b5000)
-val LightTertiary = Color(0xff84ffdb)
-val LightError= Color(0xffba1a1a)
-//val LightBackGround = Color(0xfffffbff)
-val LightBackGround = Color(0xffffffff)
-val LightOn = Color(0xff5f5943)
-val LightOnTertiary = Color(0xff279474)
-val LightOnBackground = Color(0xff1e1b16)
-val LightOutline = Color(0xff7f7667)
+val LightPrimary = Color(0xffffd900)//fddd8d) // основной цвет
+val LightSecondary = Color(0xffFFC107)//8b5000)
+val LightTertiary = Color(0xff01EBDA)//505fac)    //333f65)//55F7FF)//6da5b0)//6DFFD3)
+val LightError= Color(0xffE91E63)//FF6D8C)
+val LightBackGround = Color(0xfffdfdfd)
 
-val LightPrimaryContainer = Color(0xffffefb4)
-val LightSecondaryContainer = Color(0xffe7cc85)
-val LightTertiaryContainer = Color(0xffC2F1B1)
-val LightErrorContainer = Color(0xffffdad6)
+val LightOn = Color(0xff212121)//1e1b16)
+val LightOnTertiary = Color(0xffffffff)//0E8186)
+val LightOnBackground = Color(0xff212121)
+val LightOnError = Color(0xffFFFFFF)
+val LightOutline = Color(0xffdddddd)
+
+val LightPrimaryContainer = Color(0xffFBFBFB)//FFE5A3) // большие основные контейнеры
+val LightSecondaryContainer = Color(0xffFFEF94) // иконки фильтров в основном
+val LightTertiaryContainer = Color(0xffccfffb)
+val LightErrorContainer = Color(0xffFFCCCB)
 val LightSurface = Color(0xffffffff)
-val LightSurfaceVariant = Color(0xffede1cf)
+val LightSurfaceVariant = Color(0xffffffff)
 
-val LightOnPrimaryContainer = Color(0xff5f5943)
-val LightOnSecondaryContainer = Color(0xff666666)
-val LightOnTertiaryContainer = Color(0xff042100)
-val LightOnErrorContainer = Color(0xff410002)
-val LightOnSurface = Color(0xff111111)
-val LightOnSurfaceVariant = Color(0xff666666)
+val LightOnPrimaryContainer = Color(0xff757575)//5f5943)
+val LightOnSecondaryContainer = Color(0xff757575) // любой текс в секондари
+val LightOnTertiaryContainer = Color(0xff00494D)
+val LightOnErrorContainer = Color(0xffFFA3A0)
+val LightOnSurface = Color(0xff212121)
+val LightOnSurfaceVariant = Color(0xff757575)
 ///
 ///
-val DarkPrimary = Color(0xfffabd00)
-val DarkSecondary = Color(0xffffb871)
-val DarkTertiary = Color(0xff9ad680)
+val DarkPrimary = Color(0xffa57d05)
+val DarkSecondary = Color(0xffffd900)
+val DarkTertiary = Color(0xff01EBDA)
 val DarkError= Color(0xffffb4ab)
-val DarkBackGround = Color(0xff1e1b16)
+val DarkBackGround = Color(0xff3F4044)
+
 val DarkOnPrimary = Color(0xff3f2e00)
 val DarkOnSecondary = Color(0xff4a2800)
 val DarkOnTertiary = Color(0xff0c3900)
 val DarkOnError= Color(0xff690005)
 val DarkOnBackground = Color(0xffe9e1d8)
-val DarkOutline = Color(0xff998f80)
+val DarkOutline = Color(0xff5c5c5c)
+val DarkSurfaceTint = Color(0xff303030)
 
-val DarkPrimaryContainer = Color(0xff5b4300)
-val DarkSecondaryContainer = Color(0xff693c00)
-val DarkTertiaryContainer = Color(0xff1c520a)
+val DarkPrimaryContainer = Color(0xff44454A)
+val DarkSecondaryContainer = Color(0xffF5E484)//FFEF94)
+val DarkTertiaryContainer = Color(0xff00A196)
 val DarkErrorContainer = Color(0xff93000a)
-val DarkSurface = Color(0xff1e1b16)
-val DarkSurfaceVariant = Color(0xff4d4639)
+val DarkSurface = Color(0xff4a4c52)
+val DarkSurfaceVariant = Color(0xff48494F)
 
-val DarkOnPrimaryContainer = Color(0xffffdf9e)
-val DarkOnSecondaryContainer = Color(0xffffdcbe)
+val DarkOnPrimaryContainer = Color(0xffB6B6B9)
+val DarkOnSecondaryContainer = Color(0xff454545)
 val DarkOnTertiaryContainer = Color(0xffb5f399)
 val DarkOnErrorContainer = Color(0xffffdad6)
-val DarkOnSurface = Color(0xffe9e1d8)
-val DarkOnSurfaceVariant = Color(0xffd0c5b4)
+val DarkOnSurface = Color(0xffeeeeee)
+val DarkOnSurfaceVariant = Color(0xffB6B6B9)
 ///
 
 

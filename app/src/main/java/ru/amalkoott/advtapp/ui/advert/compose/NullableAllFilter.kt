@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -30,14 +31,14 @@ fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setVa
     val scope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(vertical = 8.dp)) {
+        modifier = Modifier.padding(vertical = 16.dp)) {
         Text(text = name,
-            modifier = Modifier.padding(4.dp))
-        RowWrap(horizontalSpacer = 16.dp){
+            modifier = Modifier.padding(4.dp), color =  MaterialTheme.colorScheme.onSurfaceVariant)
+        RowWrap/*(horizontalSpacer = 16.dp)*/{
             val livingTypes = map.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach { type->
                 FilterChip(
-                    modifier = Modifier.padding(0.dp),
+                    modifier = Modifier.padding(2.dp),
                     onClick = {
                         scope.launch{
                             map[type] = !map[type]!!
@@ -63,8 +64,37 @@ fun NullableAllFilter(name: String, map: MutableState<MutableMap<String, Boolean
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(text = name,
-            modifier = Modifier.padding(4.dp))
+        Text(text = name, modifier = Modifier.padding(4.dp), color =  MaterialTheme.colorScheme.onSurfaceVariant)
+        RowWrap/*(horizontalSpacer = 16.dp)*/{
+            val livingTypes = map.value.toSortedMap(naturalOrder()).keys.toList()
+            livingTypes.forEach { type->
+                FilterChip(
+                    modifier = Modifier.padding(2.dp),
+                    onClick = {
+                        scope.launch {
+                            map.value[type] = !map.value[type]!!
+                            if (map.value[type]!!) { setValue(type); return@launch
+                            }
+                            //else{ setValue(null)}
+                            else {setValue("-$type")}
+                        }
+                    },
+                    label = { Text(text = type)},
+                    selected = map.value[type]!!,
+                    leadingIcon = { }
+                )
+                //if (map[type]!!)setValue(type)
+            }
+        }
+    }
+}
+
+@Composable
+fun NullableAllFilter(map: MutableState<MutableMap<String, Boolean>>, setValue: (String?)-> Unit,){
+    val scope = rememberCoroutineScope()
+    Column(horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.padding(vertical = 16.dp)) {
         RowWrap(horizontalSpacer = 16.dp){
             val livingTypes = map.value.toSortedMap(naturalOrder()).keys.toList()
             livingTypes.forEach { type->
@@ -88,6 +118,38 @@ fun NullableAllFilter(name: String, map: MutableState<MutableMap<String, Boolean
         }
     }
 }
+
+@Composable
+fun NullableAllFilter(map: MutableState<MutableMap<String, Boolean>>, setValue: (String?)-> Unit,mod: Modifier){
+    val scope = rememberCoroutineScope()
+    Column(horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = mod)//Modifier.padding(vertical = 16.dp))
+    {
+        RowWrap(horizontalSpacer = 16.dp){
+            val livingTypes = map.value.toSortedMap(naturalOrder()).keys.toList()
+            livingTypes.forEach { type->
+                FilterChip(
+                    modifier = Modifier.padding(0.dp),
+                    onClick = {
+                        scope.launch {
+                            map.value[type] = !map.value[type]!!
+                            if (map.value[type]!!) { setValue(type); return@launch
+                            }
+                            //else{ setValue(null)}
+                            else {setValue("-$type")}
+                        }
+                    },
+                    label = { Text(text = type)},
+                    selected = map.value[type]!!,
+                    leadingIcon = { }
+                )
+                //if (map[type]!!)setValue(type)
+            }
+        }
+    }
+}
+
 
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)

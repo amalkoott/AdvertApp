@@ -1,13 +1,9 @@
 package ru.amalkoott.advtapp.data.local
 
 import android.util.Log
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.AdSetWithAdverts
@@ -15,7 +11,6 @@ import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRepository
 import ru.amalkoott.advtapp.domain.BlackList
 import ru.amalkoott.advtapp.domain.SetCategory
-import java.util.Dictionary
 import javax.inject.Inject
 
 // здесь методы, которые обращаются к Dao, эти методы могут быть вызваны откуда угодно для работы с БДшкой
@@ -42,20 +37,15 @@ class AppRepositoryDB @Inject constructor(
         }
     }
 
-    override suspend fun addSet(note: AdSet): Long = withContext(Dispatchers.IO){
-        val id = async { appDao.insertSet(note) }
-        //println(id.await())
-        for (ad in note.adverts!!){
+    override suspend fun addSet(set: AdSet): Long = withContext(Dispatchers.IO){
+        val id = async { appDao.insertSet(set) }
+        for (ad in set.adverts!!){
             ad.adSetId = id.await()
             appDao.insertAd(ad)
         }
-        note.id = id.await()
+        set.id = id.await()
 
-        appDao.updateSet(note)
-
-        // добавление черного списка для подборки
-       // val list = BlackList(setId = id.await())
-       // appDao.createBlackList(list)
+        appDao.updateSet(set)
         return@withContext id.await()
     }
 

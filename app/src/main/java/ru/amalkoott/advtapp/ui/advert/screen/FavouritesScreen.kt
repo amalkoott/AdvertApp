@@ -1,5 +1,6 @@
 package ru.amalkoott.advtapp.ui.advert.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,14 +16,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -31,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -49,7 +58,7 @@ fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
         columns = GridCells.Fixed(1),
         modifier = Modifier
             .padding(top = 65.dp)
-            .padding(6.dp)
+            .padding(top = 16.dp, bottom = 16.dp, end = 32.dp, start = 32.dp)
             .background(MaterialTheme.colorScheme.background)
             .fillMaxHeight()
     ) {
@@ -60,8 +69,8 @@ fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(168.dp)
-                    .padding(horizontal = 8.dp, vertical = 12.dp)
+                    .height(224.dp)
+                    .padding(vertical = 12.dp)
                     .clickable {
                         // появляется выбранная подборка, клик - вывод списка объявлений подборки
                         selectAd(advert)
@@ -70,58 +79,101 @@ fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
                     defaultElevation = 4.dp
                 ),
             ) {
-                    Row(Modifier.padding(start = 16.dp,bottom = 16.dp,top = 16.dp, end = 16.dp),
+                    Row(//Modifier.padding(start = 16.dp,bottom = 16.dp,top = 16.dp, end = 16.dp),
                     //    verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(4f),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     )
                     {
-                        Column(Modifier.fillMaxHeight().weight(2f),//.padding(start = 16.dp,bottom = 16.dp,top = 16.dp),
-                            verticalArrangement = Arrangement.SpaceAround
-                            ) {
-                            Column {
+                        Column(Modifier.weight(5f)) {
+                            Card(modifier = Modifier
+                                .fillMaxSize()
+                                .weight(5f),
+                                shape = RoundedCornerShape(topEnd = 0.dp, bottomEnd = 0.dp,),) {
+                                val images = advert.images
+                                if(images != null){
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(images[0])
+                                            .build(),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.height(250.dp)
+                                    )
+                                }
+                            }
+                            Column(modifier = Modifier
+                                .weight(3f)
+                                .padding(start = 16.dp, end = 16.dp)
+                                .fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start) {
                                 Text(
                                     text = advert.name.toString(),
-                                    fontWeight = FontWeight.SemiBold,
-                                    )
+                                    fontWeight = FontWeight.Normal,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                    fontSize = 16.sp
+                                )
                                 Text(
                                     text = (advert.price!!).toString() + ' ' + '₽',
                                     fontWeight = FontWeight.SemiBold,
+                                    fontSize = 20.sp,
                                     //modifier = Modifier.padding(top = 15.dp, bottom = 5.dp)
                                 )
                             }
-/*
-                            Text(
-                                //text = advert.ad_caption.toString(),
-                                text = advert.location!!,
-                                maxLines = 1,
-                                lineHeight = 16.sp)
+                        }
+                        VerticalDivider(Modifier.fillMaxHeight())
+                        IconButton(
+                            onClick = {
+                                //selectedAd.value = advert
+                                //selectAd(advert)
+                                deleteFavourites(advert)
+                            },
+                            modifier = Modifier
+                                .fillMaxSize()//.size(48.dp)
+                                .weight(1f),
+                            content = {
+                                Icon(
+                                    Icons.Filled.Delete,
+                                    contentDescription = "Localized description",
+                                )
+                            })
+                        /*
+                        Row(
+                            Modifier
+                                .fillMaxHeight()
+                                .weight(1f)
+                                .padding(start = 16.dp),//.padding(start = 16.dp,bottom = 16.dp,top = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                            ) {
+
+                            /*
+                            OutlinedButton(onClick = { /*TODO*/ }, colors =  ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error,
+                                //containerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.error)
+                            ) {
+                                /*
+                                Text(text = "Удалить", fontSize = 12.sp)
+
+                                Icon(
+                                    Icons.Filled.Favorite,
+                                    contentDescription = "Localized description",
+                                )
+
+                                 */
+                            }
                             */
-                            IconButton(
-                                onClick = {
-                                    //selectedAd.value = advert
-                                    //selectAd(advert)
-                                    deleteFavourites(advert)
-                                },
-                                modifier = Modifier
-                                    .size(48.dp),
-                                content = {
-                                    Icon(
-                                        Icons.Filled.Delete,
-                                        contentDescription = "Localized description",
-                                    )
-                                })
+
+
                         }
-                        Card(modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f),) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(advert.images[0])
-                                    .build(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.height(250.dp)
-                            )
-                        }
+*/
                 }
             }
         }

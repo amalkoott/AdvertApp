@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 // может быть выбрано что-то одно или ничего
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue: (String?)-> Unit,){
     val scope = rememberCoroutineScope()
@@ -57,7 +56,6 @@ fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue: (String?)-> Unit,modifier: Modifier){
     val scope = rememberCoroutineScope()
@@ -91,7 +89,6 @@ fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NullableFilter(name: String, map: MutableState<MutableMap<String,Boolean>>, setValue: (String?)-> Unit,){
     val scope = rememberCoroutineScope()
@@ -122,35 +119,4 @@ fun NullableFilter(name: String, map: MutableState<MutableMap<String,Boolean>>, 
             }
         }
     }
-}
-
-@Preview
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PreviewNullableFilter(){
-    val map = remember { mutableStateMapOf<String,Boolean>(
-        "Не первый" to false,
-        "Не последний" to false,
-        "Только последний" to false,
-    ) }
-
-    Column(horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.SpaceBetween) {
-        Text(text = "name", modifier = Modifier.padding(4.dp))
-        LazyHorizontalGrid(rows = GridCells.Fixed(2), Modifier.height((32 * map.size).dp)){
-            val livingTypes = map.keys.toList()
-            items(items = livingTypes){type ->
-                FilterChip(
-                    modifier = Modifier.padding(4.dp),
-                    onClick = {
-                        for (key in map.keys){ if(key != type) map[key] = false }
-                        map[type] = !map[type]!!},
-                    label = {Text(text = type)},
-                    selected = map[type]!!,
-                    leadingIcon = {  }
-                )
-            }
-        }
-    }
-
 }

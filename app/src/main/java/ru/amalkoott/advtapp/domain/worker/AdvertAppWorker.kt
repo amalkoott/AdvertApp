@@ -5,6 +5,7 @@ import android.app.Notification
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
@@ -27,6 +28,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -175,8 +178,8 @@ class CreateWorker(context: Context, workerParameters: WorkerParameters) : Corou
 class TestWorker(context: Context,workerParameters: WorkerParameters): CoroutineWorker(context,workerParameters){
     override suspend fun doWork(): Result {
         delay(30000)
-        Log.d("TEST_WORK","TestWorker is start...")
-        Log.d("TEST_WORK","TestWorker is end...")
+        //Log.d("TEST_WORK","TestWorker is start...")
+       // Log.d("TEST_WORK","TestWorker is end...")
         sendNotification(applicationContext,"Это что - Заголовок???","Ура смотри, все работаит уже целых $runAttemptCount раз!!!")
         return Result.retry()
     }
@@ -185,14 +188,14 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Corou
     private var title = "TITLE_NOTIFICATION"
     private var message = "MESSAGE_NOTIFICATION"
     override suspend fun doWork(): Result {
-        Log.d(TAG, "update: start")
+      //  Log.d(TAG, "update: start")
         try {
             if(tags.contains("OneTimeUpdate")){
                 // for periodic work realisation with OneTimeWorker
                 delay(inputData.getInt("update_interval",5)*6000L)
             }else{
                 // for PeriodicWorker
-                Log.d("WorkerRepeatCount","$tags $runAttemptCount")
+            //    Log.d("WorkerRepeatCount","$tags $runAttemptCount")
                 if (runAttemptCount > 5) return Result.failure() // todo добавить внутренний push что пока не найдено, будет обновление
             }
 
@@ -209,7 +212,7 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Corou
             if (isHavingDuplicateById(adverts,repo)) return Result.failure()
 
             val blackList = repo.getBlackList(setId)
-            adverts.removeBlackAdverts(blackList)
+            adverts.removeBlackAdverts(blackList.first())
 
             repo.deleteAdvertsBySet(setId)
 
@@ -239,10 +242,10 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Corou
         message = "Подборка ${inputData.getString("name")} обновилась! Нажмите, чтобы посмотреть..."
         sendNotification(applicationContext,title,message)
 
-        Log.d("UpdateWorker","Update is successful, tag - $tags")
+      //  Log.d("UpdateWorker","Update is successful, tag - $tags")
     }
     private fun failedSearchNotify(){
-        Log.d(TAG, "UpdateWorker: error")
+     //   Log.d(TAG, "UpdateWorker: error")
 
         title = "Что-то мешает поиску..."//getTitle(kotlin.math.abs(adverts.size - inputData.getInt("advertsCount", 0)))
         message = "Сейчас объявления не могут быть найдены. Нажмите для получения информации..." // todo во внутренние пуши подробную инфу

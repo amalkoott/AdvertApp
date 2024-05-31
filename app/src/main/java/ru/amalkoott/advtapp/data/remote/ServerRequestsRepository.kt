@@ -15,7 +15,7 @@ import javax.inject.Inject
 class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):AppRemoteRepository {
 
     suspend fun testProvide(){
-        Log.d("MASHALA","!!!!!!!!!!!!!!!!!!!!!!!!!!${this.toString()}")
+       // Log.d("MASHALA","!!!!!!!!!!!!!!!!!!!!!!!!!!${this.toString()}")
     }
     // получаем список объявлений (подборку) по параметрам
     override suspend fun get(parameters: RealEstateSearchParameters): List<Advert> = withContext(Dispatchers.IO){
@@ -31,21 +31,21 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
             val response = serverApi.get(json as JsonObject)
 
             if(!response.isSuccessful){
-                Log.w("AppRepositoryApi","Can't get issues $response")
+                //Log.w("AppRepositoryApi","Can't get issues $response")
                 return@withContext emptyList()
             }
             resultList = response.body()!!.asJsonArray
         }catch (e: Exception){
-            Log.w("ServerRequestRepository","Can't get issues", e)
+            //Log.w("ServerRequestRepository","Can't get issues", e)
             if(e.message == "timeout"){
-                Log.w("ServerRequestRepository","TIMEOUT")
+               // Log.w("ServerRequestRepository","TIMEOUT")
                 return@withContext emptyList()
             }
             if(e.message?.contains("failed to connect") == true){
-                Log.w("ServerRequestRepository","FAILED TO CONNECT")
+                //Log.w("ServerRequestRepository","FAILED TO CONNECT")
                 return@withContext emptyList()
             }
-            Log.w("ServerRequestRepository","UNDEFINED ERROR")
+            //Log.w("ServerRequestRepository","UNDEFINED ERROR")
 
             return@withContext emptyList()
         }
@@ -63,34 +63,24 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         // делаем get запрос - получаем Json-строку
         // конвертим json-строку в подборку
         try {
-            //val gson = Gson()
-            //val json = gson.toJsonTree(parameters)
-
             val response = serverApi.get(json as JsonObject)
 
             if(!response.isSuccessful){
-                Log.w("AppRepositoryApi","Can't get issues $response")
+               // Log.w("AppRepositoryApi","Can't get issues $response")
                 return@withContext emptyList()
             }
             resultList = response.body()!!.asJsonArray
-            /*
-            for (item in resultList){
-                result.add(toAdvert(item))
-            }
-            */
-            //result = response.body()!!.asJsonArray
-            // val size = result.size()
         }catch (e: Exception){
-            Log.w("ServerRequestRepository","Can't get issues", e)
+            //Log.w("ServerRequestRepository","Can't get issues", e)
             if(e.message == "timeout"){
-                Log.w("ServerRequestRepository","TIMEOUT")
+              //  Log.w("ServerRequestRepository","TIMEOUT")
                 return@withContext emptyList()
             }
             if(e.message?.contains("failed to connect") == true){
-                Log.w("ServerRequestRepository","FAILED TO CONNECT")
+               // Log.w("ServerRequestRepository","FAILED TO CONNECT")
                 return@withContext emptyList()
             }
-            Log.w("ServerRequestRepository","UNDEFINED ERROR")
+           // Log.w("ServerRequestRepository","UNDEFINED ERROR")
 
             return@withContext emptyList()
         }
@@ -120,40 +110,40 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         try {
             hash = jsonAdvert["hash"].asString.replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+            //Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+            //Log.d("ServerRequestException", e.toString())
         }
         try {
             title = jsonAdvert["title"].asString.replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+           // Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+           // Log.d("ServerRequestException", e.toString())
         }
 
         try {
             desc = jsonAdvert["caption"].asString.replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+           // Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+            //Log.d("ServerRequestException", e.toString())
         }
 
         try {
             price = jsonAdvert["price"].asString.replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+           // Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+            //Log.d("ServerRequestException", e.toString())
         }
 
         try {
             priceInfo = jsonAdvert["priceInfo"].asString.replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+          //  Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+           // Log.d("ServerRequestException", e.toString())
         }
 
         try {
@@ -161,57 +151,57 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
             lat = coord[0].toDoubleOrNull()
             lon = coord[1].toDoubleOrNull()
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+           // Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+        //    Log.d("ServerRequestException", e.toString())
         }
 
         try {
             address = jsonAdvert["location"].asString.replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+          //  Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+           // Log.d("ServerRequestException", e.toString())
         }
 
         try {
             loc = jsonAdvert["travel"].toString().replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+          //  Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+           // Log.d("ServerRequestException", e.toString())
         }
 
         try {
             published = jsonAdvert["publishedDate"].toString().replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+           // Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+           // Log.d("ServerRequestException", e.toString())
         }
 
         try {
             updated = jsonAdvert["updatedDate"].toString().replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+         //   Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+          //  Log.d("ServerRequestException", e.toString())
         }
 
         try {
             url = jsonAdvert["url"].asString.replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+           // Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+           // Log.d("ServerRequestException", e.toString())
         }
 
         try {
             images = jsonAdvert["img"].asString.replace("\"","")
         }catch (e: NullPointerException){
-            Log.d("ConvertingToAdvert","")
+           // Log.d("ConvertingToAdvert","")
         }catch (e:Exception){
-            Log.d("ServerRequestException", e.toString())
+           // Log.d("ServerRequestException", e.toString())
         }
 /*
         try {
@@ -223,7 +213,6 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
         }
 */
 
-        //return Advert(0,"empty_title", "empty_caption", 1.2f,"undefined_location",null,null, 0)
         return Advert(
             hash = hash,
             id = null,
@@ -250,23 +239,15 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
             val response = serverApi.check()
 
             if (!response.isSuccessful){
-                Log.w("AppRepositoryApi","Can't get server $response")
+                //Log.w("AppRepositoryApi","Can't get server $response")
                 return@withContext null
             }
             result = response.body()
-            Log.w("Response from server","$result")
+            //Log.w("Response from server","$result")
         }catch (e:Exception){
-            Log.w("AppRepositoryApi","$e")
+            //Log.w("AppRepositoryApi","$e")
             return@withContext null
         }
         return@withContext  result
     }
-
-
-    /*
-    private fun toReceiveSet(set: AdSet): ServerSet {
-        return ServerSet(note.remoteId, note.title, note.text)
-    }
-
-     */
 }

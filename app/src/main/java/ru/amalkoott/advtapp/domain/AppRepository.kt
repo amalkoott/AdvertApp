@@ -17,10 +17,6 @@ interface AppRepository {
     suspend fun addSet(note: AdSet): Long?
     suspend fun updateSet(note: AdSet)
     suspend fun removeSet(set: AdSet)
-/*
-    fun byRemoteID(remoteId: Long): AdSet?
-    */
-    fun byEquals(title: String, category: SetCategory): AdSet?
     suspend fun getAdSetsWithAdverts(id: Long): List<AdSetWithAdverts>
 
     suspend fun addAdv(ad: Advert)
@@ -34,7 +30,13 @@ interface AppRepository {
 
     fun getAdvertsCount(id: Long): Flow<Int>
 
-    suspend fun getBlackList(id: Long): List<BlackList>
+    fun getBlackList(id: Long): Flow<List<BlackList>>
+
+    fun getBlackList(): Flow<List<BlackList>>
+    suspend fun getSet(id: Long):AdSet
+    suspend fun removeAdsBySet(id: Long)
+    suspend fun removeBlackListFor(id: Long)
+    suspend fun removeFromBlackList(id: Long)
     suspend fun deleteAdvertsBySet(id: Long)
 
 

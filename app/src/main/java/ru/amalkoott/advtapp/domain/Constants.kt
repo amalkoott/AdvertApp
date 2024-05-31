@@ -1,7 +1,5 @@
 package ru.amalkoott.advtapp.domain
 
-import androidx.datastore.preferences.core.booleanPreferencesKey
-
 object Constants {
     const val WORK_TAG = "UpdateSet_"
     const val LOG_UPDATE_TAG = "UpdatingWork"
@@ -27,7 +25,7 @@ fun Map<String,String>.getFromUrl(items: Array<String>): Map<String,String>{
     var result = mutableMapOf<String,String>()
 
     items.forEach {
-        val site:String = Regex("(?<=\\.)(\\w+)(?=\\.)").find(it)!!.value
+        val site:String = Regex("\\w+.(?=.ru)").find(it)!!.value
         result.put(Constants.SITES[site]!!,it)
     }
     return result

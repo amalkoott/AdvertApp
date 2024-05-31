@@ -23,74 +23,26 @@ import ru.amalkoott.advtapp.di.AppModule
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppUseCase
+import ru.amalkoott.advtapp.domain.BlackList
 import ru.amalkoott.advtapp.domain.Constants
 import java.time.LocalDate
 import javax.inject.Inject
 
-// viewModel для общих нужд:
-// - настройки пользователя
-// - список избранного
-//
 @HiltViewModel
 class AppViewModel @Inject constructor (
     private val appUseCase: AppUseCase
 ): ViewModel() {
-
-
-
     val sets = mutableStateListOf<AdSet>()
-
-
-/*
-    val sets = mutableStateListOf<AdSet>(
-        AdSet(
-            0,
-            "Квартиры",
-            mutableStateListOf<Advert>(
-                Advert(0,"Квартира 1-комн", "Эта однокомнатная квартира идеально подходит для тех, кто ценит удобство и функциональность. Просторная гостиная, уютная спальня и функциональная кухня обеспечивают комфортное проживание для одного человека или молодой семьи.", 1.2f,"Звенигородский пр-кт, д.16, Санкт-Петербург",null,null, 0),
-                Advert(1,"квартира-студия", "Современная студия с оптимальным использованием пространства, идеально подходящая для одинокого жителя или молодой пары. Открытая планировка создает ощущение простора, а большие окна пропускают массу естественного света, делая проживание комфортным и уютным.", 6.2f,"ул. Мебельная, д. 24, Санкт-Петербург",null,null, 0),
-                Advert(2,"Просторная квартира 3-комн", "Срочная продажа! Продаю трехкомнатную квартиру в центре спального района. Состояние хорошее, как на фото. По всем остальным вопросам - в чат.", 0.2f,"Российский пр-кт, д.14, Санкт-Петербург",null,null, 0)
-            ),
-            1,null,null,
-            LocalDate.now()
-
-        ),
-        AdSet(
-            1,
-            "Машины",
-            mutableStateListOf<Advert>(
-                Advert(3,"Audi A5 2009", "Ласточка Audi A5, уход был лучше, чем за собственным ребенком. Состояние на фото, покрасок не было. Продаю в связи покупкой нового автомобиля", 3.4f,null,null,null, 1),
-                Advert(4,"BMW 5 2.5T", "Косяки на фото. Двигатель и акпп в норме. Ошибки по абс и асц. Торг.", 6.6f,null,null,null, 1),
-                Advert(5,"Chevrolet Lacetti", "Продaм CНЕVROLЕТ LАСЕTТI XЕЧБЕК 2008 г.э., 2 xoзяинa, ПТС OPИГИHAЛ, БEЗ ДTП в родной краcке, c POДНЫМ ПРОБЕГОМ. Машина в отличном состоянии, салон ухоженный, в машине не курили. До 2017 года без зимней эксплуатации. ", 3.5f,null,null,null, 1),
-                Advert(5,"Chevrolet НИВА", "Вездеходная НИВА-спорт 2014 года,  БEЗ ДTП, в родной краcке, один хозяин, ПТС OPИГИHAЛ, c POДНЫМ ПРОБЕГОМ. Машина в отличном состоянии, салон ухоженный, в машине не курили. До 2017 года без зимней эксплуатации. ", 3.5f,null,null,null, 1)
-            ),
-            12,null,null,
-            LocalDate.now()
-        ),
-        AdSet(
-            2,
-            "Фрукты",
-            mutableStateListOf<Advert>(
-                Advert(6,"Помело 10 кг", "Спелые сочные помело прямиком из Азии! Привоз - середина марта 2024 года.", 0.1f,null,null,null, 2),
-                Advert(7,"Фрукты с доставкой", "В наличии свежие Фрукты, Ягоды, Овощи. Доставка по Саратову и Энгельсу / самовывоз Можете заказать на caйтe (видно на фото). Оплаты там нет. Вы просто отправляете нам заявку и мы связываемся с Вами.", 0.2f,null,null,null, 2),
-                Advert(8,"Личи оптом", "описание личиков", 0.3f,null,null,null, 2)
-            ),
-            3,null,null,
-            LocalDate.now()
-        )
-    )
-    */
     val adsMap: MutableMap<Long?,MutableStateFlow<List<Advert>>> = mutableMapOf()
     val search: MutableMap<String,String> = mutableMapOf()
     var stateFlowSets = MutableStateFlow<List<AdSet>>(emptyList())
     init{
         viewModelScope.launch {
-          //  appUseCase.fillWithInitialSets(emptyList())
+           // appUseCase.fillWithInitialSets(emptyList())
           //  appUseCase.fillWithInitialSets(sets)
 
             //appUseCase.loadRemoteNotes()
         }
-        //liveDataSets = appUseCase.setsFlow()
 
         viewModelScope.launch{
                 appUseCase.setsFlow()
@@ -108,7 +60,15 @@ class AppViewModel @Inject constructor (
             }
         }
 
+        viewModelScope.launch{
+            appUseCase.blackListFlow().collect{
+                // todo обработка дубликатов в favourites (возможно лучше просто не выдавать в этом DAO объявления с одинаковыми параметрами) ЛИБО указание в favoutires - к какой подборке принадлежит объявление ЛИБО программно собирать favourites (more optimaly)
+                blackLists.value = it
+            }
+        }
+
     }
+    val blackLists = MutableStateFlow<List<BlackList>>(emptyList())
 
     var adSet = MutableStateFlow<List<AdSet>>(emptyList())
     var screen_name = mutableStateOf<String>("Подборки")
@@ -131,7 +91,6 @@ class AppViewModel @Inject constructor (
     var temp_ads = MutableStateFlow<List<Advert>>(emptyList())
 
     // LOCAL DATABASE USE
-    // помечает, что редактирование закончено -> нет выбранных заметок
     fun onUpdateSet(){
         // для selected
         viewModelScope.launch {
@@ -148,20 +107,14 @@ class AppViewModel @Inject constructor (
         // todo search = null: сохранение подборки ретюрнит
         // if (searching.value == null) return
 
-        // сохранение отредактированной подборки ** было launch
         viewModelScope.launch {
 
             successfulSearch.value = appUseCase.saveSet(set,searching.value,context) != null
 
                     // cancelSearching()
             if (successfulSearch.value == true) loading.value = false
-            Log.d("VM searching", "riched...")
-
-
+           // Log.d("VM searching", "riched...")
         }
-
-        // Обновлять объявления???
-
 
         screen_name.value = "Подборки"
         selectedSet.value = null
@@ -194,7 +147,7 @@ class AppViewModel @Inject constructor (
                 count.value = it
             }
         }
-        return count//appUseCase.getAdvertCount(id)
+        return count
     }
 
     fun onRemoveAd(advert: Advert){
@@ -207,8 +160,9 @@ class AppViewModel @Inject constructor (
             viewModelScope.launch {
                 appUseCase.deleteFavourites(advert.id!!)
             }
-        }catch (e:Exception){ Log.d("RemoveFromFavs","Element not found")}
-
+        }catch (e:Exception){
+        //    Log.d("RemoveFromFavs","Element not found")
+        }
         selectedSet.value!!.adverts = adverts
         viewModelScope.launch {
             appUseCase.removeAd(advert)
@@ -226,9 +180,9 @@ class AppViewModel @Inject constructor (
             favs.removeAt(findAdinFavs(selectedAd.value!!.id!!))
             viewModelScope.launch {
                 appUseCase.deleteFavourites(selectedAd.value!!.id!!)
-            //    favList.remove(selectedAd.value!!.hash)
             }
-        }catch (e:Exception){ Log.d("RemoveFromFavs","Element not found")}
+        }catch (e:Exception){ //Log.d("RemoveFromFavs","Element not found")
+            }
 
         selectedSet.value!!.adverts = adverts
         screen_name.value = selectedSet.value!!.name.toString()
@@ -268,12 +222,12 @@ class AppViewModel @Inject constructor (
         }else{
             viewModelScope.launch {
                 appUseCase.addFavourites(advert.id!!)
-                //  favList[advert.hash!!] = advert
             }
         }
 
 
         selectedAd.value = null
+        setScreenState("sets")
         screen_name.value = selectedSet.value!!.name.toString()
     }
     fun onDeleteFavourites(advert: Advert){
@@ -286,13 +240,18 @@ class AppViewModel @Inject constructor (
         }
     }
 
+    fun onRemoveFromBlackList(advert: BlackList){
+        viewModelScope.launch {
+            appUseCase.removeFromBlackList(advert)
+        }
+    }
+
     // SEARCH
     // при клике на новую подборку создается SearchParameters
     // при установлении какого-либо параметра его значение добавляется к searchParameters
     var searching = mutableStateOf<RealEstateSearchParameters?>(null )
     var category = mutableStateOf<String?>("")
     var dealType = mutableStateOf<Boolean>(false)
-   // var dealType = mutableStateOf<String>("")
     var flatType = mutableStateOf<String>("")
     var city = mutableStateOf<String>("")
     var travel = mutableStateOf<String?>("")
@@ -301,7 +260,7 @@ class AppViewModel @Inject constructor (
         searching.value = RealEstateSearchParameters()
     }
     fun cancelSearching(){
-        Log.d("SEARCHING_VALUE",searching.value.toString())
+       // Log.d("SEARCHING_VALUE",searching.value.toString())
 
         parameters.restart()
 
@@ -311,11 +270,12 @@ class AppViewModel @Inject constructor (
         searching.value = null
         category.value = null
         dealType.value = false
-        //dealType.value = ""
         flatType.value = ""
         city.value = ""
         travel.value = null
         wc.value = false
+
+        setScreenState("main")
     }
     fun setCategory(category: String?){
         searching.value!!.category = category
@@ -334,22 +294,15 @@ class AppViewModel @Inject constructor (
             flatType.value = type
         }
         // parameters.restartWithLivingType(type) // todo делать только на клик в самом фильтре
-        //Log.d("LIVING_TYPE",searching.value!!.livingType.toString())
     }
     fun setDealType(type: String?){ // not null bool
-        //var result: Boolean? = null
-        //if (type != null) result = type.toBoolean()
-
         searching.value!!.dealType = type//.toBoolean()
         dealType.value = type.toBoolean()
 
         if(type.toBoolean()) searching.value!!.cancelSale() else searching.value!!.cancelRent()
-
-       // Log.d("DEAL_TYPE",searching.value!!.dealType.toString())
     }
     fun setPriceType(type: String?){ // not null bool
         searching.value!!.priceType = type
-       // Log.d("PRICE_TYPE",searching.value!!.priceType.toString())
     }
     fun setRentType(type: String?){ // not null bool
         searching.value!!.rentType = type
@@ -358,7 +311,7 @@ class AppViewModel @Inject constructor (
         if (type == "Только последний") {
             parameters["realEstate"]!!["floor"]!!.keys.forEach{ parameters["realEstate"]!!["floor"]!![it] = false }
             parameters["realEstate"]!!["floor"]!![type] = true
-        } //else parameters["realEstate"]!!["floor"]!![type!!] = false
+        }
         searching.value!!.setFloorTypeValue(type!!) // todo чуть чуть поправить
     }
     fun setMinPrice(value: String?){ // null float
@@ -398,26 +351,16 @@ class AppViewModel @Inject constructor (
         searching.value!!.maxFloors = value?.toIntOrNull()
     }
     fun setRepair(value: String?){ // null many
-        //searching.value!!.repair = value
         searching.value!!.setRepairValue(value!!)
     }
     fun setFinish(value: String?){ // null many
         searching.value!!.setFinishValue(value!!)
-        //searching.value!!.finish = value
     }
     fun setTravelTime(value: String?){ // not null one
         searching.value!!.travelTime = value?.toByte()
-        /*
-        if (value == null){
-            searching.value!!.travelType = null
-            Log.d("VMTravelTypeFromTime","type is ${searching.value!!.travelType}")
-        }
-
-         */
     }
     fun setTravelType(value: String?){ // null bool
-        //travel.value = value
-        Log.d("VMTravelType","travel type is $value")
+        //Log.d("VMTravelType","travel type is $value")
         // если отменяем выбор типа как добраться до метро, то и время обнуляем
         if (value == null){
             searching.value!!.travelTime = null
@@ -434,24 +377,22 @@ class AppViewModel @Inject constructor (
         try {
             val temp = parameters["realEstate"]!!["apartment"]!![value]
             searching.value!!.apart= temp
-            Log.d("VMLoggingApart","$value is $temp")
+        //    Log.d("VMLoggingApart","$value is $temp")
         }catch (e:Exception){
-            Log.d("VMErrorApart",e.message.toString())
+          //  Log.d("VMErrorApart",e.message.toString())
             searching.value!!.apart = null
-            Log.d("VMLoggingApart","apart is null")
+           // Log.d("VMLoggingApart","apart is null")
         }
     }
     fun setRoomType(value: String?){ // null bool
         try {
-            //searching.value!!.roomType = value.toBoolean()
             val temp = parameters["realEstate"]!!["roomType"]!![value]
             searching.value!!.roomType = temp
-            Log.d("VMLoggingApart","$value is $temp")
+         //   Log.d("VMLoggingApart","$value is $temp")
         }catch (e:Exception){
-            Log.d("VMErrorApart",e.message.toString())
-            //searching.value!!.apart = null
+          //  Log.d("VMErrorApart",e.message.toString())
             searching.value!!.roomType = null
-            Log.d("VMLoggingApart","apart is null")
+           // Log.d("VMLoggingApart","apart is null")
         }
 
     }
@@ -467,48 +408,29 @@ class AppViewModel @Inject constructor (
         searching.value!!.toiletType = value.toBoolean()
         wc.value = value.toBoolean()
 
-        /*//todo предусмотреть смену сортирного словаря на загородный туалет
-        try {
-            //searching.value!!.roomType = value.toBoolean()
-            val temp = parameters["realEstate"]!!["roomType"]!![value]
-            searching.value!!.roomType = temp
-            Log.d("VMLoggingApart","$value is $temp")
-        }catch (e:Exception){
-            Log.d("VMErrorApart",e.message.toString())
-            //searching.value!!.apart = null
-            searching.value!!.roomType = null
-            Log.d("VMLoggingApart","apart is null")
-        }
-
-         */
-
-        Log.d("VMToilet","toilet is $value")
+        //todo предусмотреть смену сортирного словаря на загородный туалет
+      //  Log.d("VMToilet","toilet is $value")
     }
     fun setWallMaterial(value: String?){ // null many
         searching.value!!.setWallValue(value!!)
-//        searching.value!!.wallMaterial = value
     }
     fun setBalconyType(value: String?){ // null many
         searching.value!!.balconyType = value.toBoolean()
     }
     fun setParking(value: String?){ // null many
     searching.value!!.setParkingValue(value!!)
-    //searching.value!!.parking = value
     }
     fun setLiftType(value: String?){ // null many
         searching.value!!.liftType = value.toBoolean()
     }
     fun setAmenities(value: String?){ // null many
         searching.value!!.setAmenitiesValue(value!!)
-    //searching.value!!.amenities = value
     }
     fun setView(value: String?){ // null many
         searching.value!!.setViewValue(value!!)
-    //        searching.value!!.view = value
     }
     fun setCommunication(value: String?){ // null many
-    searching.value!!.setCommunicationValue(value!!)
-    //searching.value!!.communication = value
+        searching.value!!.setCommunicationValue(value!!)
     }
     fun setInclude(value: String?){ // null words
         searching.value!!.include = value
@@ -517,18 +439,16 @@ class AppViewModel @Inject constructor (
         searching.value!!.exclude = value
     }
     fun setRentFeatures(value: String?){ // null many
-    searching.value!!.setRentFeatureValue(value!!)
-    //searching.value!!.rentFeature = value
+        searching.value!!.setRentFeatureValue(value!!)
     }
     fun set(){
     }
     // CLICKS
      fun onAddSetClicked(){
         screen_name.value = "Новая подборка"
-        selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null, category = null, last_update = null)
+        selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null,/* category = null,*/ last_update = null)
         sets.add(selectedSet.value!!)
         setScreenState("add")
-        //searching = SearchParameters()
     }
     var viewSets: List<AdSet>? = null
     suspend fun onSetSelected(set: AdSet?){
@@ -552,7 +472,7 @@ class AppViewModel @Inject constructor (
             val edited_ads: SnapshotStateList<Advert> = selectedSet.value!!.adverts!!.toMutableStateList()
             edited_set = AdSet(name = selectedSet.value!!.name,
                 adverts = edited_ads,
-                update_interval = selectedSet.value!!.update_interval, caption = null, category = null,
+                update_interval = selectedSet.value!!.update_interval, caption = null, /*category = null,*/
                 last_update = selectedSet.value!!.last_update)
         }
     }
@@ -587,13 +507,14 @@ class AppViewModel @Inject constructor (
             screens[screen!!] = true
             screenState.value = screen
         }catch (e:Exception){
-            Log.d("ScreenState","screen value is $screen (main screen)")
+           // Log.d("ScreenState","screen value is $screen (main screen)")
         }
     }
     fun onFavouritesClick(){
         screen_name.value = "Избранное"
         favourites.value = !favourites.value
         setScreenState("favourites")
+        selectedAd.value = null
     }
 
     fun onSettingsClick(){
@@ -644,7 +565,7 @@ class AppViewModel @Inject constructor (
                 return
             }else{
                 if(hasChanged()){ // todo чекнуть чтобы бд читалась только при изменениях
-                    Log.d("CancelUpdating","it has changes, it was canceled")
+                  //  Log.d("CancelUpdating","it has changes, it was canceled")
                     viewModelScope.launch {
                         appUseCase.setsFlow().collect{
                             adSet.value = it
@@ -662,65 +583,14 @@ class AppViewModel @Inject constructor (
 
         screen_name.value = "Подборки"
     }
-    /*
-    // старый onBackClick
-    fun onBackClick(){
-        // setScreenState("main")
-        if (selectedAd.value != null) {
-            selectedAd.value = null
-            if(selectedSet.value != null){
-                // назад из объявления в подборку
-                screen_name.value = selectedSet.value!!.name.toString()
-            }else{
-                // назад либо в главное меню (откуда?), либо в список избранного (из объявления)
-                if (favourites.value) screen_name.value = "Избранное"
-                else screen_name.value = "Подборки"
-            }
-        }else{
-            // из создания новой подборки
-            // 2 случая возврата:
-            // начали создавать новую подборку и решили вернуться
-            // при удалении объявлений, если мы нажимаем назад, то мы НЕ СОХРАНЯЕМ ИЗМЕНЕНИЯ!!!
-            // чтобы сохранить изменения, нужно нажать галочку!!!
 
-            if(!likeBefore()){
-                sets.remove(selectedSet.value)
-                if (edited_set != null){
-                    sets.add(edited_set!!)
-                }
-            }
-
-            // если edited_set (то, что было при выборе) отличается от selected_set (текущее состояние)
-            // то изменения не сохраняются -> remove(selected_set) и add(edited_set)
-            edited_set = null
-            selectedSet.value = null
-            favourites.value = false
-            cancelSearching()
-
-            settings.value = false
-            screen_name.value = "Подборки"
-        }
-    }
-*/
     private fun hasChanged(): Boolean{
        // return selectedSet.value?.name == "" ||
          return edited_set?.name != selectedSet.value?.name||
                 edited_set?.adverts?.size != selectedSet.value?.adverts?.size||
                 edited_set?.update_interval != selectedSet.value?.update_interval
     }
-    /*
 
-    private fun likeBefore(): Boolean{
-        if(selectedSet.value?.name == "" ||
-            edited_set?.name != selectedSet.value?.name||
-            edited_set?.adverts?.size != selectedSet.value?.adverts?.size||
-            edited_set?.update_interval != selectedSet.value?.update_interval
-        )
-            return false
-        else return true
-    }
-
-    */
     private fun getTestSet(): List<Advert>{
         return mutableStateListOf<Advert>()
     }

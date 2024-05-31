@@ -48,8 +48,6 @@ fun RangeFilter(
         Text(
             text = name,
             color =  MaterialTheme.colorScheme.onSurfaceVariant,
-            //style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-            //color = MaterialTheme.colorScheme.surface
         )
         Row {
             TextField(
@@ -62,11 +60,10 @@ fun RangeFilter(
                             minValue = Integer.parseInt(it)
                             setMinValue(it)
                         }catch (e:NumberFormatException){
-                            Log.d("NumberFormatException", "")
+                            //Log.d("NumberFormatException", "")
                         }
                     }
                 },
-                //label = { Text("Min Price") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
                     keyboardController?.hide()
@@ -91,11 +88,10 @@ fun RangeFilter(
                             maxValue = Integer.parseInt(it)
                             setMaxValue(it)
                         }catch (e:NumberFormatException){
-                            Log.d("NumberFormatException", "")
+                         //   Log.d("NumberFormatException", "")
                         }
                     }
                 },
-                //label = { Text("Max Price") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
                     if (maxValue < minValue) maxValue = minValue
@@ -133,7 +129,6 @@ fun RangeFilter(
             text = name,
             color =  MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-            //color = MaterialTheme.colorScheme.surface
         )
         Row {
             TextField(
@@ -146,11 +141,10 @@ fun RangeFilter(
                             minValue = Integer.parseInt(it)
                             setMinValue(it)
                         }catch (e:NumberFormatException){
-                            Log.d("NumberFormatException", "")
+                           // Log.d("NumberFormatException", "")
                         }
                     }
                 },
-                //label = { Text("Min Price") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
                     keyboardController?.hide()
@@ -175,88 +169,15 @@ fun RangeFilter(
                             maxValue = Integer.parseInt(it)
                             setMaxValue(it)
                         }catch (e:NumberFormatException){
-                            Log.d("NumberFormatException", "")
+                           // Log.d("NumberFormatException", "")
                         }
                     }
                 },
-                //label = { Text("Max Price") },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
                     if (maxValue < minValue) maxValue = minValue
                     keyboardController?.hide()}),
                 modifier = Modifier.padding(horizontal = 16.dp).weight(1f),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.surface
-                ),
-                textStyle = MaterialTheme.typography.bodyLarge
-                    .copy(color = MaterialTheme.colorScheme.onSurface),
-            )
-        }
-    }
-}
-
-@Preview
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PreviewRangeFilter(){
-    val name: String = "name"
-    var minValue by remember { mutableStateOf(0) }
-    var maxValue by remember { mutableStateOf(0) }
-
-    Column(
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.Start
-    ) {
-        Text(
-            text = name,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        Row {
-            TextField(
-                label = { Text("От",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                value = minValue.toString(),
-                onValueChange = {
-                    if(minValue > maxValue) minValue = maxValue
-                    try {
-                        minValue = Integer.parseInt(it)
-                    }catch (e:NumberFormatException){
-                        Log.d("NumberFormatException", "")
-                    }
-                },
-                //label = { Text("Min Price") },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .weight(1f),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.surface
-                ),
-                textStyle = MaterialTheme.typography.bodyLarge
-                    .copy(color = MaterialTheme.colorScheme.onSurface),
-            )
-
-            TextField(
-                label = { Text("До",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                value = maxValue.toString(),
-                onValueChange = {
-                    if(maxValue < minValue) maxValue = minValue
-                    try {
-                        maxValue = Integer.parseInt(it)
-                    }catch (e:NumberFormatException){
-                        Log.d("NumberFormatException", "")
-                    }
-                },
-                //label = { Text("Max Price") },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.surface

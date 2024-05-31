@@ -3,7 +3,9 @@ package ru.amalkoott.advtapp.domain
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.rememberCoroutineScope
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
@@ -24,12 +26,14 @@ class AppUseCase @Inject constructor(
         appRepo.fillDatabase(initialSets)
     }
     fun setsFlow(): Flow<List<AdSet>> {//Flow<List<AdSet>> {
-        Log.d("TEST",appApi.toString())
-        //var flow : Flow<List<AdSet>>
         return appRepo.loadAllSetsFlow()
     }
     fun favouritesFlow(): Flow<List<Advert>>{
         return appRepo.loadFavourites()
+    }
+
+    fun blackListFlow(): Flow<List<BlackList>>{
+        return appRepo.getBlackList()
     }
     fun advertsFlow(): Flow<List<Advert>> {
         var flow : Flow<List<Advert>>
@@ -42,17 +46,12 @@ class AppUseCase @Inject constructor(
     suspend fun sendSearching(search: RealEstateSearchParameters?): List<Advert>?{
         if (search == null) return null
         val response = appApi.get(search)
-        //val response = appApi.get(SearchParameters("Снять"))
         return if (response.isNotEmpty()){
-            // response to set и потом сохранять
-            //val set = AdSet(name = "",adverts = response, update_interval = 10, caption = null, category = null, last_update = null)
             response
         }else{
             null
         }
-        //return response
     }
-    // update by button click
     @SuppressLint("SuspiciousIndentation")
     fun updateSetByRemote(adSet: AdSet, context: Context){
     // удаляем старую задачу и создаем новую
@@ -62,7 +61,7 @@ class AppUseCase @Inject constructor(
     suspend fun test(){
         val sets = appRepo.loadAllSets()
 
-        Log.d("SETS_COUNT_IN_APP","${sets.count()}")
+       // Log.d("SETS_COUNT_IN_APP","${sets.count()}")
     }
     @SuppressLint("RestrictedApi")
     suspend fun saveSet(set: AdSet, search: RealEstateSearchParameters?, context: Context):Long?{
@@ -84,8 +83,7 @@ class AppUseCase @Inject constructor(
         }
         return set.id
     }
-    suspend fun getAdvertCount(id: Long): Flow<Int>{
-        //val count = appRepo.getAdvertsCount(id)
+    fun getAdvertCount(id: Long): Flow<Int>{
         return appRepo.getAdvertsCount(id)
     }
     private fun toCaption(search: RealEstateSearchParameters?): String{
@@ -93,21 +91,13 @@ class AppUseCase @Inject constructor(
         val gson = Gson()
         val json = gson.toJsonTree(search)
         caption = json.toString()
-        /*
-        val map: Map<*, *> = gson.fromJson(json, MutableMap::class.java)
-
-        for (key in map.keys){
-            caption += "$key: ${map[key]}\n"
-        }
-         */
         return caption
     }
     suspend fun removeSet(set: AdSet){
         appRepo.removeSet(set)
+        appRepo.removeAdsBySet(set.id!!)
+        appRepo.removeBlackListFor(set.id!!)
         workManager.removeUpdatingSet(set)
-    }
-    suspend fun saveAd(ad: Advert){
-
     }
     suspend fun removeAd(ad: Advert){
         val blackAdvert = BlackList(
@@ -127,6 +117,38 @@ class AppUseCase @Inject constructor(
         appRepo.addToBlackList(blackAdvert)
         appRepo.removeAd(ad)
     }
+
+    suspend fun removeFromBlackList(ad: BlackList){
+        val newAd = Advert(
+            id = ad.id,
+            name = ad.name,
+            description = ad.description,
+            price = ad.price,
+            location = ad.location,
+            address = ad.address,
+            url = ad.url,
+            imagesURL = ad.imagesURL,
+            additionalParam = ad.additionalParam,
+            adSetId = ad.adSetId,
+            isFavourite = false,
+            hash = ad.hash)
+
+        // получаем подборку объявления
+        val set = appRepo.getSet(newAd.adSetId!!)
+        // формируем новый список объявлений и добавляем
+        val adverts = set.adverts!!.toMutableList()
+        adverts.add(newAd)
+        set.adverts = adverts
+        // обновляем подборку
+        appRepo.updateSet(set)
+
+        // возвращаем объявление в базу
+        appRepo.addAdv(newAd)
+        // удаляем из ЧС
+        appRepo.removeFromBlackList(ad.id!!)
+        //Log.d("USE_CASE","$ad was removed from black list and insert to set")
+    }
+
     suspend fun getSetsWithAd(id: Long): List<AdSetWithAdverts>{
         return appRepo.getAdSetsWithAdverts(id)
     }

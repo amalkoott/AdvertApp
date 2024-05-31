@@ -122,7 +122,6 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                                     shape = RoundedCornerShape(16.dp)
                                 )
                                 .fillMaxSize(),
-                            //  colors = CardDefaults.cardColors(containerColor = Color.LightGray)
                         ) {
                             // todo фикс images
                             val images = advert.images
@@ -150,7 +149,6 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     maxLines = 1,
-                                    //style = MaterialTheme.typography.titleMedium.copy(hyphens = Hyphens.None),
                                     modifier = Modifier.padding(top = 8.dp, bottom = 0.dp),
                                 )
                                 Text(
@@ -177,16 +175,13 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                             ){
                                 IconButton(
                                     onClick = {
-                                        Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
-                                        //selectedAd.value = advert
-                                        //selectAd(advert)
+                                        Toast.makeText(context, "Объявление помещено в черный список!", Toast.LENGTH_SHORT).show()
                                         setContext(context)
                                         removeAd(advert)
                                     },
                                     modifier = Modifier
                                         .width(48.dp)
                                         .height(48.dp),
-                                    // .padding(all = 8.dp),
                                     content = {
                                         Icon(
                                             Icons.Filled.Delete,
@@ -200,12 +195,10 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                                     onClick = {
                                         Toast.makeText(context, "Location", Toast.LENGTH_SHORT).show()
                                         setContext(context)
-                                        //   vm.onSettingsClick()
                                     },
                                     modifier = Modifier
                                         .width(48.dp)
                                         .height(48.dp),
-                                    // .padding(all = 8.dp),
                                     content = {
                                         if(true){
                                         //todo if(advert.isGeoOn){
@@ -228,8 +221,7 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                                     })
                                 IconButton(
                                     onClick = {
-                                        Toast.makeText(context, "Fav", Toast.LENGTH_SHORT).show()
-                                        //selectedAd.value = advert
+                                        Toast.makeText(context, "Объявление добавлено в избранное!", Toast.LENGTH_SHORT).show()
                                         setContext(context)
                                         selectAd(advert)
                                         addFavourites(advert)
@@ -237,7 +229,6 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                                     modifier = Modifier
                                         .width(48.dp)
                                         .height(48.dp),
-                                    //.padding(all = 8.dp),
                                     content = {
                                         if (advert.isFavourite){
                                             Icon(

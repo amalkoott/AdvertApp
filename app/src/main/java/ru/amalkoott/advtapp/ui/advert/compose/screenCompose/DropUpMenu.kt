@@ -86,17 +86,7 @@ fun DropUpMenu(items: Map<String,String>){
                         )) {
                         Text(text = it.key)
                     }
-                }/*
-                Button(onClick = { /*TODO*/ }, btnModifier.padding(bottom = 6.dp)) {
-                    Text(text = "item 1")
                 }
-                Button(onClick = { /*TODO*/ }, btnModifier.padding(bottom = 6.dp)) {
-                    Text(text = "item 2")
-                }
-                Button(onClick = { /*TODO*/ }, btnModifier.padding(bottom = 6.dp)) {
-                    Text(text = "item 3")
-                }
-                */
             }
         }
     }

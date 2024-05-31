@@ -53,9 +53,7 @@ fun RangeSliderFilter(
                 color = MaterialTheme.colorScheme.onSurfaceVariant) },
             value = rangeStart.toString(),
             onValueChange = {
-               // setMinValue(it)
             },
-            //label = { Text("Min Price") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { rangeState.activeRangeStart = 60600666f }), //todo доделать цену
             modifier = Modifier
@@ -74,9 +72,7 @@ fun RangeSliderFilter(
                 color = MaterialTheme.colorScheme.onSurfaceVariant) },
             value = rangeEnd.toString(),
             onValueChange = {
-                //setMaxValue(it)
             },
-            //label = { Text("Max Price") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
             modifier = Modifier
@@ -140,7 +136,6 @@ fun RangeSliderFilter(
                     onValueChange = {
                         setMaxValue(it)
                     },
-                    //label = { Text("Max Price") },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
                     modifier = Modifier
@@ -159,88 +154,6 @@ fun RangeSliderFilter(
         RangeSlider(
             value = (minSliderPosition..maxSliderPosition),
             onValueChange = { range ->
-               // setMinValue(range.start.toString())
-              //  setMaxValue(range.endInclusive.toString())
-                minSliderPosition = range.start
-                maxSliderPosition = range.endInclusive
-            },
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
-
-
-    }
-}
-
-@Preview
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PreviewRangeSliderFilter() {
-    val name = "Цена"
-    val minValue: Float = 0f
-    val maxValue: Float = 100f
-    var minSliderPosition by remember { mutableStateOf(minValue) }
-    var maxSliderPosition by remember { mutableStateOf(maxValue) }
-    Column (
-        modifier = Modifier
-            .padding(
-                start = 0.dp,
-                end = 0.dp,
-                bottom = 24.dp,
-            )
-            .fillMaxWidth())
-    {
-        Column(verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.Start) {
-            Text(
-                text = name,
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyLarge
-                    .copy(color = MaterialTheme.colorScheme.onSurface),
-            )
-            Row {
-                TextField(
-                    label = { Text("От",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                    value = minSliderPosition.toString(),
-                    onValueChange = {
-                    },
-                    //label = { Text("Min Price") },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.surface
-                    ),
-                    textStyle = MaterialTheme.typography.bodyLarge
-                        .copy(color = MaterialTheme.colorScheme.onSurface),
-                )
-
-                TextField(
-                    label = { Text("До",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                    value = maxSliderPosition.toString(),
-                    onValueChange = {
-                    },
-                    //label = { Text("Max Price") },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { /* Handle Done action */ }),
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.surface
-                    ),
-                    textStyle = MaterialTheme.typography.bodyLarge
-                        .copy(color = MaterialTheme.colorScheme.onSurface),
-                )
-            }
-        }
-
-        RangeSlider(
-            value = (minSliderPosition..maxSliderPosition),
-            onValueChange = { range ->
-                // setMinValue(range.start.toString())
-                //  setMaxValue(range.endInclusive.toString())
                 minSliderPosition = range.start
                 maxSliderPosition = range.endInclusive
             },

@@ -43,7 +43,6 @@ fun RealEstateFilter(funs: Map<String, (String?) -> Unit>,
     // город, цена
     GeneralSetFilters(functions = funs)
 
-    //val isShowMore = remember { mutableStateOf(false) }
     if (!dealType.value){
         // купить: цена за все\кв.м
         SaleFilters(funs["price"]!!)
@@ -53,7 +52,6 @@ fun RealEstateFilter(funs: Map<String, (String?) -> Unit>,
         GeneralRealEstateFilters(dealType,flatType,travel,funs, parameters)//, isShowMore)
     }
 
- //   GeneralRealEstateFilters(flatType,travel,funs, parameters)
 }
 
 @Composable
@@ -63,7 +61,6 @@ fun GeneralRealEstateFilters(
     travel: MutableState<String?>,
     funs: Map<String, (String?) -> Unit>,
     parameters: Map<String, SnapshotStateMap<String, Boolean>>,
-   // isShowMore: MutableState<Boolean>
 ){
     val isShowMore = remember { mutableStateOf(false) }
     var toiletSet = parameters["toilet"]!!
@@ -129,7 +126,6 @@ fun GeneralRealEstateFilters(
             toiletSet = parameters["countryToilet"]!!
             roomSet = parameters["countryRoom"]!!
             // количество комнат
-            //NullableAllFilter(name = "Комнат в доме", map = roomSet/*parameters["room"]!!*/, setValue = funs["room"]!!)
 
             DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в доме", setCategory = funs["room"]!!)
 
@@ -284,9 +280,6 @@ fun RentFilters(
         DatePickerFilter()
     }
 
-    //val isShowMore = remember { mutableStateOf(false) }
-
-   // ShowMoreButton(isShowMore)
 
     if (isShowMore.value){
         val rentFeaturePairs = remember { mutableStateOf(rentFeatures)    }

@@ -81,6 +81,7 @@ import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.MainActivity
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.domain.BlackList
 import ru.amalkoott.advtapp.domain.Constants
 import ru.amalkoott.advtapp.domain.getFromUrl
 import ru.amalkoott.advtapp.domain.notification.sendNotification
@@ -100,7 +101,7 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
     val selected by remember { mutableStateOf(vm.selectedSet) }
 
     val favs by vm.favList.collectAsState()
-
+    val blackList by vm.blackLists.collectAsState()
     //...
 
     val search by remember { mutableStateOf(vm.searching) }
@@ -227,6 +228,9 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
     val deleteFavourites: (Advert) -> Unit = {
         advert -> vm.onDeleteFavourites(advert)
     }
+    val removeFromBlackList: (BlackList) -> Unit = {
+            advert -> vm.onRemoveFromBlackList(advert)
+    }
 
     val adsCount: (Long) -> MutableStateFlow<Int> = {
             id -> vm.getAdsCountInSet(id)
@@ -249,14 +253,11 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
     val screen_name by remember { mutableStateOf(vm.screen_name) }
     val screenState by remember { mutableStateOf(vm.screenState) }
 
-
-
     val setContextValue: (Context) -> Unit = {vm.setContextValue(it)}
     val onEditComplete:() -> Unit ={vm.onEditComplete()}
     val onAddSetClicked:() -> Unit ={vm.onAddSetClicked()}
 
     var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    //val scope = rememberCoroutineScope()
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -293,7 +294,7 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
                         }
                         "pushes" -> PrintPushes()
                         "settings" -> PrintSettings(onBlackListClicked, token)
-                        "blackList" -> PrintBlackList(mutableStateListOf())
+                        "blackList" -> PrintBlackList(blackList, removeFromBlackList)
                         "how" -> PrintHowItWorkScreen()
                         "advert" -> PrintAdvert(selectedAd)
                        // "sets" ->PrintSet(sets, selected, selectSet, adsCount)
@@ -310,7 +311,6 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PrintSet(sets: List<AdSet>,
@@ -344,9 +344,7 @@ fun PrintSet(sets: List<AdSet>,
                     set ->
                 Card(
                     colors = CardDefaults.cardColors(
-                        //surfaceColorAtElevation(Color.White),
                         containerColor = MaterialTheme.colorScheme.surface
-                        //containerColor = Color.White
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -382,16 +380,16 @@ fun PrintSet(sets: List<AdSet>,
                                 maxLines = 1,
                                 modifier = Modifier.padding(start = 24.dp),
                                 color = MaterialTheme.colorScheme.onSurface)
-                            //Text(text = "5", fontSize = 20.sp)
                             SuggestionChip(
                                 modifier = Modifier.padding(end = 8.dp),
                                 border = BorderStroke(
                                     color = MaterialTheme.colorScheme.tertiaryContainer, // Укажите желаемый цвет
                                     width = 1.dp // Укажите толщину рамки
                                 ),
-                                onClick = { Log.d(set.update_interval.toString(), "hello world") },
+                                onClick = { //Log.d(set.update_interval.toString(), "hello world")
+                                          },
                                 label = {
-                                    Text(set.update_interval.toString() + " час.", color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.SemiBold)},//MaterialTheme.colorScheme.surfaceVariant) },
+                                    Text(getTime(set.update_interval), color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.SemiBold)},//MaterialTheme.colorScheme.surfaceVariant) },
                             )
                         }
                         Column(
@@ -407,14 +405,18 @@ fun PrintSet(sets: List<AdSet>,
                         }
                     }
                 }
-
             }
         }
     }
 }
+private fun getTime(interval: Int?):String{
+    return try {
+        if (interval!!/60 < 1) "$interval мин." else "${interval/60} час."
+    } catch (e: Exception){
+        "???"
+    }
+}
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrawSheet(
     scope: CoroutineScope,
@@ -428,7 +430,7 @@ fun DrawSheet(
     ModalDrawerSheet(
         drawerContainerColor = MaterialTheme.colorScheme.surface
     ) {
-        Text("Advert App", modifier = Modifier.padding(16.dp))
+        Text("AdSpider", modifier = Modifier.padding(16.dp))
         Divider()
         NavigationDrawerItem(
             label = {
@@ -443,8 +445,8 @@ fun DrawSheet(
                     drawerState.apply { if (isOpen) close() else open() }
                 }
                 favouritesClick()
-                //  vm.onFavouritesClick()
             })
+        /*
         NavigationDrawerItem(
             label = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -458,9 +460,8 @@ fun DrawSheet(
                     drawerState.apply { if (isOpen) close() else open() }
                 }
                 notificationClick()
-                // favouritesClick()
-                //  vm.onFavouritesClick()
             })
+        */
         NavigationDrawerItem(
             label = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -474,8 +475,6 @@ fun DrawSheet(
                     drawerState.apply { if (isOpen) close() else open() }
                 }
                 howItWorkClick()
-                // favouritesClick()
-                //  vm.onFavouritesClick()
             })
         NavigationDrawerItem(
             label = {
@@ -490,11 +489,8 @@ fun DrawSheet(
                     drawerState.apply { if (isOpen) close() else open() }
                 }
                 settingsClick()
-                //    vm.onSettingsClick()
             }
         )
-
-        // ...другие элементы ящика
     }
 }
 
@@ -546,52 +542,9 @@ fun DrawTopBar(
             when(screenState.value){
                 "main" -> {
                     DrawNavigationMenu(scope, drawerState)
-                    //onBackClick()
-                    //DrawNavigationMenu(scope, drawerState)
                 }
                 else -> DrawBackButton(onBackClick)
             }
-            /*
-            if (favourites.value || settings.value || selectedAd.value != null || selected.value != null) {
-                IconButton(onClick = {
-                    //vm.onBackClick()
-                    onBackClick()
-                    if (favourites.value) {
-                    } else if (settings.value) {
-                    } else {
-                    }
-                }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Localized description"
-                    )
-                }
-            } else {
-                /*
-                        ExtendedFloatingActionButton(
-                            text = { Text("Show drawer") },
-                            icon = { Icon(Icons.Filled.Add, contentDescription = "") },
-                            onClick = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
-                                    }
-                                }
-                            }
-                        )*/
-                IconButton(
-                    content = {
-                        Icon(Icons.Filled.Menu, contentDescription = "")
-                    },
-                    onClick = {
-                        scope.launch {
-                            drawerState.apply {
-                                if (isClosed) open() else close()
-                            }
-                        }
-                    })
-            }
-*/
         }
 
     )
@@ -600,14 +553,7 @@ fun DrawTopBar(
 @Composable
 fun DrawBackButton(onBackClick: () -> Unit,){
     IconButton(onClick = {
-        //vm.onBackClick()
         onBackClick()
-        /*
-        if (favourites.value) {
-        } else if (settings.value) {
-        } else {
-        }
-        */
     }) {
         Icon(
             imageVector = Icons.Filled.ArrowBack,
@@ -631,187 +577,5 @@ fun DrawNavigationMenu(scope: CoroutineScope, drawerState: DrawerState){
             }
         })
 }
-/*
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "InvalidColorHexValue")
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AdvtAppTheme {
-
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    colors = TopAppBarDefaults.mediumTopAppBarColors(
-                        //containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        //titleContentColor = MaterialTheme.colorScheme.primary,
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    ),
-                    title = {
-                        Text(
-                            text = "Подборки"
-                        )
-
-                    },
-                    actions = {
-//                        DrawDropmenu(U)
-                    },
-                    navigationIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description",
-                            modifier = Modifier.padding(start = 16.dp, end = 8.dp)
-                        )
-
-                    }
-                )
-            },
-            /*
-            bottomBar = {
-                BottomAppBar(
-                    modifier = Modifier.fillMaxWidth().height(intrinsicSize = IntrinsicSize.Max),
-                    actions = {
-
-                        IconButton(
-                            onClick = {
-                                // settings = !settings
-                                //vm.onSettingsClick()
-                                //PrintSettings()
-                            },
-                            modifier = Modifier.width(80.dp),
-                            content = {
-                                Icon(
-                                    Icons.Filled.Settings,
-                                    contentDescription = "Localized description",
-                                )
-                            })
-
-                        IconButton(
-                            onClick = {
-                                //favourites = !favourites
-                                //vm.onFavouritesClick()
-                                //PrintFavourites()
-                            },
-                            modifier = Modifier.width(80.dp),
-                            content = {
-                                Icon(
-                                    Icons.Filled.Favorite,
-                                    contentDescription = "Localized description",
-                                )
-                            }
-                        )
-
-                    },
-
-
-                )
-            },
-*/
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                    },
-                    containerColor = Color(0xff84ffdb),
-                    elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(defaultElevation = 8.dp),
-                    shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
-                    content = {
-                        Icon(Icons.Filled.Add, contentDescription = "Добавить")
-                    }
-
-                )
-            }
-            ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(1),
-                modifier = Modifier
-                    .width(600.dp)
-                    .height(1300.dp)
-                    // .background(MaterialTheme.colorScheme.background)
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(top = 64.dp)
-                    .padding(8.dp)
-
-            ) {
-                items(3) {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                            //containerColor = MaterialTheme.colorScheme.surface,
-                           // Color(MaterialTheme.colorScheme.surface)
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(176.dp)
-                            .padding(vertical = 16.dp, horizontal = 16.dp)
-                            .clickable {
-                                // появляется выбранная подборка, клик - вывод списка объявлений подборки
-                                //selected.value = set
-                                // selectSet(set)
-                                //navController.navigate("set")
-                                //addSet.value = !addSet.value
-                            },
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 4.dp
-                        ),
-                        //onClick = {navController.navigate("set")}
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(horizontal = 10.dp)
-                                .fillMaxHeight(),
-                            verticalArrangement = Arrangement.Center
-
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(IntrinsicSize.Max),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = "Название подборки",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                    modifier = Modifier.padding(start = 24.dp))
-                                //Text(text = "5", fontSize = 20.sp)
-                                SuggestionChip(
-                                    //colors = SuggestionChipDefaults.suggestionChipColors(Color(0xffffdc5f)),//MaterialTheme.colorScheme.tertiary),
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    border = SuggestionChipDefaults.suggestionChipBorder(Color(0xffe7cc85)),
-                                    onClick = { Log.d("set.update_interval.toString()", "hello world") },
-                                    label = {
-                                        Text("5" + " час.", color = Color(0xffe7cc85), fontWeight = FontWeight.SemiBold)},//MaterialTheme.colorScheme.surfaceVariant) },
-                                )
-                                /*
-                                AssistChip(
-                                    onClick = { Log.d("5 часов", "hello world") },
-                                    label = { Text("5 часов") },
-                                )*/
-
-                            }
-                            Column(
-                                horizontalAlignment = Alignment.Start,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    //.padding(horizontal = 2.dp)
-                                    .height(48.dp)
-                                    .padding(start = 24.dp)
-                            ){
-                                Text(text = "Объявлений: 6", color = Color(0xff666666))
-                                Text(text = "Обновлено: " + LocalDate.now().toString(), color = Color(0xff666666))
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-
-
-    }
-}
-*/
 
 

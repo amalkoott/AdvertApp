@@ -10,7 +10,6 @@ import ru.amalkoott.advtapp.domain.AdSetWithAdverts
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRepository
 import ru.amalkoott.advtapp.domain.BlackList
-import ru.amalkoott.advtapp.domain.SetCategory
 import javax.inject.Inject
 
 // здесь методы, которые обращаются к Dao, эти методы могут быть вызваны откуда угодно для работы с БДшкой
@@ -27,6 +26,7 @@ class AppRepositoryDB @Inject constructor(
     override suspend fun clearDatabase()= withContext(Dispatchers.IO){
         appDao.deleteAllSets()
         appDao.deleteAllAds()
+        appDao.deleteBlackList()
     }
     override suspend fun fillDatabase(set: List<AdSet>){
         set.forEach{adSet ->
@@ -37,6 +37,16 @@ class AppRepositoryDB @Inject constructor(
         }
     }
 
+    override suspend fun removeAdsBySet(id: Long) {
+        appDao.removeAdsBySet(id)
+    }
+
+    override suspend fun removeBlackListFor(id: Long) {
+        appDao.removeBlackListFor(id)
+    }
+    override suspend fun getSet(id: Long): AdSet = withContext(Dispatchers.IO) {
+        return@withContext appDao.getSet(id)
+    }
     override suspend fun addSet(set: AdSet): Long = withContext(Dispatchers.IO){
         val id = async { appDao.insertSet(set) }
         for (ad in set.adverts!!){
@@ -49,26 +59,20 @@ class AppRepositoryDB @Inject constructor(
         return@withContext id.await()
     }
 
-    override suspend fun removeSet(set: AdSet) {
+    override suspend fun removeSet(set: AdSet) = withContext(Dispatchers.IO) {
         appDao.deleteSetById(set.id!!)
-    //    appDao.deleteBlackListBySetId(set.id!!)
+        appDao.deleteAdvertsBySet(set.id!!)
+        appDao.deleteBlackListBySetId(set.id!!)
     }
 
+    override suspend fun removeFromBlackList(id: Long) = withContext(Dispatchers.IO) {
+        appDao.deleteBlackAdvert(id)
+    }
 
     override suspend fun updateSet(note: AdSet) = withContext(Dispatchers.IO){
            val res = appDao.updateSet(note)
         Log.d("UpdateSet","Successful update for ${note.id}")
         return@withContext res
-    }
-
-
-    /*
-        override fun byRemoteID(remoteId: Long): AdSet?{
-            return appDao.byRemoteID(remoteId)
-        }
-      */
-    override fun byEquals(title: String, category: SetCategory): AdSet?{
-        return appDao.byEquals(title, category)
     }
 
     override suspend fun getAdSetsWithAdverts(id: Long): List<AdSetWithAdverts> = withContext(Dispatchers.IO) {
@@ -101,9 +105,8 @@ class AppRepositoryDB @Inject constructor(
         return appDao.getAdvertsCount(id)
     }
 
-    override suspend fun getBlackList(id: Long): List<BlackList> = withContext(Dispatchers.IO) {
-        return@withContext appDao.getBlackList(id)
-    }
+    override fun getBlackList(id: Long): Flow<List<BlackList>> = appDao.getBlackList(id)
+    override fun getBlackList(): Flow<List<BlackList>> = appDao.getBlackList()
 
     override suspend fun deleteAdvertsBySet(id: Long) {
         appDao.deleteAdvertsBySet(id)

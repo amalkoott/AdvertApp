@@ -20,7 +20,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> Unit,){
     var type by remember { mutableStateOf(false) }
     Row(modifier = Modifier.padding(vertical = 8.dp)){
@@ -39,8 +38,6 @@ fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> U
         FilterChip(
             onClick = {
                 type = !type
-               // setValue(type.toString())
-                //setValue(secondValue)
                       },
             label = {Text(text = secondValue)},
             selected = type,
@@ -50,30 +47,5 @@ fun BinaryFilter(firstValue: String, secondValue: String, setValue: (String)-> U
     val scope = rememberCoroutineScope()
     scope.launch{
         setValue(type.toString())
-    }
-}
-
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun PreviewBinaryFilter(){
-    val firstValue: String = "1"
-    val secondValue: String = "2"
-    var type by remember { mutableStateOf(true) }
-    Row(modifier = Modifier.padding(vertical = 8.dp)){
-        FilterChip(
-            onClick = {
-                type = !type},
-            label = {},
-            selected = !type,
-            leadingIcon = { Text(text = firstValue) }
-        )
-        FilterChip(
-            onClick = {
-                type = !type},
-            label = {},
-            selected = type,
-            leadingIcon = { Text(text = secondValue) }
-        )
     }
 }

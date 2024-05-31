@@ -34,37 +34,6 @@ import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.AdSet
 import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun GeneralSetInfo(
-    name: String,
-    updateInterval: Int,
-    onNameChange: (String) -> Unit,
-    onUpdateIntervalChange: (Int) -> Unit
-) {
-    Column {
-        TextField(
-            value = name,
-            onValueChange = { onNameChange(it) },
-            label = { Text("Название подборки") },
-            placeholder = { Text("Введите название") },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-        )
-        TextField(
-            value = updateInterval.toString(),
-            onValueChange = {
-                try {
-                    onUpdateIntervalChange(it.toInt())
-                } catch (e: NumberFormatException) {
-                    onUpdateIntervalChange(10) // По умолчанию
-                }
-            },
-            label = { Text("Интервал обновления") },
-            placeholder = { Text("Введите значение") },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,11 +83,26 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
             verticalArrangement = Arrangement.Center,
         ) {
             Text(text = "Интервал обновления", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            val context = LocalContext.current
-            val items = arrayOf("5 минут","10 минут", "15 минут", "30 минут", "1 час", "3 часа", "6 часов", "8 часов", "12 часов", "16 часов", "24 часа")
-            //val coffeeDrinks = arrayOf("Недвижимость", "Транспорт", "Услуги")
+            val times = mapOf(
+                5 to "5 минут",
+                10 to "10 минут",
+                15 to "15 минут",
+                30 to "30 минут",
+                60 to "1 час",
+                180 to "3 часа",
+                360 to "6 часов",
+                480 to "8 часов",
+                720 to "12 часов",
+                960 to "16 часов",
+                1440 to "24 часа",
+            ).toSortedMap()
             var expanded by remember { mutableStateOf(false) }
-            var selectedText by remember { mutableStateOf(items[0]) }
+            var selectedText by remember { try {
+                mutableStateOf(times[selected.value!!.update_interval!!])
+            }catch (e:Exception){
+                mutableStateOf(times[5])
+            }}
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -132,7 +116,7 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
                     Modifier.fillMaxWidth()
                 ) {
                     TextField(
-                        value = selectedText,
+                        value = selectedText!!,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.tertiary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.surface
@@ -148,7 +132,8 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
                         onDismissRequest = { expanded = false },
                         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                     ) {
-                        items.forEach { item ->
+                        times.values.forEach{item ->
+                        //items.forEach { item ->
                             DropdownMenuItem(
                                 text = { Text(text = item) },
                                 onClick = {
@@ -161,14 +146,14 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
                 }
             }
             scope.launch {
-                val time = selectedText.split(' ')[0].toInt()
+                val time = selectedText!!.split(' ')[0].toInt()
                 if (!expanded) {
-                    if (selectedText.contains("мин"))
+                    if (selectedText!!.contains("мин"))
                         selected.value!!.update_interval = time
                     else selected.value!!.update_interval = time*60//setCategory(selectedText)
                 }
 
-                Log.d("interval","${selected.value!!.update_interval}")
+               // Log.d("interval","${selected.value!!.update_interval}")
             }
         }
         /*

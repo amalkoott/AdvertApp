@@ -39,14 +39,11 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
         verticalArrangement = Arrangement.Center,
     ) {
         Text(text = name, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        val context = LocalContext.current
-        //val coffeeDrinks = arrayOf("Недвижимость", "Транспорт", "Услуги")
         var expanded by remember { mutableStateOf(false) }
         var selectedText by remember { mutableStateOf(items[0]) }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-            //.padding(32.dp)
         ) {
             ExposedDropdownMenuBox(
                 expanded = expanded,

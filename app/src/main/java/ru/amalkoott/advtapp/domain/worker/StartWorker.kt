@@ -138,11 +138,11 @@ class StartWorker @Inject constructor(
 
         if(!isShortInterval){
             WorkManager.getInstance(context).enqueueUniquePeriodicWork("${Constants.WORK_TAG}${set.id}", ExistingPeriodicWorkPolicy.KEEP,request as PeriodicWorkRequest)
-            Log.d("${Constants.SET_TAG}${set.id}","${set.name} is running successful for periodic work with one time realisation in ($updateInterval) minutes...")
+            //Log.d("${Constants.SET_TAG}${set.id}","${set.name} is running successful for periodic work with one time realisation in ($updateInterval) minutes...")
         }
         else{
             WorkManager.getInstance(context).enqueueUniqueWork("${Constants.WORK_TAG}${set.id}", ExistingWorkPolicy.REPLACE, request as OneTimeWorkRequest)
-            Log.d("${Constants.SET_TAG}${set.id}","${set.name} is running successful for periodic work in ($updateInterval) minutes...")
+            //Log.d("${Constants.SET_TAG}${set.id}","${set.name} is running successful for periodic work in ($updateInterval) minutes...")
         }
 
     }

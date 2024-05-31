@@ -50,7 +50,6 @@ fun LoadScreen(value: Boolean, isSuccessful: MutableState<Boolean?>, cancelSearc
                         modifier = Modifier.width(64.dp).padding(bottom = 48.dp),
                         color = MaterialTheme.colorScheme.secondary,
                         strokeWidth = 8.dp
-                        //trackColor = MaterialTheme.colorScheme.surfaceVariant,
                     )
                 }
                 Row {
@@ -61,5 +60,4 @@ fun LoadScreen(value: Boolean, isSuccessful: MutableState<Boolean?>, cancelSearc
 
         }
     }
-    //if (!loading) return
 }

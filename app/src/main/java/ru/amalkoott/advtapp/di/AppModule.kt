@@ -47,7 +47,8 @@ object AppModule {
     fun provideInternetConnection(httpClient: OkHttpClient): Retrofit{
         return Retrofit.Builder()
             //.baseUrl("http://192.168.56.1:8080")
-            .baseUrl("http://10.0.2.2:8080")
+           // .baseUrl("http://10.0.2.2:8080")
+            .baseUrl("http://185.178.47.135:3000")
             .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -65,14 +66,14 @@ object AppModule {
             AppDatabase::class.java,"app_database"
         ).fallbackToDestructiveMigration()
             .build()
-        Log.d("PROVIDE_DAO_ID_DATABASE_TEST",db.toString())
+    //    Log.d("PROVIDE_DAO_ID_DATABASE_TEST",db.toString())
         return db
     }
 
     @Singleton
     @Provides
     fun provideAppDao(db: AppDatabase): AppDao{
-        Log.d("PROVIDE_DAO_ID_DATABASE_TEST",db.toString())
+      //  Log.d("PROVIDE_DAO_ID_DATABASE_TEST",db.toString())
         return db.notesDao()
     }
 

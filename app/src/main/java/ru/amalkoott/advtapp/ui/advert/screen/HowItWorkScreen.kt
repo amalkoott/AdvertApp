@@ -46,8 +46,8 @@ fun PrintHowItWorkScreen()
             .padding(start = 32.dp, end = 32.dp, top = 16.dp)
             .verticalScroll(scrollState)) {
 
-        val aboutApp = "Приложение Advert App создано для отслеживания объявлений с разных площадок, таких как Авито, ЦИАН, Домлкик и прочие. Теперь вам не нужно посещать каждый сайт в надежде найти лучшее объявление, вам достаточно открыть Advert App!"
-        TextPart(title = "Advert App", text = aboutApp, modifier = partModifier)
+        val aboutApp = "Приложение AdSpider создано для отслеживания объявлений с разных площадок, таких как Авито, ЦИАН, Домлкик и прочие. Теперь вам не нужно посещать каждый сайт в надежде найти лучшее объявление, вам достаточно открыть AdSpider!\n\nПримечание: Текущее состояние приложения соответствует альфа-версии."
+        TextPart(title = "AdSpider", text = aboutApp, modifier = partModifier)
 
         Column(modifier = partModifier) {
             val aboutSet = "Подборкой в приложении называется набор объявлений, которые были найдены на отслеживаемых сайтах по вашим параметрам поиска." +

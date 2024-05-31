@@ -13,7 +13,7 @@ import ru.amalkoott.advtapp.domain.typeconverter.DateConverter
 // это БДшка
 @Database(
     entities = [AdSet::class, Advert::class, BlackList::class],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(AdvertsListConverter::class, DateConverter::class)

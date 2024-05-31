@@ -14,7 +14,7 @@ android {
         minSdk = 27
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0-alpha"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,6 +29,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            isDebuggable = true
         }
     }
     compileOptions {
@@ -146,7 +149,8 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.3.0-alpha06")
 
     // images
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+   // implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // dagger и hilt
     implementation("com.google.dagger:hilt-android:2.50")

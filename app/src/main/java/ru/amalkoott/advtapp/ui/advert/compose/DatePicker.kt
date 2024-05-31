@@ -50,36 +50,26 @@ import androidx.compose.ui.zIndex
 import java.time.Instant
 import java.time.OffsetDateTime
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerFilter(){
-    // Fetching the Local Context
     val mContext = LocalContext.current
 
-    // Declaring integer values
-    // for year, month and day
     val mYear: Int
     val mMonth: Int
     val mDay: Int
 
-    // Initializing a Calendar
     val mCalendar = Calendar.getInstance()
 
-    // Fetching current year, month and day
     mYear = mCalendar.get(Calendar.YEAR)
     mMonth = mCalendar.get(Calendar.MONTH)
     mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
 
     mCalendar.time = Date()
 
-    // Declaring a string value to
-    // store date in string format
     val minDate = remember { mutableStateOf("") }
 
     val maxDate = remember { mutableStateOf("") }
 
-    // Declaring DatePickerDialog and setting
-    // initial values as current values (present year, month and day)
     val minDatePickerDialog = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
@@ -107,62 +97,5 @@ fun DatePickerFilter(){
                 Text(text = maxDate.value)
             }
         }
-    }/*
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-
-        // Creating a button that on
-        // click displays/shows the DatePickerDialog
-        Button(onClick = {
-            minDatePickerDialog.show()
-        }, colors = ButtonDefaults.buttonColors(Color(0XFF0F9D58)) ) {
-            Text(text = "Open Date Picker", color = Color.White)
-        }
-        // Displaying the mDate value in the Text
-        Text(text = "Selected Date: ${minDate.value}", fontSize = 30.sp, textAlign = TextAlign.Center)
-    }
-    */
-}
-
-/*
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DateRangePickerFilter(openDialog: Boolean,
-                          onDismiss: () -> Unit) {
-    val dateRangePickerState = rememberDateRangePickerState(
-        initialSelectedStartDateMillis = Instant.now().toEpochMilli(),
-        initialSelectedEndDateMillis = OffsetDateTime.now().plusDays(8).toInstant().toEpochMilli(),
-        yearRange = IntRange(2023, 2100),
-        initialDisplayMode = DisplayMode.Picker
-    )
-    Column(
-        modifier = Modifier.padding(vertical = 10.dp, horizontal = 0.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.End
-    ) {
-        DatePickerDialog(
-            shape = RoundedCornerShape(6.dp),
-            onDismissRequest = onDismiss,
-            confirmButton = {
-                // Seems broken at the moment with DateRangePicker
-                // Works fine with DatePicker
-            },
-        ) {
-            DateRangePicker(
-                modifier = Modifier.weight(1f), // Important to display the button
-                state = dateRangePickerState,
-            )
-
-            TextButton(
-                onClick = {
-//                    onDismiss()
-//                val startDate = dateRangePickerState.selectedStartDateMillis)
-//                val endDate = dateRangePickerState.selectedEndDateMillis
-                },
-                enabled = dateRangePickerState.selectedEndDateMillis != null
-            ) {
-                Text(text = "Validate")
-            }
-        }
     }
 }
-*/

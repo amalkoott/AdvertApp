@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 // может быть выбрано один, два или больше (все) или ничего
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue: (String?)-> Unit,){
     val scope = rememberCoroutineScope()
@@ -43,7 +42,6 @@ fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setVa
                         scope.launch{
                             map[type] = !map[type]!!
                             if (map[type]!!) { setValue(type); return@launch }
-//                            else{ setValue(null)}
                             else {setValue("-$type")}
                         }
                               },
@@ -51,13 +49,11 @@ fun NullableAllFilter(name: String, map: SnapshotStateMap<String,Boolean>, setVa
                     selected = map[type]!!,
                     leadingIcon = { }
                 )
-                //if (map[type]!!)setValue(type)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NullableAllFilter(name: String, map: MutableState<MutableMap<String, Boolean>>, setValue: (String?)-> Unit,){
     val scope = rememberCoroutineScope()
@@ -75,7 +71,6 @@ fun NullableAllFilter(name: String, map: MutableState<MutableMap<String, Boolean
                             map.value[type] = !map.value[type]!!
                             if (map.value[type]!!) { setValue(type); return@launch
                             }
-                            //else{ setValue(null)}
                             else {setValue("-$type")}
                         }
                     },
@@ -83,7 +78,6 @@ fun NullableAllFilter(name: String, map: MutableState<MutableMap<String, Boolean
                     selected = map.value[type]!!,
                     leadingIcon = { }
                 )
-                //if (map[type]!!)setValue(type)
             }
         }
     }
@@ -105,7 +99,6 @@ fun NullableAllFilter(map: MutableState<MutableMap<String, Boolean>>, setValue: 
                             map.value[type] = !map.value[type]!!
                             if (map.value[type]!!) { setValue(type); return@launch
                             }
-                            //else{ setValue(null)}
                             else {setValue("-$type")}
                         }
                     },
@@ -113,7 +106,6 @@ fun NullableAllFilter(map: MutableState<MutableMap<String, Boolean>>, setValue: 
                     selected = map.value[type]!!,
                     leadingIcon = { }
                 )
-                //if (map[type]!!)setValue(type)
             }
         }
     }
@@ -136,45 +128,11 @@ fun NullableAllFilter(map: MutableState<MutableMap<String, Boolean>>, setValue: 
                             map.value[type] = !map.value[type]!!
                             if (map.value[type]!!) { setValue(type); return@launch
                             }
-                            //else{ setValue(null)}
                             else {setValue("-$type")}
                         }
                     },
                     label = { Text(text = type)},
                     selected = map.value[type]!!,
-                    leadingIcon = { }
-                )
-                //if (map[type]!!)setValue(type)
-            }
-        }
-    }
-}
-
-
-@Preview
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PreviewNullableAllFilter(){
-    val map = remember { mutableStateMapOf<String,Boolean>(
-        "Не первый" to false,
-        "Не последний" to false,
-        "Только " to false,
-        "Только последний" to false,
-        "Только первый" to false
-    ) }
-
-    Column(horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.SpaceBetween) {
-        Text(text = "name", modifier = Modifier.padding(4.dp))
-        RowWrap(horizontalSpacer = 16.dp){
-            val livingTypes = map.keys.toList()
-            livingTypes.forEach { type->
-                FilterChip(
-                    modifier = Modifier.padding(0.dp),
-                    onClick = {
-                        map[type] = !map[type]!!},
-                    label = { Text(text = type)},
-                    selected = map[type]!!,
                     leadingIcon = { }
                 )
             }

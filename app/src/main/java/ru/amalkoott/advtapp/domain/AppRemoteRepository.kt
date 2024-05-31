@@ -10,20 +10,4 @@ interface AppRemoteRepository {
 
     suspend fun get(json: JsonElement): List<Advert>?
     suspend fun checkServer(): JsonObject?
-
-    // обновление заданной подборки
-   // suspend fun update(set: AdSet): Boolean
 }
-
-/*
-
-package ru.protei.malkovaar.domain
-
-interface NotesRemoteRepository {
-    suspend fun list(): List<Note>
-    suspend fun add(note: Note): Long?
-    suspend fun update(note: Note): Boolean
-    suspend fun delete(note: Note): Boolean
-}
-
- */

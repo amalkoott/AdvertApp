@@ -38,26 +38,26 @@ class AppPreferences(val context: Context){
     suspend fun setTheme(token: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[APP_THEME_KEY] = token
-            Log.d(Constants.THEME_TAG,if(preferences[APP_THEME_KEY]!!) "Light theme on" else "Dark theme on")
+            //Log.d(Constants.THEME_TAG,if(preferences[APP_THEME_KEY]!!) "Light theme on" else "Dark theme on")
         }
     }
 
     suspend fun setNotifications(token: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[APP_NOTIFICATIONS] = token
-            Log.d(Constants.THEME_TAG,if(preferences[APP_NOTIFICATIONS]!!) "Notifications on" else "Notifications off")
+            //Log.d(Constants.THEME_TAG,if(preferences[APP_NOTIFICATIONS]!!) "Notifications on" else "Notifications off")
         }
     }
     suspend fun setDailyNotifications(token: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[APP_DAILY_NOTIFICATION] = token
-            Log.d(Constants.THEME_TAG,if(preferences[APP_NOTIFICATIONS]!!) "Daily notifications on" else "Daily notifications off")
+            //Log.d(Constants.THEME_TAG,if(preferences[APP_NOTIFICATIONS]!!) "Daily notifications on" else "Daily notifications off")
         }
     }
     suspend fun setPushes(token: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[APP_PUSHES] = token
-            Log.d(Constants.THEME_TAG,if(preferences[APP_NOTIFICATIONS]!!) "PUSHES on" else "PUSHES off")
+           // Log.d(Constants.THEME_TAG,if(preferences[APP_NOTIFICATIONS]!!) "PUSHES on" else "PUSHES off")
         }
     }
 

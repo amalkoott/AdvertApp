@@ -48,7 +48,6 @@ fun PrintSettings(openBlackList:()->Unit,token: State<Boolean>){
     // какие настройки будем хранить?
     // - тема (темная/светлая)
     val context = LocalContext.current
-   // val token = AppModule.provideAppPreferences(LocalContext.current).getAccessToken.collectAsState(initial = true)
     val theme = remember { mutableStateOf(token.value) }
     val isNotifyOn = remember { mutableStateOf(true) }
     val isNotifyOnDay = remember { mutableStateOf(false) }
@@ -64,18 +63,13 @@ fun PrintSettings(openBlackList:()->Unit,token: State<Boolean>){
             Column(
                 Modifier
                     .weight(6f)
-                    .padding(end = 16.dp)) {
+                    .padding(end = 16.dp))
+            {
                 Row(
                   horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(text = "Тема")
-                    /*
-                    Text(text = if (theme.value) "Светлая" else "Темная",
-                        modifier = Modifier.padding(start = 24.dp,top = 4.dp, bottom = 4.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 14.sp)
-                    */
                 }
                 Text(text = "Установите светлую или темную тему",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -282,62 +276,4 @@ fun PrintSettings(openBlackList:()->Unit,token: State<Boolean>){
 
 
     }
-
-    // - уведомления:
-    //  - включить/отключить уведомления приложения (для конкретных подборок включение/отключение увед настраивается внутри подборки, при этом пуши сохраняются),
-    //  - уведомление в определенное время (присылать уведомления в определенное время суток для всех подборок)
-    //  - отключить пуши (уведомления не сохраняются (если оповещения включены - на устройство приходит))
-    // - черный список (просмотр и удаление из него)
 }
-
-/*
-@Composable
-private fun SettingSwitchItem(
-    modifier: Modifier = Modifier,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    @StringRes title: Int,
-    @StringRes description: Int,
-    enabled: Boolean = true,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .toggleable(
-                value = checked,
-                enabled = enabled,
-                role = Role.Switch,
-                onValueChange = onCheckedChange
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            modifier = Modifier.weight(1.0f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            val contentAlpha = if (enabled) Alpha.high else ContentAlpha.disabled
-
-            Text(
-                text = stringResource(id = title),
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                modifier = Modifier.alpha(contentAlpha)
-            )
-            Text(
-                text = stringResource(id = description),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.alpha(contentAlpha)
-            )
-        }
-
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-            enabled = enabled
-        )
-    }
-}
-
-
-*/

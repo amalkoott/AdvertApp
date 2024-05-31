@@ -53,34 +53,43 @@ fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
                     deleteFavourites: (Advert)-> Unit,
                     selectedAd: MutableState<Advert?>,
                     selectAd: (Advert)-> Unit){
-    // TODO красиво оформить список избранного
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(1),
-        modifier = Modifier
-            .padding(top = 65.dp)
-            .padding(top = 16.dp, bottom = 16.dp, end = 32.dp, start = 32.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .fillMaxHeight()
-    ) {
-        items(favs) { advert ->
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(224.dp)
-                    .padding(vertical = 12.dp)
-                    .clickable {
-                        // появляется выбранная подборка, клик - вывод списка объявлений подборки
-                        selectAd(advert)
-                    },
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 4.dp
-                ),
-            ) {
-                    Row(//Modifier.padding(start = 16.dp,bottom = 16.dp,top = 16.dp, end = 16.dp),
-                    //    verticalAlignment = Alignment.CenterVertically
+    if (favs.size == 0){
+
+        Column(Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Text(text = "В списке избранного нет объявлений",
+                color = MaterialTheme.colorScheme.outline,
+                fontSize = 16.sp)
+        }
+
+    }else {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(1),
+            modifier = Modifier
+                .padding(top = 65.dp)
+                .padding(top = 16.dp, bottom = 16.dp, end = 32.dp, start = 32.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .fillMaxHeight()
+        ) {
+            items(favs) { advert ->
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(224.dp)
+                        .padding(vertical = 12.dp)
+                        .clickable {
+                            // появляется выбранная подборка, клик - вывод списка объявлений подборки
+                            selectAd(advert)
+                        },
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 4.dp
+                    ),
+                ) {
+                    Row(
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(4f),
@@ -89,12 +98,14 @@ fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
                     )
                     {
                         Column(Modifier.weight(5f)) {
-                            Card(modifier = Modifier
-                                .fillMaxSize()
-                                .weight(5f),
-                                shape = RoundedCornerShape(topEnd = 0.dp, bottomEnd = 0.dp,),) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .weight(5f),
+                                shape = RoundedCornerShape(topEnd = 0.dp, bottomEnd = 0.dp,),
+                            ) {
                                 val images = advert.images
-                                if(images != null){
+                                if (images != null) {
                                     AsyncImage(
                                         model = ImageRequest.Builder(LocalContext.current)
                                             .data(images[0])
@@ -105,12 +116,14 @@ fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
                                     )
                                 }
                             }
-                            Column(modifier = Modifier
-                                .weight(3f)
-                                .padding(start = 16.dp, end = 16.dp)
-                                .fillMaxSize(),
+                            Column(
+                                modifier = Modifier
+                                    .weight(3f)
+                                    .padding(start = 16.dp, end = 16.dp)
+                                    .fillMaxSize(),
                                 verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start) {
+                                horizontalAlignment = Alignment.Start
+                            ) {
                                 Text(
                                     text = advert.name.toString(),
                                     fontWeight = FontWeight.Normal,
@@ -122,15 +135,12 @@ fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
                                     text = (advert.price!!).toString() + ' ' + '₽',
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 20.sp,
-                                    //modifier = Modifier.padding(top = 15.dp, bottom = 5.dp)
                                 )
                             }
                         }
                         VerticalDivider(Modifier.fillMaxHeight())
                         IconButton(
                             onClick = {
-                                //selectedAd.value = advert
-                                //selectAd(advert)
                                 deleteFavourites(advert)
                             },
                             modifier = Modifier
@@ -142,38 +152,7 @@ fun PrintFavourites(favs: List<Advert>,//SnapshotStateList<Advert>,
                                     contentDescription = "Localized description",
                                 )
                             })
-                        /*
-                        Row(
-                            Modifier
-                                .fillMaxHeight()
-                                .weight(1f)
-                                .padding(start = 16.dp),//.padding(start = 16.dp,bottom = 16.dp,top = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                            ) {
-
-                            /*
-                            OutlinedButton(onClick = { /*TODO*/ }, colors =  ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.error,
-                                //containerColor = MaterialTheme.colorScheme.primaryContainer
-                            ),
-                                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.error)
-                            ) {
-                                /*
-                                Text(text = "Удалить", fontSize = 12.sp)
-
-                                Icon(
-                                    Icons.Filled.Favorite,
-                                    contentDescription = "Localized description",
-                                )
-
-                                 */
-                            }
-                            */
-
-
-                        }
-*/
+                    }
                 }
             }
         }

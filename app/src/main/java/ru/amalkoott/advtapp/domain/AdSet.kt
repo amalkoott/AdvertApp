@@ -20,7 +20,6 @@ class AdSet(
     var adverts: List<Advert>? = null,
     var update_interval: Int? = null,
     var caption: String? = "empty_caption",
-    var category: SetCategory? = null,
     var last_update: LocalDate? = null
 ) {
     fun getSearchParameters(): RealEstateSearchParameters{
@@ -38,7 +37,7 @@ class AdSet(
             // TODO дописать для остальных атрибутов ...
 
         }catch (e:Exception){
-            Log.w("RemoteUpdateSetError",e.message!!)
+         //   Log.w("RemoteUpdateSetError",e.message!!)
         }
         return parameters
     }

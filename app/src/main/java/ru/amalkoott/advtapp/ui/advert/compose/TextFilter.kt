@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextFilter(value:String, name:String, placeholder:String, setValue:(String)->Unit){
     var textValue by remember { mutableStateOf(value) }
@@ -32,7 +31,6 @@ fun TextFilter(value:String, name:String, placeholder:String, setValue:(String)-
             onValueChange = {
                 textValue = it
                 setValue(it) },
-            //label = { Text(name, color = MaterialTheme.colorScheme.onSurfaceVariant) },
             placeholder = { Text(
                 text = placeholder,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -44,45 +42,6 @@ fun TextFilter(value:String, name:String, placeholder:String, setValue:(String)-
             textStyle = MaterialTheme.typography.bodyLarge
                 .copy(color = MaterialTheme.colorScheme.onSurface),
 
-        )
-    }
-
-}
-
-@Preview
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PreviewTextFilter(){
-    val value = "Санкт-Петербург"
-    val name:String = "Город"
-    val placeholder:String = "Введите название города"
-    var textValue by remember { mutableStateOf(value) }
-    Column {
-        Text(text = name)
-        TextField(
-            value = textValue,
-            onValueChange = {
-                textValue = it},
-            label = { Text(name,
-                color = MaterialTheme.colorScheme.onSurfaceVariant) },
-            placeholder = { Text(
-                text = placeholder,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.surface
-            ),
-            textStyle = MaterialTheme.typography.bodyLarge
-                .copy(color = MaterialTheme.colorScheme.onSurface),
-            modifier = Modifier
-                .padding(
-                    16.dp
-                    //start = 16.dp,
-                    // end = 16.dp,
-                    //bottom = 24.dp,
-                )
-                .fillMaxWidth()
         )
     }
 

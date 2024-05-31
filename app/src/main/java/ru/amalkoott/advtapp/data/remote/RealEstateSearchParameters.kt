@@ -3,7 +3,6 @@ package ru.amalkoott.advtapp.data.remote
 data class RealEstateSearchParameters (
     var city:String? = null,
     var category: String? = null,
-    //var dealType: Boolean? = null,
     var dealType: String? = null,
     var livingType: String? = null,
 
@@ -52,11 +51,9 @@ data class RealEstateSearchParameters (
     }
     fun setFinishValue(value: String){
         finish = finish.setValue(value)
-        //if(value[0] == '-') repair = repair?.replace(value.drop(1),"") else repair += "$value "
     }
     fun setRepairValue(value: String){
     repair = repair.setValue(value)
-    //if(value[0] == '-') repair = repair?.replace(value.drop(1),"") else repair += "$value "
     }
     fun setWallValue(value: String){
        wallMaterial = wallMaterial.setValue(value)
@@ -64,35 +61,23 @@ data class RealEstateSearchParameters (
     }
     fun setParkingValue(value: String){
     parking = parking.setValue(value)
-    //if(value[0] == '-') parking = parking?.replace(value.drop(1),"") else parking += "$value "
     }
     fun setViewValue(value: String){
     view = view.setValue(value)
-    // if(value[0] == '-') view = view?.replace(value.drop(1),"") else view += "$value "
     }
     fun setAmenitiesValue(value: String){
     amenities = amenities.setValue(value)
-    //if(value[0] == '-') amenities = amenities?.replace(value.drop(1),"") else amenities += "$value "
     }
     fun setCommunicationValue(value: String){
     communication = communication.setValue(value)
-    //if(value[0] == '-') communication = communication?.replace(value.drop(1),"") else communication += "$value "
     }
     fun setRentFeatureValue(value: String){
         rentFeature = rentFeature.setValue(value)
-        //if(value[0] == '-') rentFeature = rentFeature?.replace(value.drop(1),"") else rentFeature += "$value "
     }
     fun setFloorTypeValue(value: String){
         if (value == "Только последний") floorType = value
         else floorType = floorType.setValue(value)
-        //if(value[0] == '-') rentFeature = rentFeature?.replace(value.drop(1),"") else rentFeature += "$value "
     }
-    /*
-    fun setRoomCunt(value: String){
-        room = room.setValue(value)
-        //if(value[0] == '-') rentFeature = rentFeature?.replace(value.drop(1),"") else rentFeature += "$value "
-    }
-    */
     private fun String?.setValue(word: String): String? {
         return if (word[0] == '-') this!!.replace(word.drop(1), "") else "$this$word "
     }
@@ -162,18 +147,3 @@ fun isNotEmpty():Boolean{
 
     }
 }
-/*
-
-data class GitHubIssue(
-    val number: Long?,
-    val title: String,
-    val body: String,
-    val state: String?
-) {
-    constructor(number: Long?,
-                title: String,
-                body: String):
-            this(number,title,body,null)
-}
-
- */

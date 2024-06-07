@@ -2,6 +2,7 @@ package ru.amalkoott.advtapp.ui.advert.view
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -354,7 +355,15 @@ class AppViewModel @Inject constructor (
         searching.value!!.setRepairValue(value!!)
     }
     fun setFinish(value: String?){ // null many
-        searching.value!!.setFinishValue(value!!)
+        if (value == "Нет"){
+            parameters["realEstate"]!!["finish"]!!.keys.forEach{ parameters["realEstate"]!!["finish"]!![it] = false }
+            parameters["realEstate"]!!["finish"]!![value] = true
+
+            searching.value!!.setFinishValue(value)
+        }else {
+            parameters["realEstate"]!!["finish"]!!["Нет"] = false
+            searching.value!!.setFinishValue(value!!)
+        }
     }
     fun setTravelTime(value: String?){ // not null one
         searching.value!!.travelTime = value?.toByte()
@@ -396,10 +405,38 @@ class AppViewModel @Inject constructor (
         }
 
     }
+
+    var roomsText = mutableStateOf("Неважно")
     fun setRoom(value: String?){ // int
-        //searching.value!!.setRoomCount(value)
-        searching.value!!.setRoomValue(value!!)
-        //if(result == null) searching.value!!.room = null else searching.value!!.room = result.toUByte()
+        if (value == "Неважно"){
+            roomsText.value = value
+            //roomsText.value = roomsText.value.setValue(value)
+            parameters["realEstate"]!!["room"]!!.keys.forEach{ parameters["realEstate"]!!["room"]!![it] = false }
+            parameters["realEstate"]!!["room"]!![value] = true
+
+            searching.value!!.setRoomValue("null")
+        }else{
+            parameters["realEstate"]!!["room"]!!["Неважно"] = false
+            roomsText.value = roomsText.value.setValue(value!!)
+            searching.value!!.setRoomValue(value)
+        }
+    }
+    private fun String?.setValue(word: String): String {
+        var room = "Комнаты:${this!!.replace("Студия","")}"
+        return if (word[0] == '-')
+        {
+            val res = this!!.replace(word.drop(1), "")
+            if (res.replace(" ","") == "") "Не указано" else res
+        }
+        else{
+            if (word.length <= 2) {
+                room = "$room, $word"
+// todo формировать алгоритм комнат
+            }
+            if(this.toString().contains(Regex("Неважно"))) "${this.toString().replace("Неважно","")}$word, "
+            else  "$this$word, "
+        }
+
     }
     fun setCRoom(value: String?){ // int
         searching.value!!.setRoomValue(value!!)
@@ -615,6 +652,7 @@ class AppViewModel @Inject constructor (
         }
         this["realEstate"]!!["livingType"]!![type!!] = true
     }
+
     // todo обнулять параметры на false после отмены searching
     var parameters = mapOf(
         "realEstate" to mapOf(
@@ -640,7 +678,8 @@ class AppViewModel @Inject constructor (
               //  "Свободная планировка" to false, // todo добавить даты
             ), // todo разобраться с комнатами и лифт тоже через set
             "room" to mutableStateMapOf(
-               // "Студия" to false,
+                "Неважно" to true,
+                "Студия" to false,
                 "1" to false,
                 "2" to false,
                 "3" to false,

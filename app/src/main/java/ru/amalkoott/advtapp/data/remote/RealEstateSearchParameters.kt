@@ -45,19 +45,18 @@ data class RealEstateSearchParameters (
 
     }
     fun setRoomValue(value: String){
-        room = room.setValue(value)
-        //if(value[0] == '-') repair = repair?.replace(value.drop(1),"") else repair += "$value "
-        // todo удалять null
+        room = if(value == "null" || value == "-Неважно") null
+        else room.setValue(value)
     }
     fun setFinishValue(value: String){
-        finish = finish.setValue(value)
+        finish = if (value == "Нет") value else finish!!.replace("Нет","").setValue(value)
     }
     fun setRepairValue(value: String){
     repair = repair.setValue(value)
     }
     fun setWallValue(value: String){
        wallMaterial = wallMaterial.setValue(value)
-        if(value[0] == '-') wallMaterial = wallMaterial?.replace(value.drop(1),"") else wallMaterial += "$value "
+        //if(value[0] == '-') wallMaterial = wallMaterial?.replace(value.drop(1),"") else wallMaterial += "$value "
     }
     fun setParkingValue(value: String){
     parking = parking.setValue(value)
@@ -79,8 +78,18 @@ data class RealEstateSearchParameters (
         else floorType = floorType.setValue(value)
     }
     private fun String?.setValue(word: String): String? {
-        return if (word[0] == '-') this!!.replace(word.drop(1), "") else "$this$word "
+        return if (word[0] == '-')
+        {
+            val res = this!!.replace(word.drop(1), "")
+            if (res.replace(" ","") == "") "null" else res
+        }
+         else
+            if(this.toString().contains(Regex("null"))) "${this.toString().replace("null","")}$word "
+            else  "$this$word "
+
+
     }
+
 fun isNotEmpty():Boolean{
     if ((city == null)||(category == null)||(dealType == null)||(livingType == null) ||(rentType == null)||
         (priceType == null)||(minPrice == null)||(maxPrice == null)||

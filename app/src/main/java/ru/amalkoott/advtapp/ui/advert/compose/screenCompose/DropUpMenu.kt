@@ -75,6 +75,31 @@ fun DropUpMenu(items: Map<String,String>){
         ) {
 
             Column {
+
+                    Button(
+                        onClick = {
+                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://spb.cian.ru/sale/flat/299288213/"))
+                            context.startActivity(browserIntent)},
+                        btnModifier.padding(bottom = 6.dp),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 8.dp
+                        )) {
+                        Text(text = "ЦИАН")
+                    }
+
+
+                    Button(
+                        onClick = {
+                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.avito.ru/sankt-peterburg/kvartiry/1-k._kvartira_31_m_14_et._3923473055"))
+                            context.startActivity(browserIntent)},
+                        btnModifier.padding(bottom = 6.dp),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 8.dp
+                        )) {
+                        Text(text = "Авито")
+                    }
+
+                /*
                 items.entries.forEach {
                     Button(
                         onClick = {
@@ -87,6 +112,7 @@ fun DropUpMenu(items: Map<String,String>){
                         Text(text = it.key)
                     }
                 }
+                */
             }
         }
     }

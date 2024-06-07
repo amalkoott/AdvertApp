@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ru.amalkoott.advtapp.ui.advert.compose.BinaryFilter
 import ru.amalkoott.advtapp.ui.advert.compose.DatePickerFilter
+import ru.amalkoott.advtapp.ui.advert.compose.DropdownAllFilter
 import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
 import ru.amalkoott.advtapp.ui.advert.compose.NonnullableFilter
 import ru.amalkoott.advtapp.ui.advert.compose.NullableAllFilter
@@ -33,7 +34,8 @@ fun RealEstateFilter(funs: Map<String, (String?) -> Unit>,
                      flatType: MutableState<String>,
                      city: MutableState<String>,
                      travel:MutableState<String?>,
-                     parameters:Map<String, SnapshotStateMap<String, Boolean>>
+                     parameters:Map<String, SnapshotStateMap<String, Boolean>>,
+                     roomsText:MutableState<String>
                      ) {
 // Недвижка
     /// *** основные фильтры ***
@@ -46,10 +48,10 @@ fun RealEstateFilter(funs: Map<String, (String?) -> Unit>,
     if (!dealType.value){
         // купить: цена за все\кв.м
         SaleFilters(funs["price"]!!)
-        GeneralRealEstateFilters(dealType,flatType,travel,funs, parameters)//,isShowMore)
+        GeneralRealEstateFilters(dealType,flatType,travel,funs, parameters, roomsText)//,isShowMore)
     }else{
         // снять: особенности аренды и доп услуги
-        GeneralRealEstateFilters(dealType,flatType,travel,funs, parameters)//, isShowMore)
+        GeneralRealEstateFilters(dealType,flatType,travel,funs, parameters, roomsText)//, isShowMore)
     }
 
 }
@@ -61,6 +63,7 @@ fun GeneralRealEstateFilters(
     travel: MutableState<String?>,
     funs: Map<String, (String?) -> Unit>,
     parameters: Map<String, SnapshotStateMap<String, Boolean>>,
+    roomsText: MutableState<String>
 ){
     val isShowMore = remember { mutableStateOf(false) }
     var toiletSet = parameters["toilet"]!!
@@ -74,8 +77,9 @@ fun GeneralRealEstateFilters(
     when(flatType.value){
         "Вторичка" -> {
             // количество комнат
-            DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в квартире", setCategory = funs["room"]!!)
+            //DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в квартире", setCategory = funs["room"]!!)
 
+            DropdownAllFilter(items = roomSet, name = "Комнат в квартире", setCategory = funs["room"]!!, text = roomsText)
             FlatFilters(
                 funs["minFloor"]!!,
                 funs["maxFloor"]!!,

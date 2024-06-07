@@ -70,6 +70,7 @@ fun AddSet(
     travel:MutableState<String?>,
     parameters: Map<String, Map<String, SnapshotStateMap<String, Boolean>>>,
     setContext: (Context) -> Unit,
+    roomsText:MutableState<String>
 ){
     /*
     todo beauty drop down https://stackoverflow.com/questions/67111020/exposed-drop-down-menu-for-jetpack-compose
@@ -89,7 +90,7 @@ fun AddSet(
 
             // если новая подборка, рисуем фильтры
             if (selected.value!!.adverts!!.isEmpty()){
-                PrintFilters(search,filterFunctions,createSearching,category,dealType,flatType,city,travel, parameters)
+                PrintFilters(search,filterFunctions,createSearching,category,dealType,flatType,city,travel, parameters, roomsText)
             }else{
                 SetInfo(ads,selectAd, removeAd,addFavourites, setContext)
             }
@@ -127,7 +128,8 @@ fun PrintFilters(search: MutableState<RealEstateSearchParameters?>,
                  flatType: MutableState<String>,
                  city: MutableState<String>,
                  travel: MutableState<String?>,
-                 parameters: Map<String, Map<String, SnapshotStateMap<String, Boolean>>>
+                 parameters: Map<String, Map<String, SnapshotStateMap<String, Boolean>>>,
+                 roomsText: MutableState<String>
                  ){
     createSearching()
     val category by remember { mutableStateOf(ctgry) }
@@ -165,7 +167,7 @@ fun PrintFilters(search: MutableState<RealEstateSearchParameters?>,
 
                     when(category.value){
                         "Недвижимость" -> {
-                            RealEstateFilter(realEstateFunctions,dealType,flatType,city,travel, parameters["realEstate"]!!)
+                            RealEstateFilter(realEstateFunctions,dealType,flatType,city,travel, parameters["realEstate"]!!,  roomsText)
                         }
                         "Транспорт" -> TransportFilter()
                         "Услуги"-> ServiceFilter()

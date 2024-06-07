@@ -84,6 +84,8 @@ import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.BlackList
 import ru.amalkoott.advtapp.domain.Constants
 import ru.amalkoott.advtapp.domain.getFromUrl
+import ru.amalkoott.advtapp.domain.notification.sendBadNotification
+import ru.amalkoott.advtapp.domain.notification.sendGeoNotification
 import ru.amalkoott.advtapp.domain.notification.sendNotification
 import ru.amalkoott.advtapp.domain.preferenceTools.AppPreferences
 import ru.amalkoott.advtapp.ui.advert.compose.DropMenu
@@ -104,6 +106,9 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
     val blackList by vm.blackLists.collectAsState()
     //...
 
+    val roomsText by remember {
+        mutableStateOf(vm.roomsText)
+    }
     val search by remember { mutableStateOf(vm.searching) }
     val createSearching:() -> Unit = { vm.createSearching() }
 
@@ -304,7 +309,7 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
                 } else {
                     // создаем новую подборку
                     val ads = vm.adsMap[selected.value!!.id]
-                    AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category,dealType,flatType,city,travel, filterParameters, setContext)//vm.temp_ads)//, getAdverts)
+                    AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category,dealType,flatType,city,travel, filterParameters, setContext, roomsText)//vm.temp_ads)//, getAdverts)
                 }
             } 
         }
@@ -340,6 +345,24 @@ fun PrintSet(sets: List<AdSet>,
                 .background(MaterialTheme.colorScheme.background)
                 .padding(top = 64.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
         ){
+            item(){
+
+                Button(onClick = { sendNotification(context,"Найдены новые объявления!","Подборка Sale flat обновилась! Нажмите, чтобы посмотреть...") }) {
+
+                }
+            }
+            item(){
+
+                Button(onClick = { sendBadNotification(context) }) {
+
+                }
+            }
+            item(){
+
+                Button(onClick = { sendGeoNotification(context) }) {
+
+                }
+            }
             items(sets){
                     set ->
                 Card(

@@ -1,6 +1,8 @@
 package ru.amalkoott.advtapp.ui.advert.screen
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -42,6 +44,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -85,12 +88,30 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
             .background(color = MaterialTheme.colorScheme.background),) {
         val images = selectedAd.value!!.images
         if(images != null) {
+
+
+            val testImg = arrayOf("https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903923-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903930-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903833-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903919-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903832-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903926-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903927-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903823-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903827-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903837-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903839-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903918-1.jpg",
+            "https://images.cdn-cian.ru/images/kvartira-sanktpeterburg-karavaevskaya-ulica-2114903920-1.jpg",)
+
+
+
         AutoSlidingCarousel(
-            itemsCount = images.size,
+            itemsCount = testImg.size,//images.size,
             itemContent = { index ->
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(images[index])
+                        .data(testImg[index])
                         .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
@@ -100,11 +121,15 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
         )
         }
         Column(Modifier.padding(horizontal = 32.dp, vertical = 0.dp),) {
-            Text(text = (selectedAd.value!!.price!!).toString()  + ' ' + '₽',
+            Text(text = "4400000"/*(selectedAd.value!!.price!!).toString()*/  + ' ' + '₽',
                 Modifier.padding(top = 32.dp),
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,)
+            Text(
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                text = "Ипотека",
+                fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
 
             Row(modifier = Modifier.padding(top = 24.dp, bottom = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(
@@ -115,14 +140,15 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
 
                 // местоположение (адрес)
                 Text(modifier = Modifier.padding(start = 5.dp),
-                    text = selectedAd.value!!.address.toString(),//"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
+                    text = "Санкт-Петербург, р-н Невский, Рыбацкое, Караваевская ул., 35",/*selectedAd.value!!.address.toString(),*///"Звенигородский пр-кт, д 17/1, Санкт-Петербург",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onSurface)
             }
             Column(Modifier.padding(bottom = 16.dp)) {
-                if (selectedAd.value!!.location != null){
-                    val subways = selectedAd.value!!.location?.split("; ")
+                val testSub = "Рыбацкое 10 мин. пешком; Обухово 7 мин. транспортом; Пролетарская 8 мин. транспортом;"
+                if (testSub/*selectedAd.value!!.location*/ != null){
+                    val subways = testSub/*selectedAd.value!!.location?*/.split("; ")
                     subways?.forEach{
                         if(it == "") return@forEach
                         val words = it.split(' ')
@@ -152,14 +178,14 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
                     text = "Описание",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,)
-
+                val testDes = "Продается квартира недалеко от метро Рыбацкое. Квартира теплая, требует ремонта. Парадная  чистая, после ремонта. Хороший зеленый двор с детской площадкой. Район города зеленый, тихий, с хорошей инфраструктурой. Рядом КАД. Один собственник, никто не прописан. Звоните, покажем в удобное для вас время."
                 Text(
-                    text = selectedAd.value!!.description.toString().replace("n","\n"),
+                    text = testDes/*selectedAd.value!!.description.toString()*/.replace("n","\n"),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,)
             }
-            /*
+
             Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
                 Text(
                     modifier = Modifier.padding( bottom = 8.dp),
@@ -169,14 +195,26 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
 
                 Row() {
                     Column() {
-                        Text(text = "параметр 1")
-                        Text(text = "параметр 2")
-                        Text(text = "параметр 3")
+                        Text(text = "Недвижимость", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Этаж", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Общая площадь", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Жилая площадь", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Площадь кухни", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Высота потолков", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Санузел", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Вид из окон", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Ремонт", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
                     }
-                    Column(){
-                        Text(text = "значение 1")
-                        Text(text = "значение 2")
-                        Text(text = "значение 3")
+                    Column(Modifier.padding(start = 4.dp)){
+                        Text(text = "Вторичка", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "1", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "31", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "17", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "5,5", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "2,5", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Совмещенный", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Во двор", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Косметический", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
                     }
                 }
             }
@@ -190,18 +228,105 @@ fun PrintAdvert(selectedAd: MutableState<Advert?>){
                 Row(Modifier
                     .padding(bottom = 60.dp)) {
                     Column() {
-                        Text(text = "параметр 1")
-                        Text(text = "параметр 2")
-                        Text(text = "параметр 3")
+                        Text(text = "Год постройки", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Стены", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Перекрытия", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Этажность", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Парковка", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Подъезды", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Лифт", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Отопление", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Аварийность", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Газоснабжение", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+
                     }
-                    Column(){
-                        Text(text = "значение 1")
-                        Text(text = "значение 2")
-                        Text(text = "значение 3")
+                    Column(Modifier.padding(start = 4.dp)){
+                        Text(text = "1961", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Кирпичные", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Железобетонные", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "4", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Наземная", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "3", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "-", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Центральное", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "-", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Центральное", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
                     }
                 }
             }
-            */
+            Column(modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) {
+                Text(
+                    modifier = Modifier.padding( bottom = 8.dp),text = "Продавец",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold,)
+
+                val context = LocalContext.current
+                Row(Modifier
+                    .padding(bottom = 60.dp)) {
+                    Column() {
+                        Text(text = "Агенство", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Риэлтор", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Телефон", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+
+                        Text(text = "Документы", modifier = Modifier.padding(top = (1*14).dp, bottom = 85.dp),fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Профиль", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+
+                    }
+                    Column(Modifier.padding(start = 4.dp)){
+                        Text(text = "ИТЕРА", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "Лариса Новикова", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                        Text(text = "+79219561384", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+
+                        Column(Modifier.padding(start = 4.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "ЦИАН", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                                TextButton(onClick = {
+
+                                }) {
+                                    Text(text = "(паспорт не верифицирован)", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.error,)
+                                }
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "Авито", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+
+                                TextButton(onClick = {
+                                }) {
+                                    Text(text = "Подтвержден телефон", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.secondary,)
+                                }
+                            }
+
+                        }
+
+                        Column(Modifier.padding(start = 4.dp)) {
+
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(text = "ЦИАН", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                                    TextButton(onClick = {
+
+                                    }) {
+                                        Text(text = "(скрыт)", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.secondary,)
+                                    }
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(text = "Авито", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant,)
+                                    TextButton(onClick = {
+                                        val ur = "https://www.avito.ru/brands/i116715797/all/nedvizhimost?page_from=from_item_card_icon&iid=3923473055&sellerId=31f2f79719311e57f92be9cf9931f4f8"
+
+                                        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(ur))
+                                        context.startActivity(browserIntent)
+                                    }) {
+                                        Text(text = "ПРОФИЛЬ", fontSize = 16.sp, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.tertiary,)
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+            }
+
         }
 
     }

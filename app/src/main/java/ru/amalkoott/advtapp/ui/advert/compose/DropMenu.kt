@@ -170,7 +170,7 @@ fun DropMenu(onDeleteAd: ()-> Unit){
             onClick = {
                 coroutineScope.launch {
                     // Здесь можно выполнить асинхронную операцию, например, вызов удаления
-                    Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Объявление удалено!", Toast.LENGTH_SHORT).show()
                     onDeleteAd()
                 }
             }

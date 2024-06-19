@@ -73,9 +73,8 @@ fun DropUpMenu(items: Map<String,String>){
                 //.padding(bottom = 40.dp)
                 .offset(y = offsetAnimation)
         ) {
-
             Column {
-
+                /*
                     Button(
                         onClick = {
                             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://spb.cian.ru/sale/flat/299288213/"))
@@ -99,7 +98,7 @@ fun DropUpMenu(items: Map<String,String>){
                         Text(text = "Авито")
                     }
 
-                /*
+                */
                 items.entries.forEach {
                     Button(
                         onClick = {
@@ -112,7 +111,7 @@ fun DropUpMenu(items: Map<String,String>){
                         Text(text = it.key)
                     }
                 }
-                */
+
             }
         }
     }

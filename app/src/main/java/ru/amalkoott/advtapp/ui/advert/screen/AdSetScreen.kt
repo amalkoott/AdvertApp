@@ -345,6 +345,7 @@ fun PrintSet(sets: List<AdSet>,
                 .background(MaterialTheme.colorScheme.background)
                 .padding(top = 64.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
         ){
+            /*
             item(){
 
                 Button(onClick = { sendNotification(context,"Найдены новые объявления!","Подборка Sale flat обновилась! Нажмите, чтобы посмотреть...") }) {
@@ -363,6 +364,7 @@ fun PrintSet(sets: List<AdSet>,
 
                 }
             }
+            */
             items(sets){
                     set ->
                 Card(

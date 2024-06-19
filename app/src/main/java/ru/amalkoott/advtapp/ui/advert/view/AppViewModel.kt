@@ -117,6 +117,7 @@ class AppViewModel @Inject constructor (
            // Log.d("VM searching", "riched...")
         }
 
+        setScreenState("main")
         screen_name.value = "Подборки"
         selectedSet.value = null
         edited_set = null
@@ -131,6 +132,7 @@ class AppViewModel @Inject constructor (
             appUseCase.removeSet(selectedSet.value!!)
         }
 
+        setScreenState("main")
         screen_name.value = "Подборки"
         selectedSet.value = null
         edited_set = null

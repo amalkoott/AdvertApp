@@ -21,6 +21,7 @@ import ru.amalkoott.advtapp.domain.AppRepository
 import ru.amalkoott.advtapp.domain.AppUseCase
 import ru.amalkoott.advtapp.domain.preferenceTools.AppPreferences
 import ru.amalkoott.advtapp.domain.worker.StartWorker
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -39,6 +40,8 @@ object AppModule {
                     .build()
                 chain.proceed(request)
             }
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
             .build()
     }
 
@@ -47,8 +50,8 @@ object AppModule {
     fun provideInternetConnection(httpClient: OkHttpClient): Retrofit{
         return Retrofit.Builder()
             //.baseUrl("http://192.168.56.1:8080")
-            .baseUrl("http://10.0.2.2:8080")
-           // .baseUrl("http://185.178.47.135:3000")
+           // .baseUrl("http://10.0.2.2:8080")
+            .baseUrl("http://185.178.47.135:8080")
             .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

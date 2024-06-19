@@ -47,8 +47,11 @@ class AppRepositoryDB @Inject constructor(
     override suspend fun addSet(set: AdSet): Long = withContext(Dispatchers.IO){
         val id = async { appDao.insertSet(set) }
         for (ad in set.adverts!!){
-            ad.adSetId = id.await()
-            appDao.insertAd(ad)
+            if(ad != null){
+                ad.adSetId = id.await()
+                appDao.insertAd(ad)
+            }
+
         }
         set.id = id.await()
         appDao.updateSet(set)

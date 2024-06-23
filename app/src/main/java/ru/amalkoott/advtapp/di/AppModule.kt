@@ -61,6 +61,7 @@ object AppModule {
     fun provideServerApi(retrofit: Retrofit): ServerRequestsRepository{
         return ServerRequestsRepository(retrofit.create(ServerAPI::class.java))
     }
+
     @Singleton
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase{

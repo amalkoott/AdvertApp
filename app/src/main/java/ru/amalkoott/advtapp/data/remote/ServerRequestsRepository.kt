@@ -1,5 +1,6 @@
 package ru.amalkoott.advtapp.data.remote
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -9,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.amalkoott.advtapp.domain.Advert
 import ru.amalkoott.advtapp.domain.AppRemoteRepository
+import ru.amalkoott.advtapp.domain.notification.sendNotification
 import javax.inject.Inject
 
 class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):AppRemoteRepository {
@@ -44,7 +46,9 @@ class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):App
             }
             if(e.message?.contains("failed to connect") == true){
                 //Log.w("ServerRequestRepository","FAILED TO CONNECT")
+
                 return@withContext emptyList()
+
             }
             //Log.w("ServerRequestRepository","UNDEFINED ERROR")
 

@@ -13,6 +13,6 @@ AdSpider
 - Черные списки (индивидуальные для каждой подборки)
 - Уведомления о новых подборках (как реакция на результат автопоиска)
   
-  Стек: Kotlin, Jetpack Compose, MVVM, Room, Retrofit2, Hilt, Coil Compose + Accompanist(изображения), Gradle
+Стек: Kotlin, Jetpack Compose, MVVM, Room, Retrofit2, Hilt, Coil Compose + Accompanist(изображения), Gradle
 
 Сервер - парсит и агрегирует объявления, отправляет результат на клиента в виде JsonArray. На текущий момент остановлен. Подробнее https://github.com/amalkoott/AdvertServer

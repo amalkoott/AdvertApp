@@ -59,7 +59,6 @@ fun PrintSettings(openBlackList:()->Unit,token: State<Boolean>){
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween)
         {
-
             Column(
                 Modifier
                     .weight(6f)
@@ -174,8 +173,8 @@ fun PrintSettings(openBlackList:()->Unit,token: State<Boolean>){
                     Text(text = "Уведомления в интервале", modifier = Modifier.padding(end = 16.dp,top = 4.dp, bottom = 4.dp))
                     if (isNotifyOnDay.value){
                         Row {
-                            Text(text = "oje")
-                            Text(text = "jfiw")
+                            // todo
+                            Text(text = "interval")
                         }
                     }
                     Text(text = "Уведомления будут приходить только в указанное время суток",
@@ -260,7 +259,6 @@ fun PrintSettings(openBlackList:()->Unit,token: State<Boolean>){
             }
 
         }
-
 
         Column(
             Modifier

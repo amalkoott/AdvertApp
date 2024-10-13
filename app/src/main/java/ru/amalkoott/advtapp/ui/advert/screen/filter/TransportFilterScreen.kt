@@ -1,6 +1,5 @@
-package ru.amalkoott.advtapp.ui.advert.screen.filterScreen
+package ru.amalkoott.advtapp.ui.advert.screen.filter
 
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext

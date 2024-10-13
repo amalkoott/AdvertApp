@@ -28,7 +28,7 @@ data class RealEstateSearchParameters (
     var cell: String? = null,
     var apart: Boolean? = null,
     var roomType:Boolean? = null,
-    var room:String? = null, // todo поменять на string
+    var room:String? = null,
     var toiletType:Boolean? = null,
     var wallMaterial:String? = null,
     var balconyType:Boolean? = null,
@@ -56,7 +56,6 @@ data class RealEstateSearchParameters (
     }
     fun setWallValue(value: String){
        wallMaterial = wallMaterial.setValue(value)
-        //if(value[0] == '-') wallMaterial = wallMaterial?.replace(value.drop(1),"") else wallMaterial += "$value "
     }
     fun setParkingValue(value: String){
     parking = parking.setValue(value)

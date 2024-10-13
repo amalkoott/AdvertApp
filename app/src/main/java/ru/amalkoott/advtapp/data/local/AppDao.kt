@@ -7,12 +7,10 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.AdSetWithAdverts
-import ru.amalkoott.advtapp.domain.Advert
-import ru.amalkoott.advtapp.domain.BlackList
-//import ru.amalkoott.advtapp.domain.BlackListWithAdverts
-//import ru.amalkoott.advtapp.domain.SetAndBlackList
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.AdSetWithAdverts
+import ru.amalkoott.advtapp.domain.entities.Advert
+import ru.amalkoott.advtapp.domain.entities.BlackList
 
 @Dao
 interface AppDao {

@@ -1,6 +1,6 @@
-package ru.amalkoott.advtapp.ui.advert.compose
+package ru.amalkoott.advtapp.ui.advert.compose.elements
 
-import android.widget.Toast
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,14 +11,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -26,14 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Unit) {
@@ -94,6 +87,7 @@ fun DropdownFilter(items:Array<String>, name:String, setCategory:(String) -> Uni
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownAllFilter(items:MutableMap<String,Boolean>, name:String, setCategory:(String) -> Unit, text: MutableState<String>) {
@@ -150,22 +144,6 @@ fun DropdownAllFilter(items:MutableMap<String,Boolean>, name:String, setCategory
                                 }
                             },
                         )
-                        /*
-                        FilterChip(
-                            modifier = Modifier.padding(2.dp),
-                            onClick = {
-                                scope.launch{
-                                    items[type] = !items[type]!!
-                                    if (items[type]!!) { setCategory(type); return@launch }
-                                    else {setCategory("-$type")}
-                                }
-                            },
-                            label = { Text(text = type)},
-                            selected = items[type]!!,
-                            leadingIcon = { }
-                        )
-                        */
-                        //if (items[type]!!) setCategory(type)//selected = type
                     }
                 }
             }

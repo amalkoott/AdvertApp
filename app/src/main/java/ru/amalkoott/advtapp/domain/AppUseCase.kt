@@ -2,13 +2,14 @@ package ru.amalkoott.advtapp.domain
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
-import androidx.compose.runtime.rememberCoroutineScope
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.AdSetWithAdverts
+import ru.amalkoott.advtapp.domain.entities.Advert
+import ru.amalkoott.advtapp.domain.entities.BlackList
 import ru.amalkoott.advtapp.domain.worker.StartWorker
 import javax.inject.Inject
 
@@ -19,10 +20,8 @@ class AppUseCase @Inject constructor(
 ) {
 
     suspend fun fillWithInitialSets(initialSets: List<AdSet>){
-        // должен очистить содержимое базы
         appRepo.clearDatabase()
         workManager.clearAllWork()
-        // затем добавить в базу переданный список заметок
         appRepo.fillDatabase(initialSets)
     }
     fun setsFlow(): Flow<List<AdSet>> {//Flow<List<AdSet>> {
@@ -31,7 +30,6 @@ class AppUseCase @Inject constructor(
     fun favouritesFlow(): Flow<List<Advert>>{
         return appRepo.loadFavourites()
     }
-
     fun blackListFlow(): Flow<List<BlackList>>{
         return appRepo.getBlackList()
     }
@@ -58,11 +56,7 @@ class AppUseCase @Inject constructor(
     workManager.removeUpdatingSet(adSet)
     workManager.updateSet(context, adSet, adSet.getSearchParameters(), false)
     }
-    suspend fun test(){
-        val sets = appRepo.loadAllSets()
 
-       // Log.d("SETS_COUNT_IN_APP","${sets.count()}")
-    }
     @SuppressLint("RestrictedApi")
     suspend fun saveSet(set: AdSet, search: RealEstateSearchParameters?, context: Context):Long?{
         if (set.id == null){
@@ -146,7 +140,6 @@ class AppUseCase @Inject constructor(
         appRepo.addAdv(newAd)
         // удаляем из ЧС
         appRepo.removeFromBlackList(ad.id!!)
-        //Log.d("USE_CASE","$ad was removed from black list and insert to set")
     }
 
     suspend fun getSetsWithAd(id: Long): List<AdSetWithAdverts>{

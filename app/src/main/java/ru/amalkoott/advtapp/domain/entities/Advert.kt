@@ -1,17 +1,9 @@
-package ru.amalkoott.advtapp.domain
+package ru.amalkoott.advtapp.domain.entities
 
-import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-//import com.bumptech.glide.Glide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import ru.amalkoott.advtapp.App
-import java.io.FileOutputStream
-import java.net.URL
-import java.time.LocalDate
 
 // класс объявления - хранит инфу по конкретному объявлению
 // карточка объявления - будет отдельный класс с зависимостью от Advrt
@@ -63,7 +55,7 @@ class Advert (
             else return null
         }
 
-    suspend fun saveImages() {
-        val scope = CoroutineScope(Dispatchers.IO)
+    fun saveImages() {
+        CoroutineScope(Dispatchers.IO)
     }
 }

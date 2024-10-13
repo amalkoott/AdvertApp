@@ -1,6 +1,5 @@
 package ru.amalkoott.advtapp.data.remote
 
-import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -8,9 +7,8 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.domain.entities.Advert
 import ru.amalkoott.advtapp.domain.AppRemoteRepository
-import ru.amalkoott.advtapp.domain.notification.sendNotification
 import javax.inject.Inject
 
 class ServerRequestsRepository @Inject constructor(val serverApi: ServerAPI):AppRemoteRepository {

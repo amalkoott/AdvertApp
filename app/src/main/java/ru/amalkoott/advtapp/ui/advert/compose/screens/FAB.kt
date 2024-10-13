@@ -1,4 +1,4 @@
-package ru.amalkoott.advtapp.ui.advert.compose.screenCompose
+package ru.amalkoott.advtapp.ui.advert.compose.screens
 
 import android.content.Context
 import androidx.compose.foundation.shape.CornerSize
@@ -12,13 +12,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.unit.dp
-import ru.amalkoott.advtapp.domain.AdSet
+import ru.amalkoott.advtapp.domain.entities.AdSet
 
 @Composable
 fun DrawFAB(
     selected: MutableState<AdSet?>,
     context: Context,
-            setContextValue:(Context)-> Unit,
+    setContextValue:(Context)-> Unit,
     onEditComplete:() -> Unit,
     onAddSetClicked:() -> Unit
     ){

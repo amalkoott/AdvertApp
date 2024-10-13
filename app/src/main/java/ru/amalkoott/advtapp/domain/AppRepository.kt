@@ -1,6 +1,10 @@
 package ru.amalkoott.advtapp.domain
 
 import kotlinx.coroutines.flow.Flow
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.AdSetWithAdverts
+import ru.amalkoott.advtapp.domain.entities.Advert
+import ru.amalkoott.advtapp.domain.entities.BlackList
 
 interface AppRepository {
     suspend fun loadAllSets(): List<AdSet>
@@ -23,7 +27,7 @@ interface AppRepository {
     fun getAdvertsCount(id: Long): Flow<Int>
     fun getBlackList(id: Long): Flow<List<BlackList>>
     fun getBlackList(): Flow<List<BlackList>>
-    suspend fun getSet(id: Long):AdSet
+    suspend fun getSet(id: Long): AdSet
     suspend fun removeAdsBySet(id: Long)
     suspend fun removeBlackListFor(id: Long)
     suspend fun removeFromBlackList(id: Long)

@@ -2,30 +2,22 @@ package ru.amalkoott.advtapp.ui.advert.view
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
-import ru.amalkoott.advtapp.di.AppModule
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.Advert
 import ru.amalkoott.advtapp.domain.AppUseCase
-import ru.amalkoott.advtapp.domain.BlackList
-import ru.amalkoott.advtapp.domain.Constants
+import ru.amalkoott.advtapp.domain.entities.BlackList
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -35,14 +27,34 @@ class AppViewModel @Inject constructor (
 ): ViewModel() {
     val sets = mutableStateListOf<AdSet>()
     val adsMap: MutableMap<Long?,MutableStateFlow<List<Advert>>> = mutableMapOf()
-    val search: MutableMap<String,String> = mutableMapOf()
     var stateFlowSets = MutableStateFlow<List<AdSet>>(emptyList())
+    val blackLists = MutableStateFlow<List<BlackList>>(emptyList())
+
+    var adSet = MutableStateFlow<List<AdSet>>(emptyList())
+    var screen_name = mutableStateOf<String>("Подборки")
+    var selectedSet = mutableStateOf<AdSet?>(null )
+    var selectedAd = mutableStateOf<Advert?>(null )
+
+    var favourites = mutableStateOf(false)
+    var settings = mutableStateOf(false)
+    var pushes = mutableStateOf(false)
+    var howItWork = mutableStateOf(false)
+    var loading = mutableStateOf(false)
+    var successfulSearch = mutableStateOf<Boolean?>(null)
+
+    var favs = mutableStateListOf<Advert>()
+    var favList = MutableStateFlow<List<Advert>>(emptyList())
+    var edited_set: AdSet? = null
+
+    var adverts = mutableStateListOf<Advert>()
+
+    lateinit var context: Context
+
     init{
         viewModelScope.launch {
-           // appUseCase.fillWithInitialSets(emptyList())
-          //  appUseCase.fillWithInitialSets(sets)
-
-            //appUseCase.loadRemoteNotes()
+            // appUseCase.fillWithInitialSets(emptyList())
+            // appUseCase.fillWithInitialSets(sets)
+            // appUseCase.loadRemoteNotes()
         }
 
         viewModelScope.launch{
@@ -63,33 +75,11 @@ class AppViewModel @Inject constructor (
 
         viewModelScope.launch{
             appUseCase.blackListFlow().collect{
-                // todo обработка дубликатов в favourites (возможно лучше просто не выдавать в этом DAO объявления с одинаковыми параметрами) ЛИБО указание в favoutires - к какой подборке принадлежит объявление ЛИБО программно собирать favourites (more optimaly)
                 blackLists.value = it
             }
         }
 
     }
-    val blackLists = MutableStateFlow<List<BlackList>>(emptyList())
-
-    var adSet = MutableStateFlow<List<AdSet>>(emptyList())
-    var screen_name = mutableStateOf<String>("Подборки")
-    var selectedSet = mutableStateOf<AdSet?>(null )
-    var selectedAd = mutableStateOf<Advert?>(null )
-
-    var favourites = mutableStateOf(false)
-    var settings = mutableStateOf(false)
-    var pushes = mutableStateOf(false)
-    var howItWork = mutableStateOf(false)
-    var loading = mutableStateOf(false)
-    var successfulSearch = mutableStateOf<Boolean?>(null)
-
-    var favs = mutableStateListOf<Advert>()
-    //var favList = mutableStateMapOf<String,Advert>()
-    var favList = MutableStateFlow<List<Advert>>(emptyList())
-    var edited_set: AdSet? = null
-
-    var adverts = mutableStateListOf<Advert>()
-    var temp_ads = MutableStateFlow<List<Advert>>(emptyList())
 
     // LOCAL DATABASE USE
     fun onUpdateSet(){
@@ -98,23 +88,18 @@ class AppViewModel @Inject constructor (
             appUseCase.updateSetByRemote(selectedSet.value!!,context)
         }
     }
-    lateinit var context: Context
+
     fun setContextValue(value: Context){
         context = value
     }
+
     fun onEditComplete(){
         val set = selectedSet.value
         if (set == null || set.name!!.isBlank()) return
-        // todo search = null: сохранение подборки ретюрнит
-        // if (searching.value == null) return
 
         viewModelScope.launch {
-
             successfulSearch.value = appUseCase.saveSet(set,searching.value,context) != null
-
-                    // cancelSearching()
             if (successfulSearch.value == true) loading.value = false
-           // Log.d("VM searching", "riched...")
         }
 
         setScreenState("main")
@@ -126,6 +111,7 @@ class AppViewModel @Inject constructor (
 
         //TODO допилить штуку, что при неудачном поиске смена экрана идет на фильтры с указанными раньше параметрами (чтобы челы заново все не вводили)
     }
+
     fun onDeleteSet(){
         sets.remove(selectedSet.value)
         viewModelScope.launch {
@@ -138,13 +124,9 @@ class AppViewModel @Inject constructor (
         edited_set = null
     }
 
-
     // для удаления объявлений из списков (когда объявление еще не выбрано)
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun getAdsCountInSet(id: Long): MutableStateFlow<Int>{
-        //var count: Int? = null
         var count = MutableStateFlow<Int>(0)
-
         viewModelScope.launch {
             appUseCase.getAdvertCount(id).collect{
                 count.value = it
@@ -155,7 +137,6 @@ class AppViewModel @Inject constructor (
 
     fun onRemoveAd(advert: Advert){
         adverts = selectedSet.value!!.adverts!!.toMutableStateList()// as SnapshotStateList<Advert>
-
         try {
             adverts.removeAt(findAdinAdverts(advert.id!!))
             favs.removeAt(findAdinFavs(advert.id!!))
@@ -164,7 +145,7 @@ class AppViewModel @Inject constructor (
                 appUseCase.deleteFavourites(advert.id!!)
             }
         }catch (e:Exception){
-        //    Log.d("RemoveFromFavs","Element not found")
+            Log.d("RemoveFromFavs","Element not found")
         }
         selectedSet.value!!.adverts = adverts
         viewModelScope.launch {
@@ -175,6 +156,7 @@ class AppViewModel @Inject constructor (
         }
         selectedAd.value = null
     }
+
     // для удаления объявления из просмотра (есть selectedAd)
     fun onRemoveAd(){
         adverts = selectedSet.value!!.adverts!!.toMutableStateList()// as SnapshotStateList<Advert>
@@ -184,8 +166,9 @@ class AppViewModel @Inject constructor (
             viewModelScope.launch {
                 appUseCase.deleteFavourites(selectedAd.value!!.id!!)
             }
-        }catch (e:Exception){ //Log.d("RemoveFromFavs","Element not found")
-            }
+        }catch (e:Exception){
+            Log.d("RemoveFromFavs","Element not found")
+        }
 
         selectedSet.value!!.adverts = adverts
         screen_name.value = selectedSet.value!!.name.toString()
@@ -197,6 +180,7 @@ class AppViewModel @Inject constructor (
         }
         selectedAd.value = null
     }
+
     private fun findAdinFavs(value: Long): Int{
         var res: Int = -1
         favs.forEach{
@@ -242,7 +226,6 @@ class AppViewModel @Inject constructor (
            // favList.remove(advert.hash!!)
         }
     }
-
     fun onRemoveFromBlackList(advert: BlackList){
         viewModelScope.launch {
             appUseCase.removeFromBlackList(advert)
@@ -259,6 +242,8 @@ class AppViewModel @Inject constructor (
     var city = mutableStateOf<String>("")
     var travel = mutableStateOf<String?>("")
     var wc = mutableStateOf<Boolean?>(false)
+    var roomsText = mutableStateOf("Неважно")
+
     fun createSearching(){
         searching.value = RealEstateSearchParameters()
     }
@@ -371,7 +356,6 @@ class AppViewModel @Inject constructor (
         searching.value!!.travelTime = value?.toByte()
     }
     fun setTravelType(value: String?){ // null bool
-        //Log.d("VMTravelType","travel type is $value")
         // если отменяем выбор типа как добраться до метро, то и время обнуляем
         if (value == null){
             searching.value!!.travelTime = null
@@ -407,12 +391,9 @@ class AppViewModel @Inject constructor (
         }
 
     }
-
-    var roomsText = mutableStateOf("Неважно")
     fun setRoom(value: String?){ // int
         if (value == "Неважно"){
             roomsText.value = value
-            //roomsText.value = roomsText.value.setValue(value)
             parameters["realEstate"]!!["room"]!!.keys.forEach{ parameters["realEstate"]!!["room"]!![it] = false }
             parameters["realEstate"]!!["room"]!![value] = true
 
@@ -422,23 +403,6 @@ class AppViewModel @Inject constructor (
             roomsText.value = roomsText.value.setValue(value!!)
             searching.value!!.setRoomValue(value)
         }
-    }
-    private fun String?.setValue(word: String): String {
-        var room = "Комнаты:${this!!.replace("Студия","")}"
-        return if (word[0] == '-')
-        {
-            val res = this!!.replace(word.drop(1), "")
-            if (res.replace(" ","") == "") "Не указано" else res
-        }
-        else{
-            if (word.length <= 2) {
-                room = "$room, $word"
-// todo формировать алгоритм комнат
-            }
-            if(this.toString().contains(Regex("Неважно"))) "${this.toString().replace("Неважно","")}$word, "
-            else  "$this$word, "
-        }
-
     }
     fun setCRoom(value: String?){ // int
         searching.value!!.setRoomValue(value!!)
@@ -480,16 +444,48 @@ class AppViewModel @Inject constructor (
     fun setRentFeatures(value: String?){ // null many
         searching.value!!.setRentFeatureValue(value!!)
     }
-    fun set(){
+
+    private fun String?.setValue(word: String): String {
+        var room = "Комнаты:${this!!.replace("Студия","")}"
+        return if (word[0] == '-')
+        {
+            val res = this!!.replace(word.drop(1), "")
+            if (res.replace(" ","") == "") "Не указано" else res
+        }
+        else{
+            if (word.length <= 2) {
+                room = "$room, $word"
+// todo формировать алгоритм комнат
+            }
+            if(this.toString().contains(Regex("Неважно"))) "${this.toString().replace("Неважно","")}$word, "
+            else  "$this$word, "
+        }
+
     }
+
     // CLICKS
-     fun onAddSetClicked(){
+    var viewSets: List<AdSet>? = null
+    val blackList = mutableStateOf(false)
+    val screenState = mutableStateOf("main")
+    private val screens = mutableMapOf<String,Boolean>(
+        "settings" to false,
+        "favourites" to false,
+        "how" to false,
+        "pushes" to false,
+        "main" to false,
+        "sets" to false,
+        "add" to false,
+        "blackList" to false,
+        "advert" to false
+    )
+
+    fun onAddSetClicked(){
         screen_name.value = "Новая подборка"
         selectedSet.value = AdSet(name = "",adverts = getTestSet(), update_interval = 10, caption = null,/* category = null,*/ last_update = null)
         sets.add(selectedSet.value!!)
         setScreenState("add")
     }
-    var viewSets: List<AdSet>? = null
+
     suspend fun onSetSelected(set: AdSet?){
         setScreenState("sets")
         selectedSet.value = set
@@ -516,8 +512,7 @@ class AppViewModel @Inject constructor (
         }
     }
 
-
-     fun onSetChange(name: String, update_interval: Int){
+    fun onSetChange(name: String, update_interval: Int){
         viewModelScope.launch {
             selectedSet.value!!.name = name
             selectedSet.value!!.update_interval = update_interval
@@ -525,19 +520,6 @@ class AppViewModel @Inject constructor (
         }
     }
 
-    val blackList = mutableStateOf(false)
-    val screenState = mutableStateOf("main")
-    private val screens = mutableMapOf<String,Boolean>(
-        "settings" to false,
-        "favourites" to false,
-        "how" to false,
-        "pushes" to false,
-        "main" to false,
-        "sets" to false,
-        "add" to false,
-        "blackList" to false,
-        "advert" to false
-    )
     private fun setScreenState(screen: String?){
         screens.keys.forEach{
             screens[it] = false
@@ -546,9 +528,10 @@ class AppViewModel @Inject constructor (
             screens[screen!!] = true
             screenState.value = screen
         }catch (e:Exception){
-           // Log.d("ScreenState","screen value is $screen (main screen)")
+            Log.d("ScreenState","screen value is $screen (main screen)")
         }
     }
+
     fun onFavouritesClick(){
         screen_name.value = "Избранное"
         favourites.value = !favourites.value
@@ -561,11 +544,13 @@ class AppViewModel @Inject constructor (
         settings.value = !settings.value
         setScreenState("settings")
     }
+
     fun onPushesClick(){
         screen_name.value = "История уведомлений"
         pushes.value = !pushes.value
         setScreenState("pushes")
     }
+
     fun onBlackListClick(){
         screen_name.value = "Черный список"
         blackList.value = !blackList.value
@@ -577,11 +562,13 @@ class AppViewModel @Inject constructor (
         settings.value = !howItWork.value
         setScreenState("how")
     }
+
     fun onAdSelected(advert: Advert){
         setScreenState("advert")
         selectedAd.value = advert
         screen_name.value = advert.name.toString()
     }
+
     fun onBackClick(){
         if(favourites.value && selectedAd.value != null){
             selectedAd.value = null
@@ -603,8 +590,7 @@ class AppViewModel @Inject constructor (
                 setScreenState("sets")
                 return
             }else{
-                if(hasChanged()){ // todo чекнуть чтобы бд читалась только при изменениях
-                  //  Log.d("CancelUpdating","it has changes, it was canceled")
+                if(hasChanged()){
                     viewModelScope.launch {
                         appUseCase.setsFlow().collect{
                             adSet.value = it
@@ -624,7 +610,6 @@ class AppViewModel @Inject constructor (
     }
 
     private fun hasChanged(): Boolean{
-       // return selectedSet.value?.name == "" ||
          return edited_set?.name != selectedSet.value?.name||
                 edited_set?.adverts?.size != selectedSet.value?.adverts?.size||
                 edited_set?.update_interval != selectedSet.value?.update_interval
@@ -644,18 +629,7 @@ class AppViewModel @Inject constructor (
             }
         }
     }
-    private fun  Map<String, Map<String, SnapshotStateMap<String, Boolean>>>.restartWithLivingType(type: String?){
-        this.values.forEach{ it ->
-            it.values.forEach{params ->
-                params.keys.forEach{
-                    params[it] = false
-                }
-            }
-        }
-        this["realEstate"]!!["livingType"]!![type!!] = true
-    }
 
-    // todo обнулять параметры на false после отмены searching
     var parameters = mapOf(
         "realEstate" to mapOf(
             "apartment" to mutableStateMapOf(

@@ -5,11 +5,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.AdSetWithAdverts
-import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.AdSetWithAdverts
+import ru.amalkoott.advtapp.domain.entities.Advert
 import ru.amalkoott.advtapp.domain.AppRepository
-import ru.amalkoott.advtapp.domain.BlackList
+import ru.amalkoott.advtapp.domain.entities.BlackList
 import javax.inject.Inject
 
 class AppRepositoryDB @Inject constructor(

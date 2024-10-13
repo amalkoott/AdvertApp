@@ -22,8 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LoadScreen(value: Boolean, isSuccessful: MutableState<Boolean?>, cancelSearch: () -> Unit) {
-    var loading by remember { mutableStateOf(value) }
+fun LoadScreen(isSuccessful: MutableState<Boolean?>, cancelSearch: () -> Unit) {
     var isSearching by remember { isSuccessful}
 
     Column(
@@ -36,12 +35,10 @@ fun LoadScreen(value: Boolean, isSuccessful: MutableState<Boolean?>, cancelSearc
             Text(text = "Попробуйте поменять фильтры или выполните поиск позже...")
             Button(onClick = {
                 cancelSearch()
-                //loading = false
             }) {
                 Text("Назад")
             }
         }else{
-
             Column(modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center) {
@@ -56,8 +53,6 @@ fun LoadScreen(value: Boolean, isSuccessful: MutableState<Boolean?>, cancelSearc
                     Text(text = "Ищем объявления...")
                 }
             }
-
-
         }
     }
 }

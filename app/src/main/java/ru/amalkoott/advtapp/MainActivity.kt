@@ -1,7 +1,6 @@
 package ru.amalkoott.advtapp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -33,12 +32,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.Preferences
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.Flow
 import ru.amalkoott.advtapp.di.AppModule
 import ru.amalkoott.advtapp.domain.Constants
-import ru.amalkoott.advtapp.domain.preferenceTools.AppPreferences
 import ru.amalkoott.advtapp.ui.advert.screen.AdSetScreen
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 import ru.amalkoott.advtapp.ui.theme.AdvtAppTheme

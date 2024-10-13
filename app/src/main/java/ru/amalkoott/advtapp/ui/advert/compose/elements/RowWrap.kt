@@ -1,4 +1,4 @@
-package ru.amalkoott.advtapp.ui.advert.compose
+package ru.amalkoott.advtapp.ui.advert.compose.elements
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable

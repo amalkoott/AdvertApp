@@ -1,26 +1,17 @@
-package ru.amalkoott.advtapp.ui.advert.compose
+package ru.amalkoott.advtapp.ui.advert.compose.elements
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalConsumer
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -61,7 +52,7 @@ fun NullableFilter(name: String, map: SnapshotStateMap<String,Boolean>, setValue
     val scope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.SpaceBetween,
-        modifier = modifier//Modifier.padding(vertical = 16.dp)
+        modifier = modifier
     ) {
         Text(text = name, modifier = Modifier.padding(4.dp), color =  MaterialTheme.colorScheme.onSurfaceVariant)
         RowWrap {

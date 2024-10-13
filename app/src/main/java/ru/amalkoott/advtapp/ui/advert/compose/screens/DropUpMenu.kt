@@ -1,4 +1,4 @@
-package ru.amalkoott.advtapp.ui.advert.compose.screenCompose
+package ru.amalkoott.advtapp.ui.advert.compose.screens
 
 import android.content.Intent
 import android.net.Uri
@@ -31,8 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
-import ru.amalkoott.advtapp.MainActivity
 
 
 @Composable
@@ -70,35 +68,9 @@ fun DropUpMenu(items: Map<String,String>){
         AnimatedVisibility(
             visible = menuOpen,
             modifier = Modifier
-                //.padding(bottom = 40.dp)
                 .offset(y = offsetAnimation)
         ) {
             Column {
-                /*
-                    Button(
-                        onClick = {
-                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://spb.cian.ru/sale/flat/299288213/"))
-                            context.startActivity(browserIntent)},
-                        btnModifier.padding(bottom = 6.dp),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 8.dp
-                        )) {
-                        Text(text = "ЦИАН")
-                    }
-
-
-                    Button(
-                        onClick = {
-                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.avito.ru/sankt-peterburg/kvartiry/1-k._kvartira_31_m_14_et._3923473055"))
-                            context.startActivity(browserIntent)},
-                        btnModifier.padding(bottom = 6.dp),
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 8.dp
-                        )) {
-                        Text(text = "Авито")
-                    }
-
-                */
                 items.entries.forEach {
                     Button(
                         onClick = {

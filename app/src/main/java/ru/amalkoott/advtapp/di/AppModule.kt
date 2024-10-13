@@ -1,9 +1,7 @@
 package ru.amalkoott.advtapp.di
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Room
-import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,9 +15,7 @@ import ru.amalkoott.advtapp.data.local.AppDao
 import ru.amalkoott.advtapp.data.local.AppDatabase
 import ru.amalkoott.advtapp.data.remote.ServerAPI
 import ru.amalkoott.advtapp.data.remote.ServerRequestsRepository
-import ru.amalkoott.advtapp.domain.AppRepository
-import ru.amalkoott.advtapp.domain.AppUseCase
-import ru.amalkoott.advtapp.domain.preferenceTools.AppPreferences
+import ru.amalkoott.advtapp.domain.preference.AppPreferences
 import ru.amalkoott.advtapp.domain.worker.StartWorker
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
@@ -49,8 +45,8 @@ object AppModule {
     @Provides
     fun provideInternetConnection(httpClient: OkHttpClient): Retrofit{
         return Retrofit.Builder()
-            //.baseUrl("http://192.168.56.1:8080")
-           // .baseUrl("http://10.0.2.2:8080")
+            //.baseUrl("http://192.168.56.1:8080") // avd
+            //.baseUrl("http://10.0.2.2:8080") // genymotion
             .baseUrl("http://185.178.47.135:8080")
             .client(httpClient)
             .addConverterFactory(GsonConverterFactory.create())
@@ -70,14 +66,12 @@ object AppModule {
             AppDatabase::class.java,"app_database"
         ).fallbackToDestructiveMigration()
             .build()
-    //    Log.d("PROVIDE_DAO_ID_DATABASE_TEST",db.toString())
         return db
     }
 
     @Singleton
     @Provides
     fun provideAppDao(db: AppDatabase): AppDao{
-      //  Log.d("PROVIDE_DAO_ID_DATABASE_TEST",db.toString())
         return db.notesDao()
     }
 

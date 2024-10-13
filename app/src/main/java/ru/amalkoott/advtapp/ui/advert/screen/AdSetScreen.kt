@@ -4,9 +4,6 @@ package ru.amalkoott.advtapp.ui.advert.screen
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.provider.ContactsContract.CommonDataKinds.StructuredName
-import android.util.JsonToken
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,25 +20,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +40,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -60,37 +49,27 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Observer
-import com.google.gson.annotations.Until
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import ru.amalkoott.advtapp.MainActivity
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.Advert
-import ru.amalkoott.advtapp.domain.BlackList
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.Advert
+import ru.amalkoott.advtapp.domain.entities.BlackList
 import ru.amalkoott.advtapp.domain.Constants
 import ru.amalkoott.advtapp.domain.getFromUrl
-import ru.amalkoott.advtapp.domain.notification.sendBadNotification
-import ru.amalkoott.advtapp.domain.notification.sendGeoNotification
-import ru.amalkoott.advtapp.domain.notification.sendNotification
-import ru.amalkoott.advtapp.domain.preferenceTools.AppPreferences
-import ru.amalkoott.advtapp.ui.advert.compose.DropMenu
-import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.DrawFAB
-import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.DropUpMenu
+import ru.amalkoott.advtapp.ui.advert.compose.elements.DropMenu
+import ru.amalkoott.advtapp.ui.advert.compose.screens.DrawFAB
+import ru.amalkoott.advtapp.ui.advert.compose.screens.DropUpMenu
 import ru.amalkoott.advtapp.ui.advert.view.AppViewModel
 
 //@TODO splash screen https://www.google.com/search?q=splash+screen+compose+android&oq=splash+screen+comp&gs_lcrp=EgZjaHJvbWUqDAgCEAAYFBiHAhiABDIHCAAQABiABDIGCAEQRRg5MgwIAhAAGBQYhwIYgAQyBwgDEAAYgAQyCAgEEAAYFhgeMggIBRAAGBYYHjIKCAYQABgPGBYYHjIKCAcQABgPGBYYHjIICAgQABgWGB4yCAgJEAAYFhge0gEIOTQxOWowajeoAgCwAgA&sourceid=chrome&ie=UTF-8#fpstate=ive&vld=cid:57e4cdbe,vid:VTRz-8DPowM,st:0
@@ -104,7 +83,6 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
 
     val favs by vm.favList.collectAsState()
     val blackList by vm.blackLists.collectAsState()
-    //...
 
     val roomsText by remember {
         mutableStateOf(vm.roomsText)
@@ -266,15 +244,15 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawSheet(scope,drawerState,favouritesClick, settingsClick, notificationClick, howItWorkClick)
+            DrawSheet(scope,drawerState,favouritesClick, settingsClick, howItWorkClick)
         },
     ) {
         if (loading.value){
-            LoadScreen(value = true, isSuccessful = successfulSearch, cancelSearch = onCancelSearch)
+            LoadScreen(isSuccessful = successfulSearch, cancelSearch = onCancelSearch)
         }else{
             Scaffold(
                 topBar = {
-                    DrawTopBar(screen_name,selected,selectedAd,removeSelectedAd,onDeleteSet, onUpdateSet,favourites,settings, onBackClick ,scope, drawerState, setContext, screenState)
+                    DrawTopBar(screen_name,selected,selectedAd,removeSelectedAd,onDeleteSet, onUpdateSet, onBackClick ,scope, drawerState, setContext, screenState)
                 },
                 floatingActionButton = {
                     if((screenState.value == "main")||(screenState.value == "add")||(screenState.value == "sets"))
@@ -282,7 +260,6 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
                 },
                 bottomBar = {
                     if(selectedAd.value!= null){
-                        // todo фикс url
                         val array = selectedAd.value!!.URLs
                         if(array != null) DropUpMenu(Constants.SITES.getFromUrl(array))
                     }
@@ -292,7 +269,7 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
                     when(screenState.value){
                         "favourites" -> {
                             if(selectedAd.value == null){
-                                PrintFavourites(favs, deleteFavourites, selectedAd, selectAd)
+                                PrintFavourites(favs, deleteFavourites, selectAd)
                             }else{
                                 PrintAdvert(selectedAd)
                             }
@@ -302,14 +279,13 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
                         "blackList" -> PrintBlackList(blackList, removeFromBlackList)
                         "how" -> PrintHowItWorkScreen()
                         "advert" -> PrintAdvert(selectedAd)
-                       // "sets" ->PrintSet(sets, selected, selectSet, adsCount)
-                        "main" -> PrintSet(sets, selected, selectSet, adsCount)
+                        "main" -> PrintSet(sets, selectSet, adsCount)
                         else -> {}
                     }
                 } else {
                     // создаем новую подборку
                     val ads = vm.adsMap[selected.value!!.id]
-                    AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,search,filterFunctions,createSearching,category,dealType,flatType,city,travel, filterParameters, setContext, roomsText)//vm.temp_ads)//, getAdverts)
+                    AddSet(setChange,selected,selectAd,removeAd,selectedAd, addFavourites,ads,filterFunctions,createSearching,category,dealType,flatType,city,travel, filterParameters, setContext, roomsText)//vm.temp_ads)//, getAdverts)
                 }
             } 
         }
@@ -319,13 +295,9 @@ fun AdSetScreen(vm: AppViewModel, token: State<Boolean>) {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PrintSet(sets: List<AdSet>,
-             selected: MutableState<AdSet?>,
              selectSet: (AdSet)-> Unit,
              adsCount: (Long)-> MutableStateFlow<Int>
 ){
-    val context = LocalContext.current
-    var notify by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     if (sets.size == 0){
 
         Column(Modifier.fillMaxSize(),
@@ -345,26 +317,6 @@ fun PrintSet(sets: List<AdSet>,
                 .background(MaterialTheme.colorScheme.background)
                 .padding(top = 64.dp, bottom = 8.dp, start = 8.dp, end = 8.dp)
         ){
-            /*
-            item(){
-
-                Button(onClick = { sendNotification(context,"Найдены новые объявления!","Подборка Sale flat обновилась! Нажмите, чтобы посмотреть...") }) {
-
-                }
-            }
-            item(){
-
-                Button(onClick = { sendBadNotification(context) }) {
-
-                }
-            }
-            item(){
-
-                Button(onClick = { sendGeoNotification(context) }) {
-
-                }
-            }
-            */
             items(sets){
                     set ->
                 Card(
@@ -411,8 +363,7 @@ fun PrintSet(sets: List<AdSet>,
                                     color = MaterialTheme.colorScheme.tertiaryContainer, // Укажите желаемый цвет
                                     width = 1.dp // Укажите толщину рамки
                                 ),
-                                onClick = { //Log.d(set.update_interval.toString(), "hello world")
-                                          },
+                                onClick = { },
                                 label = {
                                     Text(getTime(set.update_interval), color = MaterialTheme.colorScheme.tertiary, fontWeight = FontWeight.SemiBold)},//MaterialTheme.colorScheme.surfaceVariant) },
                             )
@@ -434,13 +385,7 @@ fun PrintSet(sets: List<AdSet>,
         }
     }
 }
-private fun getTime(interval: Int?):String{
-    return try {
-        if (interval!!/60 < 1) "$interval мин." else "${interval/60} час."
-    } catch (e: Exception){
-        "???"
-    }
-}
+
 
 @Composable
 fun DrawSheet(
@@ -448,7 +393,6 @@ fun DrawSheet(
     drawerState: DrawerState,
     favouritesClick: () -> Unit,
     settingsClick: () -> Unit,
-    notificationClick: () -> Unit,
     howItWorkClick: () -> Unit,
 ) {
     // todo отключить боковое меню на всех экранах, кроме главного
@@ -471,22 +415,6 @@ fun DrawSheet(
                 }
                 favouritesClick()
             })
-        /*
-        NavigationDrawerItem(
-            label = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Notifications, contentDescription = "Push", tint = MaterialTheme.colorScheme.onPrimary)
-                    Text(text = "Уведомления", modifier = Modifier.padding(start = 8.dp), color = MaterialTheme.colorScheme.onPrimary)
-                }
-            },
-            selected = false,
-            onClick = {
-                scope.launch {
-                    drawerState.apply { if (isOpen) close() else open() }
-                }
-                notificationClick()
-            })
-        */
         NavigationDrawerItem(
             label = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -529,8 +457,6 @@ fun DrawTopBar(
     removeSelectedAd: () -> Unit,
     onDeleteSet: () -> Unit,
     onUpdateSet: () -> Unit,
-    favourites: MutableState<Boolean>,
-    settings: MutableState<Boolean>,
     onBackClick: () -> Unit,
     scope: CoroutineScope,
     drawerState: DrawerState,

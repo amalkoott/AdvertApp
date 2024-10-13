@@ -3,7 +3,7 @@ package ru.amalkoott.advtapp.domain.typeconverter
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.domain.entities.Advert
 
 class AdvertsListConverter {
     @TypeConverter

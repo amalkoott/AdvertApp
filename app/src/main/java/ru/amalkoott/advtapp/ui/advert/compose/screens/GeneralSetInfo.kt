@@ -1,6 +1,6 @@
-package ru.amalkoott.advtapp.ui.advert.compose.screenCompose
+package ru.amalkoott.advtapp.ui.advert.compose.screens
 
-import android.util.Log
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -24,23 +23,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
+import ru.amalkoott.advtapp.domain.entities.AdSet
 
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    var update_interval by remember { mutableStateOf(selected.value!!.update_interval) }
     var name by remember { mutableStateOf(selected.value!!.name) }
 
     Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.surfaceVariant)
@@ -106,7 +99,6 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                //.padding(32.dp)
             ) {
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -133,7 +125,6 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
                         modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                     ) {
                         times.values.forEach{item ->
-                        //items.forEach { item ->
                             DropdownMenuItem(
                                 text = { Text(text = item) },
                                 onClick = {
@@ -150,49 +141,10 @@ fun GeneralSetInfo(selected: MutableState<AdSet?>, setChange: suspend ()-> Unit,
                 if (!expanded) {
                     if (selectedText!!.contains("мин"))
                         selected.value!!.update_interval = time
-                    else selected.value!!.update_interval = time*60//setCategory(selectedText)
+                    else selected.value!!.update_interval = time*60
                 }
-
-               // Log.d("interval","${selected.value!!.update_interval}")
             }
         }
-        /*
-        TextField(
-            value = update_interval.toString(),
-            onValueChange = {
-                    try{
-                        update_interval = it.toInt()
-                        selected.value!!.update_interval = it.toInt()
-                    }catch (e: NumberFormatException){
-                        // если интервал не указан, то идет значение по умолчанию
-                        update_interval = 10
-                        selected.value!!.update_interval = 10
-                    }
-                scope.launch {
-                    setChange()
-                }
-            },
-            label = { Text("Интервал обновления",
-                color = MaterialTheme.colorScheme.onSurfaceVariant) },
-            placeholder = { Text(
-                text = "Введите значение",
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.surface
-            ),
-            textStyle = MaterialTheme.typography.bodyLarge
-                .copy(color = MaterialTheme.colorScheme.onSurface),
-            modifier = Modifier
-                .padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 8.dp,
-                )
-                .fillMaxWidth()
-        )
-        */
     }
 
 }

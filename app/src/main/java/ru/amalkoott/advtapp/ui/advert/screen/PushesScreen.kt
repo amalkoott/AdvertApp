@@ -6,5 +6,5 @@ import androidx.compose.runtime.Composable
 @Composable
 fun PrintPushes()
 {
-    Text( text = "hiw")
+    Text( text = "it's pushes time!")
 }

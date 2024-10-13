@@ -3,9 +3,9 @@ package ru.amalkoott.advtapp.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.Advert
-import ru.amalkoott.advtapp.domain.BlackList
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.Advert
+import ru.amalkoott.advtapp.domain.entities.BlackList
 import ru.amalkoott.advtapp.domain.typeconverter.AdvertsListConverter
 import ru.amalkoott.advtapp.domain.typeconverter.DateConverter
 

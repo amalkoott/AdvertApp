@@ -1,5 +1,6 @@
-package ru.amalkoott.advtapp.ui.advert.compose.screenCompose
+package ru.amalkoott.advtapp.ui.advert.compose.screens
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,9 +49,10 @@ import androidx.compose.ui.zIndex
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import ru.amalkoott.advtapp.R
-import ru.amalkoott.advtapp.domain.Advert
+import ru.amalkoott.advtapp.domain.entities.Advert
 import ru.amalkoott.advtapp.ui.advert.screen.ImageFromUrl
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
             selectAd: (Advert)-> Unit,
@@ -78,7 +79,6 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
             columns = GridCells.Fixed(1),
             modifier = Modifier
                 .fillMaxHeight()
-                //.padding(top = 176.dp)
                 .background(Color.Transparent)
                 .padding(start = 32.dp, end = 32.dp))
         // Карточки с картинками
@@ -94,7 +94,6 @@ fun SetInfo(ads: MutableStateFlow<List<Advert>>?,
                 scope.launch{ advert.saveImages()}
                 Card(
                     colors = CardDefaults.cardColors(
-                        //containerColor = MaterialTheme.colorScheme.surfaceTint,
                         containerColor = MaterialTheme.colorScheme.surface
                     ),
                     modifier = Modifier

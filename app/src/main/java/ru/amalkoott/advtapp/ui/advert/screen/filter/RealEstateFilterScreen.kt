@@ -1,32 +1,23 @@
-package ru.amalkoott.advtapp.ui.advert.screen.filterScreen
+package ru.amalkoott.advtapp.ui.advert.screen.filter
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ru.amalkoott.advtapp.ui.advert.compose.BinaryFilter
-import ru.amalkoott.advtapp.ui.advert.compose.DatePickerFilter
-import ru.amalkoott.advtapp.ui.advert.compose.DropdownAllFilter
-import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
-import ru.amalkoott.advtapp.ui.advert.compose.NonnullableFilter
-import ru.amalkoott.advtapp.ui.advert.compose.NullableAllFilter
-import ru.amalkoott.advtapp.ui.advert.compose.NullableFilter
-import ru.amalkoott.advtapp.ui.advert.compose.RangeFilter
-import ru.amalkoott.advtapp.ui.advert.compose.ShowMoreButton
-import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.GeneralSetFilters
+import ru.amalkoott.advtapp.ui.advert.compose.elements.BinaryFilter
+import ru.amalkoott.advtapp.ui.advert.compose.elements.DatePickerFilter
+import ru.amalkoott.advtapp.ui.advert.compose.elements.DropdownAllFilter
+import ru.amalkoott.advtapp.ui.advert.compose.elements.DropdownFilter
+import ru.amalkoott.advtapp.ui.advert.compose.elements.NonnullableFilter
+import ru.amalkoott.advtapp.ui.advert.compose.elements.NullableAllFilter
+import ru.amalkoott.advtapp.ui.advert.compose.elements.NullableFilter
+import ru.amalkoott.advtapp.ui.advert.compose.elements.RangeFilter
+import ru.amalkoott.advtapp.ui.advert.compose.elements.ShowMoreButton
+import ru.amalkoott.advtapp.ui.advert.compose.screens.GeneralSetFilters
 
 @Composable
 fun RealEstateFilter(funs: Map<String, (String?) -> Unit>,
@@ -77,8 +68,6 @@ fun GeneralRealEstateFilters(
     when(flatType.value){
         "Вторичка" -> {
             // количество комнат
-            //DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в квартире", setCategory = funs["room"]!!)
-
             DropdownAllFilter(items = roomSet, name = "Комнат в квартире", setCategory = funs["room"]!!, text = roomsText)
             FlatFilters(
                 funs["minFloor"]!!,
@@ -118,13 +107,11 @@ fun GeneralRealEstateFilters(
         }
         "Новостройка" -> {
             // количество комнат
-            //NullableAllFilter(name = "Комнат в квартире", map = roomSet/*parameters["room"]!!*/, setValue = funs["room"]!!)
             DropdownFilter(items = roomSet.keys.toTypedArray(), name = "Комнат в квартире", setCategory = funs["room"]!!)
 
             LayoutFilters(
                 funs["finish"]!!,
-                parameters["finish"]!!,
-                isShowMore)
+                parameters["finish"]!!)
         }
         "Дом, дача" -> {
             toiletSet = parameters["countryToilet"]!!
@@ -137,8 +124,7 @@ fun GeneralRealEstateFilters(
                 funs["repair"]!!,
                 funs["communication"]!!,
                 parameters["repair"]!!,
-                parameters["communications"]!!,
-                isShowMore)
+                parameters["communications"]!!)
         }
     }
 
@@ -235,7 +221,6 @@ fun CountryFilters(
     setCommunication: (String?) -> Unit,
     repair: MutableMap<String, Boolean>,
     communications: MutableMap<String,Boolean>,
-    isShowMore: MutableState<Boolean>
 ){
 
     val repairPairs = remember { mutableStateOf(repair) }
@@ -249,7 +234,6 @@ fun CountryFilters(
 fun LayoutFilters(
     setFinish: (String?) -> Unit,
     finish: MutableMap<String,Boolean>,
-    isShowMore: MutableState<Boolean>
 ){
     val finishPairs = remember { mutableStateOf(finish) }
     NullableAllFilter("Отделка", map = finishPairs, setValue = setFinish)//funs["finish"]!!)
@@ -279,11 +263,9 @@ fun RentFilters(
     BinaryFilter(firstValue = "Посуточно", secondValue = "Долго", setRentType)// funs["rent"]!!)
 
     if(true){
-
         // посуточно
         DatePickerFilter()
     }
-
 
     if (isShowMore.value){
         val rentFeaturePairs = remember { mutableStateOf(rentFeatures)    }

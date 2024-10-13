@@ -1,7 +1,6 @@
 package ru.amalkoott.advtapp.ui.advert.screen
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +18,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -32,25 +29,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import ru.amalkoott.advtapp.R
-import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.Advert
-import ru.amalkoott.advtapp.ui.advert.compose.DropdownFilter
-import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.GeneralSetInfo
-import ru.amalkoott.advtapp.ui.advert.compose.screenCompose.SetInfo
-import ru.amalkoott.advtapp.ui.advert.screen.filterScreen.RealEstateFilter
-import ru.amalkoott.advtapp.ui.advert.screen.filterScreen.ServiceFilter
-import ru.amalkoott.advtapp.ui.advert.screen.filterScreen.TransportFilter
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.Advert
+import ru.amalkoott.advtapp.ui.advert.compose.elements.DropdownFilter
+import ru.amalkoott.advtapp.ui.advert.compose.screens.GeneralSetInfo
+import ru.amalkoott.advtapp.ui.advert.compose.screens.SetInfo
+import ru.amalkoott.advtapp.ui.advert.screen.filter.RealEstateFilter
+import ru.amalkoott.advtapp.ui.advert.screen.filter.ServiceFilter
+import ru.amalkoott.advtapp.ui.advert.screen.filter.TransportFilter
 
 // отрисовка выбранной подборки
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSet(
     setChange: suspend () -> Unit,
@@ -60,7 +53,6 @@ fun AddSet(
     selectedAd: MutableState<Advert?>,
     addFavourites: (Advert)-> Unit,
     ads: MutableStateFlow<List<Advert>>?,
-    search: MutableState<RealEstateSearchParameters?>,
     filterFunctions: Map<String,(String?)->Unit>,
     createSearching:()->Unit,
     category: MutableState<String?>,
@@ -72,9 +64,8 @@ fun AddSet(
     setContext: (Context) -> Unit,
     roomsText:MutableState<String>
 ){
-    /*
-    todo beauty drop down https://stackoverflow.com/questions/67111020/exposed-drop-down-menu-for-jetpack-compose
-    */
+    // beauty drop down https://stackoverflow.com/questions/67111020/exposed-drop-down-menu-for-jetpack-compose
+
     Column(modifier = Modifier
         .background(Color.White)
         .padding(top = 60.dp)
@@ -90,7 +81,7 @@ fun AddSet(
 
             // если новая подборка, рисуем фильтры
             if (selected.value!!.adverts!!.isEmpty()){
-                PrintFilters(search,filterFunctions,createSearching,category,dealType,flatType,city,travel, parameters, roomsText)
+                PrintFilters(filterFunctions,createSearching,category,dealType,flatType,city,travel, parameters, roomsText)
             }else{
                 SetInfo(ads,selectAd, removeAd,addFavourites, setContext)
             }
@@ -98,12 +89,10 @@ fun AddSet(
         }
     }
 }
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ImageFromUrl(url: String) {
-    val context = LocalContext.current
     AsyncImage(
-        model = /*Loader(context,url)*/ImageRequest.Builder(context = LocalContext.current)
+        model = ImageRequest.Builder(context = LocalContext.current)
             .data(url)
             .crossfade(true)
             .build()
@@ -113,15 +102,12 @@ fun ImageFromUrl(url: String) {
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier.fillMaxWidth(),
-        onError = {
-           // Log.d("ERROR",it.toString())
-        }
+        onError = { }
     )
 }
 
 @Composable
-fun PrintFilters(search: MutableState<RealEstateSearchParameters?>,
-                 realEstateFunctions: Map<String,(String?)->Unit>,
+fun PrintFilters(realEstateFunctions: Map<String,(String?)->Unit>,
                  createSearching:()->Unit,
                  ctgry: MutableState<String?>,
                  dealType: MutableState<Boolean>,
@@ -150,7 +136,6 @@ fun PrintFilters(search: MutableState<RealEstateSearchParameters?>,
             Modifier
                 .fillMaxHeight()
                 .padding(start = 32.dp, end = 32.dp)
-              //  .background(MaterialTheme.colorScheme.background)
         ){
             item { Spacer(Modifier.padding(16.dp)) }
             item{
@@ -171,7 +156,7 @@ fun PrintFilters(search: MutableState<RealEstateSearchParameters?>,
                         }
                         "Транспорт" -> TransportFilter()
                         "Услуги"-> ServiceFilter()
-                        else -> {}//Log.d("me","me")
+                        else -> { }
                     }
                 }
             }

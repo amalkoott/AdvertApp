@@ -2,7 +2,6 @@ package ru.amalkoott.advtapp.domain.worker
 
 import android.app.Notification
 import android.content.Context
-import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
@@ -12,9 +11,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import ru.amalkoott.advtapp.data.local.AppRepositoryDB
 import ru.amalkoott.advtapp.di.AppModule
-import ru.amalkoott.advtapp.domain.AdSet
-import ru.amalkoott.advtapp.domain.Advert
-import ru.amalkoott.advtapp.domain.BlackList
+import ru.amalkoott.advtapp.domain.entities.AdSet
+import ru.amalkoott.advtapp.domain.entities.Advert
+import ru.amalkoott.advtapp.domain.entities.BlackList
 import ru.amalkoott.advtapp.domain.notification.getNotification
 import ru.amalkoott.advtapp.domain.notification.sendNotification
 import java.time.LocalDate
@@ -123,7 +122,7 @@ class UpdateWorker(context: Context, workerParameters: WorkerParameters) : Corou
         val json = gson.fromJson(inputData.getString("search"), JsonElement::class.java)
         return json
     }
-    private fun getSetFromInputData(): AdSet{
+    private fun getSetFromInputData(): AdSet {
         val set = AdSet()
         val last_update = LocalDate.now()
         set.id = inputData.getString("id")!!.toLong()

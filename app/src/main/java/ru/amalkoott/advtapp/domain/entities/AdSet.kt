@@ -1,14 +1,12 @@
-package ru.amalkoott.advtapp.domain
+package ru.amalkoott.advtapp.domain.entities
 
 import android.util.Log
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.google.gson.Gson
 import com.google.gson.JsonElement
-import kotlinx.coroutines.flow.MutableStateFlow
 import ru.amalkoott.advtapp.data.remote.RealEstateSearchParameters
 import java.time.LocalDate
 
@@ -37,7 +35,7 @@ class AdSet(
             // TODO дописать для остальных атрибутов ...
 
         }catch (e:Exception){
-         //   Log.w("RemoteUpdateSetError",e.message!!)
+            Log.w("RemoteUpdateSetError",e.message!!)
         }
         return parameters
     }

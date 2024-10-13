@@ -1,6 +1,5 @@
-package ru.amalkoott.advtapp.ui.advert.compose
+package ru.amalkoott.advtapp.ui.advert.compose.elements
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +56,6 @@ fun RangeFilter(
                             minValue = Integer.parseInt(it)
                             setMinValue(it)
                         }catch (e:NumberFormatException){
-                            //Log.d("NumberFormatException", "")
                         }
                     }
                 },
@@ -88,7 +83,6 @@ fun RangeFilter(
                             maxValue = Integer.parseInt(it)
                             setMaxValue(it)
                         }catch (e:NumberFormatException){
-                         //   Log.d("NumberFormatException", "")
                         }
                     }
                 },
@@ -123,7 +117,7 @@ fun RangeFilter(
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.Start,
-        modifier = modifier//Modifier.padding(vertical = 16.dp)
+        modifier = modifier
     ) {
         Text(
             text = name,
@@ -141,7 +135,6 @@ fun RangeFilter(
                             minValue = Integer.parseInt(it)
                             setMinValue(it)
                         }catch (e:NumberFormatException){
-                           // Log.d("NumberFormatException", "")
                         }
                     }
                 },
@@ -169,7 +162,6 @@ fun RangeFilter(
                             maxValue = Integer.parseInt(it)
                             setMaxValue(it)
                         }catch (e:NumberFormatException){
-                           // Log.d("NumberFormatException", "")
                         }
                     }
                 },
